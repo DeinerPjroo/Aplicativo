@@ -1,0 +1,634 @@
+/* importar Fonts POPPINS */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+
+/*Paleta de colores*/
+.paleta{
+    color: #c74635;
+    color: #E2604f;
+    color: #f1a036;
+    color: #d3892e;
+    color: #2db0b2;
+    color: #269696;
+}
+
+.fondo {
+    background-image: url(../Imagen/Foto_Uniguajira.webp);
+    background-size: cover;  /* La imagen cubre toda el área del body */
+    background-position: center;  /* Centra la imagen en el fondo */
+    background-attachment: fixed;  /* Hace que la imagen se quede fija cuando se hace scroll */
+    height: 100vh;  /* Altura completa de la ventana */
+    width: 100%;  /* Ancho completo */
+
+    background-size: cover;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+
+}
+/*****************************************************************************************************/
+/*LOGIN*/
+.Panel{
+   
+    background-color: rgba(255, 255, 255, 0.575);
+    color: #c74635;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 600px;
+    width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    
+}
+
+.Login_Label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    max-width: 400px; /* Limita el ancho máximo */
+    margin: 0 auto; /* Centra horizontalmente */
+    gap: 15px; /* Espaciado entre elementos */
+}
+
+
+
+.Panel img{
+    max-height: 200px;
+    max-width: 200px;
+}
+
+.Panel input{
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+}
+
+.Panel .button{
+    align-items: center;
+    width: 35%;
+    padding: 10px;
+    background-color: #c74635;
+    border: #c74b41 2;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.Panel label{
+    align-items: center;
+    font-weight: bold ;
+}
+
+
+.Error {
+    font-weight: bold ;
+    background-color: #26969650;
+    color: #c74635; /* Texto blanco */
+    padding: 5px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    text-align: center; /* Centrar el texto */
+    margin: 10px 0; /* Espaciado externo */
+}
+
+/**************************************************************************/
+
+/* CSS del sidebar*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", "sans-serif";
+
+}
+
+
+
+/* Body de registro o interfaz de inicio
+del administrador*/
+.Registro{
+    min-height: 100vh;
+    background-image: url(../Imagen/Fondo_Universidad.png);
+
+}
+
+
+/*colocar fondo con degradado*/
+/*background: linear-gradient(#f1faff, #c74635);*/
+
+/*Diseño de la barra lateral*/
+.sidebar{
+
+    background: #d3892e;
+    width: 270px;
+    margin: 16px;
+    position: fixed;
+    border-radius: 16px;
+    height: calc(100vh - 32px);
+    transition: 0.4s ease;
+}
+.sidebar.collapsed{
+    width: 85px;
+}
+
+
+
+.sidebar-header{
+    position: relative;
+    display: flex;
+    padding: 25px 20px;
+    align-items: center;
+    justify-content: space-between;
+}
+.sidebar-header .header-logo img{
+width: 70px;
+height: 90px;
+object-fit: contain;
+border-radius: 50%;
+display: block;
+}
+
+.sidebar-header .toggler{
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+height: 35px;
+width: 35px;
+background: #fff;
+border: none;
+border-radius: 8px;
+color: #d3892e;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: 0.5s ease;
+}
+
+.sidebar-header .sidebar-toggler{
+    position: absolute;
+    right: 20px;
+}
+
+
+.sidebar.collapsed .sidebar-header .sidebar-toggler{
+    transform: translate(-4px, 65px);
+}
+
+.sidebar-header .sidebar-toggler span{
+    transition: 0.5s ease;
+font-size: 1.75rem;
+}
+.sidebar-header .toggler:hover{
+    background: rgb(214, 214, 214);
+}
+
+.sidebar-header .menu-toggler{
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-header .sidebar-toggler span{
+    transform: rotate(90deg);
+}
+
+/*********************************************************************************/
+
+
+/* Ajustar el tamaño de las opciones cuando se minimiza el panel*/
+.sidebar-nav .nav-list{
+    list-style: none;
+    display: flex;
+    gap: 4px;
+    padding: 0 15px;
+    flex-direction: column;
+    transform: translateY(15px);
+    transition: 0.4s ease;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-primero {
+    transform: translateY(65px);
+}
+.sidebar-nav .nav-link{
+    color: #fff;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    gap: 12px;
+    white-space: nowrap;
+    padding: 12px 15px;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.sidebar-nav .nav-link:hover{
+    color: #d3892e;
+    background-color: #fff;
+}
+
+.sidebar-nav .nav-link .nav-label{
+    transition: opacity 0.4s ease;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-link .nav-label{
+    opacity: 0;
+    pointer-events: none;
+}
+
+/********************************************************************************/
+/*Ajustar el tamaño del logo si se cierra el apartado */
+
+.sidebar-header .header-logo img{
+    transition: 0.4s ease;
+
+}
+.sidebar.collapsed .sidebar-header .header-logo img{
+    width: 50px;
+    height: 50px;
+    pointer-events: none;
+}
+/*********************************************************************************/
+
+.sidebar-nav .nav-segundo{
+
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+}
+
+.sidebar-nav .nav-item{
+    position: relative;
+}
+.sidebar-nav .nav-tooltip{
+    color: #d3892e;
+    opacity: 0;
+    pointer-events: none;
+    background: #fff;
+    display: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    position: absolute;
+    left: calc(100% + 25px);
+    top: -10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    transition: 0s;
+}
+
+.sidebar-nav .nav-item:hover  .nav-tooltip{
+    opacity: 12;
+    pointer-events: auto;
+    transform: translateY(50%);
+    transition: 0.04s ease;
+}
+
+.sidebar.collapsed .sidebar-nav .nav-tooltip{
+    display: block;
+}
+/*Para actualizarse con el tamaño de la pantalla*/
+@media(max-width: 500px) {
+    .sidebar {
+        height: 50px;
+        overflow: hidden;
+        margin: 10px;
+        scrollbar-width: none;
+        width: calc(100% - 20px);
+        max-height: calc(100vh - 20px);
+    }
+
+    .sidebar .menu-active {
+        overflow: auto;
+    }
+
+    .sidebar-header {
+        justify-content: center;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #d3892e;
+        padding: 5px 8px;
+        border-radius: 12px;
+    }
+
+    .sidebar-header .header-logo img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sidebar-header .sidebar-toggler {
+        display: none;
+    }
+
+    .sidebar-header .menu-toggler {
+        display: flex;
+        height: 25px;
+        width: 25px;
+    }
+
+    .sidebar-header .menu-toggler span {
+        font-size: 1.1rem;
+    }
+
+    .sidebar-nav .nav-list {
+        padding: 0 8px;
+    }
+
+    .sidebar-nav .nav-link {
+        gap: 8px;
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .sidebar-nav .nav-link .nav-icon {
+        font-size: 1.2rem;
+    }
+
+    .sidebar-nav .nav-segundo {
+        position: relative;
+        bottom: 0;
+        margin: 30px 0 20px;
+    }
+}
+
+/****Aqui comienzo con el resto ( lo que esta fuera del sidebar)*/
+
+.Encabezado h1{
+    font-size: 35px;
+    
+    color: #fff;
+    background: #d3892e;
+    border-bottom-right-radius: 10px;
+    margin-left:  16px; ;
+    height: 75px;
+    padding-top: 10px;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*Formulario*/
+
+.Panel_formulario {
+    margin: 0 auto; /* Centra horizontalmente */
+    position: absolute; /* Permite centrar verticalmente */
+    top: 50%; /* Posiciona el centro del formulario */
+    left: 50%; /* Posiciona el centro del formulario */
+    transform: translate(-50%, -50%); /* Ajusta para centrar completamente */
+    background-color: rgba(255, 255, 255, 0.575);
+    color: #c74635;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto; /* Permite scroll si el contenido excede la altura máxima */
+}
+
+.Panel_formulario h2 {
+    text-align: center;
+    color: #0056b3;
+}
+.Panel_formulario label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+.Panel_formulario select, input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.hidden {
+    display: none;
+}
+.Panel_formulario button {
+    width: 100%;
+    padding: 10px;
+    background-color: #E2604f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #c74635;
+}
+
+.button_Error{
+    text-align: center;
+    width: 30%;
+    padding: 10px;
+    background-color: #E2604f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button_Error:hover {
+    background-color: #c74635;
+}
+
+.Panel_formulario img{
+    max-height: 200px;
+    max-width: 200px;
+}
+
+/*Perfil*/
+
+
+.Perfil{
+   
+    background-color: rgba(255, 255, 255, 0.575);
+    color: #c74635;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 600px;
+    width: 900px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+    
+    
+}
+.Perfil img{
+        height: 400px;
+        width: 400px;
+        border-radius:500%;
+}
+
+.Perfil label{
+    font-weight: bold ;
+    color: #c74635;
+    font-size: 20px;
+    margin-top: 10px;
+}
+.Panel-Perfil {
+    background-image: url(I../Imagen/Fondo_Universidad.png);
+    background-size: cover;  /* La imagen cubre toda el área del body */
+    background-position: center;  /* Centra la imagen en el fondo */
+    background-attachment: fixed;  /* Hace que la imagen se quede fija cuando se hace scroll */
+    height: 100vh;  /* Altura completa de la ventana */
+    width: 100%;  /* Ancho completo */
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+
+}
+
+/*Estilo para tabla de reservas de los usaurios*/
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.contenedor-reservas {
+    margin-left: 120px !important;
+    width: 90%;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.contenedor-reservas h2 {
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.tabla-reservas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-reservas th, .tabla-reservas td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-reservas th {
+    background-color:rgb(45, 158, 178);
+    color: white;
+    font-weight: 600;
+}
+
+.tabla-reservas tr:hover {
+    background-color: #f5f5f5;
+}
+
+.status-pendiente {
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: #ffc107;
+    color: #212529;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-confirmada {
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.sin-reservas {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.btn-cancelar {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-cancelar:hover {
+    background-color: #c82333;
+}
+
+.btn-confirmar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-confirmar:hover {
+    background-color:rgb(34, 146, 60);
+}
+
+.btn-nueva-reserva {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 20px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.btn-nueva-reserva:hover {
+    background-color: #0069d9;
+}
