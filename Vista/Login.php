@@ -24,7 +24,7 @@
             <label for="usuario">Usuario</label> <br>
             <input type="text" id="usuario" name="usuario" placeholder="Ingresa tu usuario"> <br>
             <label for="contraseña">Contraseña</label> <br>
-            <input type="text" id="contraseña" name="contraseña" placeholder="Ingresa tu contraseña">
+            <input type="password" id="contraseña" name="contraseña" placeholder="Ingresa tu contraseña"> <br>
             <input type="submit"  name="btningresar" class="button" title="Click para ingresar" value="Ingresar"></input>
             
 

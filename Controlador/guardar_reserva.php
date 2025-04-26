@@ -19,6 +19,11 @@ $horaFin = $_POST['horaFin'];
 $id_recurso = $_POST['recurso'];
 $id_docente_asignatura = $_POST['docente_asignatura']; // puede venir vacío si no es docente
 
+// Capturar los datos enviados desde el formulario
+$semestre = $_POST['semestre'] ?? null; // Semestre seleccionado
+$id_programa = $_POST['Programa'] ?? null; // Programa seleccionado
+$id_docente_asignatura = $_POST['docente'] ?? null; // Docente seleccionado
+
 // Verificar si el recurso ya está reservado en ese rango de fecha y hora
 $sql = "SELECT * FROM registro 
         WHERE ID_Recurso = ? AND fechaReserva = ? 
@@ -36,12 +41,12 @@ if ($result->num_rows > 0) {
     exit();
 }
 
-// Insertar la reserva
-$sql = "INSERT INTO registro (ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura) 
-        VALUES (?, ?, ?, ?, ?, ?)";
+// Insertar la reserva con los datos adicionales
+$sql = "INSERT INTO registro (ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura, semestre) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("iisssi", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura);
+$stmt->bind_param("iisssis", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
 
 if ($stmt->execute()) {
     echo "<script>alert('✅ Reserva realizada con éxito'); window.location.href='../Vista/Inicio_Docente.php';</script>";

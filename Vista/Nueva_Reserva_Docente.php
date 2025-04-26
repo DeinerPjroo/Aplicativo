@@ -67,10 +67,10 @@ $fechaActual = date('Y-m-d');
             <input type="date" id="fecha" name="fecha" min="<?php echo $fechaActual; ?>" required>
 
             <label for="horaInicio">Hora de Inicio:</label>
-            <input type="time" id="horaInicio" name="horaInicio" min="07:00" max="21:00" required>
+            <input type="time" id="horaInicio" name="horaInicio" min="06:00" max="19:00" required>
 
             <label for="horaFin">Hora Final:</label>
-            <input type="time" id="horaFin" name="horaFin" min="07:00" max="21:00" required>
+            <input type="time" id="horaFin" name="horaFin" min="06:00" max="20:00" required>
 
             <label for="tipo">Recurso:</label>
             <select id="tipo" name="recurso" required>

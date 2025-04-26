@@ -66,7 +66,7 @@
 }
 
 .Panel input{
-    width: 80%;
+    width: 100%;
     padding: 10px;
     margin: 10px 0;
     border: none;
@@ -75,7 +75,7 @@
 
 .Panel .button{
     align-items: center;
-    width: 35%;
+    width: 60% !important;
     padding: 10px;
     background-color: #c74635;
     border: #c74b41 2;
@@ -399,6 +399,7 @@ font-size: 1.75rem;
     justify-content: center;
     align-items: center;
     width: 600px;
+    height: 900px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     overflow-y: auto; /* Permite scroll si el contenido excede la altura máxima */
@@ -468,17 +469,19 @@ button:hover {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 600px;
+    height: 800px;
     width: 900px;
     border-radius: 10px;
+    margin-top: auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 
     
     
 }
 .Perfil img{
-        height: 400px;
-        width: 400px;
+    color: #c74635;
+        height: 400px !important;
+        width: 400px !important;
         border-radius:500%;
 }
 
@@ -574,6 +577,16 @@ button:hover {
     padding: 5px 10px;
     border-radius: 4px;
     background-color: #28a745;
+    color: white;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.btn-eliminar{
+    background: red;
+    border-radius: 4px;
+    color: white;
+    padding: 3px 8px;
     color: white;
     font-weight: 500;
     display: inline-block;
