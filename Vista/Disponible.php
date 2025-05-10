@@ -31,7 +31,7 @@ checkRole('Administrador');
 
  <!------------------------------------------------------------------------------------->
      <!--SIDEBAR-->
-     <?php include("../Vista/Sidebar.html"); ?>
+     <?php include("../Vista/Sidebar.php"); ?>
 <!------------------------------------------------------------------------------------->
 <section class="Encabezado">
     <h1><center>Revisar Disponibilidad</center></h1>

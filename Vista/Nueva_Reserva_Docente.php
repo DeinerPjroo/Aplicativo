@@ -56,7 +56,7 @@ $fechaActual = date('Y-m-d');
 <body class="Registro">
 
 <!-- SIDEBAR -->
-<?php include("../Vista/Sidebar_Docente.html"); ?>
+<?php include("../Vista/Sidebar.php"); ?>
 
 <section class="Panel_formulario">
     <img src="Imagen/Logo_Universidad1.png" alt="">

@@ -42,20 +42,7 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
  <!------------------------------------------------------------------------------------->
      <!--SIDEBAR-->
      <?php 
-     if ($role === 'Docente') {
-         include("../Vista/Sidebar_Docente.html");
-     } 
-     elseif ($role === 'Administrador') {
-         include("../Vista/Sidebar.html");
-     }
-
-     elseif ($role === 'Administrativo') {
-        include("../Vista/Sidebar_Administrativo.html");
-    }
-
-    elseif ($role === 'Estudiante') {
-            include("../Vista/Sidebar_Estudiante.html");
-        }
+    include("../Vista/Sidebar.php");
      ?>
 <!------------------------------------------------------------------------------------->
 

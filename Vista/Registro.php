@@ -88,7 +88,7 @@ if (!empty($fechaFiltrada)) {
 
     <?php
     // Incluye la barra lateral de navegación.
-    include("../Vista/Sidebar.html");
+    include("../Vista/Sidebar.php");
     ?>
 
     <section class="Topbard">
@@ -109,9 +109,7 @@ if (!empty($fechaFiltrada)) {
         <div class="contenedor-reservas">
             <div class="tituloyboton">
                 <button class="btn-agregar" onclick="abrirModalAgregar()">
-                    <span class="material-symbols-outlined">
-                        add_card
-                    </span>
+                    <img src="../Imagen/Iconos/Agregar_Registro.svg" alt="" />
                     <span class="btn-text">Agregar</span>
                 </button>
 

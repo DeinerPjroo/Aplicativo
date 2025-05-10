@@ -68,57 +68,48 @@ if (isset($_GET['error'])) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/Style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link rel= "webside icon" type="png" href="images/logo.png">
+    <link rel="webside icon" type="png" href="images/logo.png">
     <title>Mis Reservas</title>
 </head>
+
 <body class="Registro">
-    
- <!------------------------------------------------------------------------------------->
-     <!--SIDEBAR-->
-     <?php 
-     if ($role === 'Docente') {
-         include("../Vista/Sidebar_Docente.html");
-     } 
-     elseif ($role === 'Administrador') {
-         include("../Vista/Sidebar.html");
-     }
 
-     elseif ($role === 'Administrativo') {
-        include("../Vista/Sidebar_Administrativo.html");
-    }
+    <!------------------------------------------------------------------------------------->
+    <!--SIDEBAR-->
+    <?php
+    include("../Vista/Sidebar.php");
+    ?>
+    <!------------------------------------------------------------------------------------->
 
-    elseif ($role === 'Estudiante') {
-            include("../Vista/Sidebar_Estudiante.html");
-        }
-     ?>
-<!------------------------------------------------------------------------------------->
 
-    
     <section class="Main">
         <section class="Encabezado">
-            <h1><center>Mis Reservas</center></h1>
+            <h1>
+                <center>Mis Reservas</center>
+            </h1>
         </section>
-        
+
         <div class="contenedor-reservas">
-            <?php 
+            <?php
             // Mostrar mensajes de confirmación o error
             if (!empty($mensaje)) {
                 echo $mensaje;
             }
             ?>
-            
+
             <h2>Reservas Activas</h2>
-            
-            
+
+
             <?php
-            
-            
+
+
             if ($resultado->num_rows > 0) : ?>
                 <table class="tabla-reservas">
                     <thead>
@@ -133,11 +124,11 @@ if (isset($_GET['error'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         $fechaAnterior = null;
                         while ($row = $resultado->fetch_assoc()) :
                             $fechaActual = $row['fechaReserva'];
-                            
+
                             if ($fechaActual !== $fechaAnterior) :
                                 echo "<tr class='separador-dia'>
                                     <td colspan='7' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
@@ -179,13 +170,15 @@ if (isset($_GET['error'])) {
                     <p>No tienes reservas activas en este momento</p>
                 </div>
             <?php endif; ?>
-            
+
             <center>
-                <a href="../Vista/Nueva_Reserva_Docente.php" class="btn-nueva-reserva">
-                    <i class="fas fa-plus"></i> Crear Nueva Reserva
-                </a>
+                <button class="btn-agregar" onclick="window.location.href='<?php echo ($role === 'Estudiante') ? '../Vista/Nueva_Reserva_Estudiante.php' : '../Vista/Nueva_Reserva_Docente.php'; ?>'">
+                    <img src="../Imagen/Iconos/Mas.svg" alt="" />
+                    <span class="btn-text">Crear Nueva Reserva</span>
+                </button>
             </center>
         </div>
     </section>
 </body>
+
 </html>

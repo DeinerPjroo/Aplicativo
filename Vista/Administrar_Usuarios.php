@@ -40,7 +40,7 @@ $programasResult = $conn->query($programasQuery);
 
 <body class="Registro">
 
-    <?php include("../Vista/Sidebar.html"); ?>
+    <?php include("../Vista/Sidebar.php"); ?>
 
     <section class="Main">
         <section class="Encabezado">
@@ -80,9 +80,8 @@ $programasResult = $conn->query($programasQuery);
             <h2>Lista de Usuarios</h2>
 
             <button class="btn-agregar" onclick="openModal('agregar')">
-                <span class="material-symbols-outlined">
-                    person_add
-                </span>
+                <img src=" ../Imagen/Iconos/Agregar_Usuario.svg" alt="" />
+                    
                 <span class="btn-text">Agregar</span>
             </button>
 
