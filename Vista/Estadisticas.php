@@ -34,7 +34,7 @@ checkRole('Administrador');
      <?php include("../Vista/Sidebar.html"); ?>
 <!------------------------------------------------------------------------------------->
 <section class="Encabezado">
-    <h1><center>Estadisticas</center></h1>
+    <h1><center>Estadisticas Mariaaa</center></h1>
      </section>
      <section class="Table">
         <Table></Table>

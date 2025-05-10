@@ -67,10 +67,10 @@ $fechaActual = date('Y-m-d');
             <input type="date" id="fecha" name="fecha" min="<?php echo $fechaActual; ?>" required>
 
             <label for="horaInicio">Hora de Inicio:</label>
-            <input type="time" id="horaInicio" name="horaInicio" min="06:00" max="19:00" required>
+            <input type="time" id="horaInicio" name="horaInicio" min="06:00" max="21:00" required>
 
             <label for="horaFin">Hora Final:</label>
-            <input type="time" id="horaFin" name="horaFin" min="06:00" max="20:00" required>
+            <input type="time" id="horaFin" name="horaFin" min="06:00" max="22:00" required>
 
             <label for="tipo">Recurso:</label>
             <select id="tipo" name="recurso" required>
@@ -97,9 +97,22 @@ $fechaActual = date('Y-m-d');
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get("status");
+    const message = urlParams.get("message");
+
+    if (status && message) {
+        Swal.fire({
+            position: "top",
+            icon: status,
+            title: decodeURIComponent(message),
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+
     const fechaInput = document.getElementById("fecha");
     const horaInicioInput = document.getElementById("horaInicio");
     const horaFinInput = document.getElementById("horaFin");
@@ -128,8 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return false;
             }
             
-            if (diffMinutos > 180) {
-                mensajeError.textContent = "La reserva no puede exceder las 3 horas.";
+            if (diffMinutos > 360) { // 3 horas
+                mensajeError.textContent = "La reserva no puede exceder las 6 horas.";
                 mensajeError.style.display = "block";
                 return false;
             }
@@ -140,30 +153,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return true; // Si no se han completado ambos campos, no validamos aún
     };
 
-    // Validar que la fecha no sea fin de semana
-    const validarFinDeSemana = () => {
-        if (fechaInput.value) {
-            const fecha = new Date(fechaInput.value);
-            const diaSemana = fecha.getDay(); // 0 es domingo, 6 es sábado
-            
-            if (diaSemana === 0 || diaSemana === 6) {
-                mensajeError.textContent = "No se permiten reservas en fin de semana.";
-                mensajeError.style.display = "block";
-                return false;
-            }
-            
-            mensajeError.style.display = "none";
-            return true;
-        }
-        return true;
-    };
-
     // Función de validación completa del formulario
     window.validarFormulario = () => {
         const validarDuracion = validarDuracionMinima();
-        const validarFecha = validarFinDeSemana();
-        
-        if (!validarDuracion || !validarFecha) {
+
+        if (!validarDuracion) {
             return false;
         }
         
@@ -174,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Validar al cambiar los campos
     horaInicioInput.addEventListener("change", validarDuracionMinima);
     horaFinInput.addEventListener("change", validarDuracionMinima);
-    fechaInput.addEventListener("change", validarFinDeSemana);
+    fechaInput.addEventListener("change", validarDuracionMinima);
 
     // Función para verificar disponibilidad
     const verificarDisponibilidad = async () => {
@@ -187,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mensajeError.style.display = "none";
 
         // Validar horas antes de consultar disponibilidad
-        if (!validarDuracionMinima() || !validarFinDeSemana()) {
+        if (!validarDuracionMinima()) {
             return;
         }
 
@@ -232,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Error al verificar disponibilidad:", error);
                 Swal.fire({
                     icon: "error",
-                    title: "Error de conexión",
+                    title: "Error",
                     text: "No se pudo verificar la disponibilidad. Intente nuevamente."
                 });
             }

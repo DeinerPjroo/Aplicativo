@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('America/Bogota');
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo "<script>alert('Acceso no permitido'); window.location.href='../Vista/Nueva_Reserva_Usuario.php';</script>";
     exit();
@@ -37,7 +39,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     // Recurso ocupado
-    echo "<script>alert('⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.'); window.history.back();</script>";
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=warning&message=⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.");
     exit();
 }
 
@@ -49,8 +51,9 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("iisssis", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
 
 if ($stmt->execute()) {
-    echo "<script>alert('✅ Reserva realizada con éxito'); window.location.href='../Vista/Inicio_Docente.php';</script>";
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=success&message=✅ Reserva realizada con éxito");
 } else {
-    echo "<script>alert('❌ Error al guardar la reserva'); window.history.back();</script>";
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=error&message=❌ Error al guardar la reserva");
 }
+exit();
 ?>

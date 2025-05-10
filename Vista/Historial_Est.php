@@ -1,4 +1,7 @@
 <?php
+date_default_timezone_set('America/Bogota');
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252');
+
 include("../Controlador/control_De_Rol.php");
 checkRole(['Docente', 'Estudiante', 'Administrador', 'Administrativo']); // Solo usuarios con rol pueden acceder
 
@@ -25,7 +28,7 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Historial</title>
     <link rel="stylesheet" href="../css/Style.css">
     <!--Link de google font (iconos)-->
 
@@ -121,8 +124,24 @@ $result = $stmt->get_result();
 
 // Mostrar los resultados en la tabla
 if ($result->num_rows > 0) {
+    $fechaAnterior = null;
+    
     while ($row = $result->fetch_assoc()) {
-        echo "<tr>
+        if ($row['estado'] === 'Confirmada' || $row['estado'] === 'Cancelada') {
+            $fechaActual = $row['fechaReserva'];
+            
+            // Si la fecha es diferente, mostrar el separador
+            if ($fechaActual !== $fechaAnterior) {
+                echo "<tr class='separador-dia'>
+                    <td colspan='10' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                        📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+                    </td>
+                </tr>";
+                $fechaAnterior = $fechaActual;
+            }
+            
+            // Mostrar la fila de datos
+            echo "<tr>
                 <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
                 <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
                 <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
@@ -133,7 +152,8 @@ if ($result->num_rows > 0) {
                 <td>" . htmlspecialchars($row['programa']) . "</td>
                 <td>" . htmlspecialchars($row['semestre']) . "</td>
                 <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
-              </tr>";
+            </tr>";
+        }
     }
 } else {
     echo "<tr><td colspan='10' class='sin-reservas'>No hay registros disponibles</td></tr>";

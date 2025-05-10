@@ -14,19 +14,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($fecha && $horaInicio && $horaFin && $id_recurso) {
         // Consulta SQL para verificar si existe un cruce de horarios en las reservas
         $sql = "SELECT * FROM registro 
-                WHERE ID_Recurso = ?  -- Filtra por el recurso específico
-                AND fechaReserva = ?  -- Filtra por la fecha específica
+                WHERE ID_Recurso = ?
+                AND fechaReserva = ?
                 AND (
-                    (horaInicio < ? AND horaFin > ?) OR  -- Verifica si el inicio del nuevo horario se cruza
-                    (horaInicio < ? AND horaFin > ?) OR  -- Verifica si el fin del nuevo horario se cruza
-                    (horaInicio >= ? AND horaFin <= ?)   -- Verifica si el nuevo horario está completamente dentro de otro
+                    (horaInicio < ? AND horaFin > ?) OR
+                    (horaInicio < ? AND horaFin > ?) OR
+                    (horaInicio >= ? AND horaFin <= ?) OR
+                    (? <= horaInicio AND ? >= horaFin)
                 )
-                AND estado != 'Cancelada'";  // Excluye reservas canceladas
+                AND estado != 'Cancelada'";
 
         // Prepara la consulta SQL
         $stmt = $conn->prepare($sql);
         // Asocia los parámetros a la consulta preparada
-        $stmt->bind_param("isssssss", $id_recurso, $fecha, $horaFin, $horaInicio, $horaInicio, $horaFin, $horaInicio, $horaFin);
+        $stmt->bind_param("issssssss", 
+            $id_recurso, 
+            $fecha,
+            $horaFin, $horaInicio,
+            $horaInicio, $horaFin,
+            $horaInicio, $horaFin,
+            $horaInicio, $horaFin
+        );
         // Ejecuta la consulta
         $stmt->execute();
         // Obtiene el resultado de la consulta
@@ -43,3 +51,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ]);
     }
 }
+?>

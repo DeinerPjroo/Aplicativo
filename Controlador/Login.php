@@ -6,9 +6,15 @@ session_start();
 
 // Verificar si ya hay una sesión activa
 if (isset($_SESSION['usuario_id'])) {
-    // Si ya hay sesión, redirigir según el rol guardado
-    redirectByRole($_SESSION['usuario_rol']);
+    // Si ya hay sesión activa, redirigir a la página de inicio
+    header("location:../Vista/Inicio.php");
 }
+
+
+
+
+
+
 
 if (!empty($_POST["btningresar"])) {
     if (!empty($_POST["usuario"]) and !empty($_POST["contraseña"])) {
@@ -34,10 +40,10 @@ if (!empty($_POST["btningresar"])) {
                 $_SESSION['codigo_usuario'] = $usuario_data['Codigo_U'];
                 $_SESSION['usuario_nombre'] = $usuario_data['nombre'];
                 $_SESSION['usuario_correo'] = $usuario_data['correo'];
-                $_SESSION['usuario_rol'] = $usuario_data['nombreRol'];
+                $_SESSION['usuario_rol'] = $usuario_data['nombreRol']; // Asegúrate de que el rol se almacena correctamente
                 
                 // Redirigir según el rol
-                redirectByRole($usuario_data['nombreRol']);
+                header("location:../Vista/Inicio.php");
             } else {
                 echo "<div class='Error'>Contraseña incorrecta</div>";
             }
@@ -49,28 +55,5 @@ if (!empty($_POST["btningresar"])) {
     }
 }
 
-// Función para redireccionar según el rol
-function redirectByRole($rol) {
-    switch ($rol) {
-        case 'Administrador':
-            header("location:../Vista/Inicio.php");
-            break;
-        case 'Estudiante':
-            header("location:../Vista/Inicio.php");
-            break;
-        case 'Docente':
-            // Si no tienes una página específica para docentes, crea una
-                header("location:../Vista/Inicio.php");
-            break;
 
-            case 'Admin':
-                header("location:../Vista/Inicio.php");
-                break;
-        default:
-            // Si no tiene rol o no se reconoce, redirigir a una página predeterminada
-            header("location:../Vista/Login.php");
-            break;
-    }
-    exit();
-}
 ?>

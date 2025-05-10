@@ -1,8 +1,14 @@
 <?php
+
+
+date_default_timezone_set('America/Bogota');
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252');
+
+
 include("../Controlador/control_De_Rol.php");
 checkRole(['Docente', 'Estudiante', 'Administrador', 'Administrativo']); // Allow both roles
 
-$role = getUserRole(); // Asume que esta función devuelve el rol del usuario actual
+$role = getUserRole(); // Asegúrate de que esta función devuelve el rol del usuario actual
 // Incluir conexión a la base de datos
 include("../database/Conexion.php");
 
@@ -31,7 +37,7 @@ $sql = "SELECT r.ID_Registro, r.fechaReserva, r.horaInicio, r.horaFin,
         JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso
         WHERE r.ID_Usuario = ? 
         AND r.fechaReserva >= ? 
-        AND r.estado IN ('Pendiente', 'Confirmada')
+        AND r.estado = 'Confirmada'
         ORDER BY r.fechaReserva ASC, r.horaInicio ASC";
 
 
@@ -127,7 +133,20 @@ if (isset($_GET['error'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $resultado->fetch_assoc()) : ?>
+                        <?php 
+                        $fechaAnterior = null;
+                        while ($row = $resultado->fetch_assoc()) :
+                            $fechaActual = $row['fechaReserva'];
+                            
+                            if ($fechaActual !== $fechaAnterior) :
+                                echo "<tr class='separador-dia'>
+                                    <td colspan='7' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                                        📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+                                    </td>
+                                </tr>";
+                                $fechaAnterior = $fechaActual;
+                            endif;
+                        ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['nombreRecurso']); ?></td>
                                 <td><?php echo date('d/m/Y', strtotime($row['fechaReserva'])); ?></td>
@@ -140,24 +159,17 @@ if (isset($_GET['error'])) {
                                 </td>
                                 <td><?php echo date('d/m/Y H:i', strtotime($row['creado_en'])); ?></td>
                                 <td>
-    <?php if ($row['estado'] === 'Pendiente'): ?>
-        <form method="post" action="../Controlador/confirmar_reserva.php" style="display:inline;">
-            <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
-            <button type="submit" class="btn-confirmar" onclick="return confirm('¿Confirmar esta reserva?');">
-                Confirmar
-            </button>
-        </form>
-        <form method="post" action="../Controlador/Cancelar_Reserva.php" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
-            <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
-            <button type="submit" name="cancelar" class="btn-cancelar">
-                Cancelar
-            </button>
-        </form>
-    <?php else: ?>
-        <span>—</span>
-    <?php endif; ?>
-</td>
-
+                                    <?php if ($row['estado'] === 'Confirmada'): ?>
+                                        <form method="post" action="../Controlador/Cancelar_Reserva.php" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
+                                            <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
+                                            <button type="submit" name="cancelar" class="btn-cancelar">
+                                                Cancelar
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span>—</span>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>

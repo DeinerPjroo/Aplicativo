@@ -1,4 +1,10 @@
 <?php
+
+date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
+
+
+
+
 // Incluye el archivo de conexión a la base de datos.
 include("../database/conexion.php");
 
@@ -7,6 +13,33 @@ include("../Controlador/control_De_Rol.php");
 
 // Verifica que el usuario tenga el rol de 'Administrador', de lo contrario, lo redirige.
 checkRole('Administrador');
+
+setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252');
+
+// Obtener recursos para el filtro
+$recursosResult = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+
+// Verificar si se seleccionó un recurso desde el formulario
+$recursoFiltrado = isset($_GET['filtro_recurso']) ? $_GET['filtro_recurso'] : '';
+// Verificar si se seleccionó una fecha desde el formulario
+
+$fechaFiltrada = isset($_GET['filtro_fecha']) ? $_GET['filtro_fecha'] : '';
+
+
+
+// Construir la condición SQL
+$filtroSQL = "";
+
+if (!empty($recursoFiltrado)) {
+    $filtroSQL .= " AND r.ID_Recurso = '" . $conn->real_escape_string($recursoFiltrado) . "'";
+}
+
+if (!empty($fechaFiltrada)) {
+    $filtroSQL .= " AND r.fechaReserva = '" . $conn->real_escape_string($fechaFiltrada) . "'";
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -19,6 +52,36 @@ checkRole('Administrador');
     <title>Registro</title>
     <link rel="stylesheet" href="../css/Style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .asignaturas-list {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .asignaturas-list div {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .asignaturas-list div:last-child {
+            border-bottom: none;
+        }
+
+        #campoAsignaturas, #campoPrograma, #campoDocente {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 
 <body class="Registro">
@@ -28,16 +91,60 @@ checkRole('Administrador');
     include("../Vista/Sidebar.html");
     ?>
 
-    <section class="Encabezado">
-        <!-- Encabezado de la página -->
-        <h1>
-            <center></center>
-        </h1>
+    <section class="Topbard">
+
+        <input type="text" id="filtroBusqueda" placeholder="Buscar usuario, recurso o asignatura...">
+        <div class="btn-reportes">
+            <button title="Generar reportes de hoy" id="generarReporte" class="btn-reporte"><span class="material-symbols-outlined">
+                    today
+                </span></button>
+            <button title="Generar reportes de mañana" id="generarReporteSiguiente" class="btn-reporte"><span class="material-symbols-outlined">
+                    event_upcoming
+                </span></button>
+        </div>
+
     </section>
 
     <section class="Table">
         <div class="contenedor-reservas">
-            <h2>Registros</h2>
+            <div class="tituloyboton">
+                <button class="btn-agregar" onclick="abrirModalAgregar()">
+                    <span class="material-symbols-outlined">
+                        add_card
+                    </span>
+                    <span class="btn-text">Agregar</span>
+                </button>
+
+                <h2>Registros</h2>
+
+            </div>
+            <form method="GET" class="filtro-form">
+                <label for="filtro_recurso">Filtrar por recurso:</label>
+                <select name="filtro_recurso" id="filtro_recurso" onchange="this.form.submit()">
+                    <option value=""> Todos</option>
+                    <?php
+                    if ($recursosResult->num_rows > 0) {
+                        while ($recurso = $recursosResult->fetch_assoc()) {
+                            $selected = ($recurso['ID_Recurso'] == $recursoFiltrado) ? 'selected' : '';
+                            echo "<option value='" . $recurso['ID_Recurso'] . "' $selected>" . htmlspecialchars($recurso['nombreRecurso']) . "</option>";
+                        }
+                    }
+
+                    ?>
+                </select>
+
+                <!-- CAMPO DE FECHA -->
+                <label for="filtro_fecha">Filtrar por fecha: </label>
+                <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
+
+                <button type="submit" class="btn-filtrar">
+                    <center>Filtrar</center>
+                </button>
+                <a href="Registro.php" class="btn-limpiar">
+                    <center>Quitar filtros</center>
+                </a>
+
+            </form>
             <table class="tabla-reservas">
                 <thead>
                     <!-- Encabezados de la tabla -->
@@ -59,64 +166,138 @@ checkRole('Administrador');
                 <tbody>
                     <?php
                     // Consulta SQL para obtener los registros de reservas con sus relaciones.
+
                     $sql = "SELECT 
-                    r.ID_Registro, -- Asegúrate de incluir el identificador de la reserva.
+                    r.ID_Registro,
                     r.fechaReserva,
                     r.horaInicio,
                     r.horaFin,
                     rc.nombreRecurso,
                     u.nombre AS nombreUsuario,
-                    u.correo AS correoUsuario, -- Incluye el correo del usuario.
-                    COALESCE(doc.nombre, 'Sin docente') AS nombreDocente, -- Si no hay docente, muestra 'Sin docente'.
-                    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura, -- Si no hay asignatura, muestra 'Sin asignatura'.
-                    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa, -- Si no hay programa, muestra 'Sin programa'.
+                    u.correo AS correoUsuario,
                     CASE 
-                        WHEN u.ID_Rol = 1 THEN COALESCE(u.semestre, 'Sin semestre') -- Si el usuario es estudiante, muestra el semestre.
-                        ELSE 'No aplica' -- Si no es estudiante, muestra 'No aplica'.
+                        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
+                        ELSE COALESCE(doc.nombre, 'Sin docente')
+                    END AS nombreDocente,
+                    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+                    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
+                    CASE 
+                        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(u.semestre, 'Sin semestre')
+                        ELSE 'No aplica'
                     END AS semestre,
-                    r.estado -- Estado de la reserva.
+                    r.estado
                 FROM registro r
-                LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario -- Relación con la tabla de usuarios.
-                LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso -- Relación con la tabla de recursos.
-                LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura -- Relación con docente_asignatura.
-                LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario -- Relación con la tabla de usuarios para obtener el docente.
-                LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura -- Relación con la tabla de asignaturas.
-                LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa -- Relación con la tabla de programas.
-                ORDER BY r.fechaReserva DESC, r.horaInicio ASC"; // Ordena por fecha y hora de inicio.
+                LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+                LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
+                LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+                LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
+                LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
+                LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
+                WHERE 1=1 $filtroSQL
+                ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
 
                     // Ejecuta la consulta y obtiene los resultados.
                     $result = $conn->query($sql);
+                    $fechaHoy = date("Y-m-d"); // Obtener la fecha actual
 
                     // Verifica si hay registros disponibles.
                     if ($result->num_rows > 0) {
                         // Itera sobre los resultados y los muestra en la tabla.
+                        $fechaAnterior = null;
+
                         while ($row = $result->fetch_assoc()) {
-                            echo "<tr>
-                            <td>" . htmlspecialchars($row['nombreRecurso']) . "</td> <!-- Nombre del recurso -->
-                            <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td> <!-- Fecha de la reserva -->
-                            <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td> <!-- Hora de inicio -->
-                            <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td> <!-- Hora de fin -->
-                            <td>" . htmlspecialchars($row['nombreUsuario']) . "</td> <!-- Nombre del usuario -->
-                            <td>" . htmlspecialchars($row['correoUsuario']) . "</td> <!-- Correo del usuario -->
-                            <td>" . htmlspecialchars($row['nombreDocente']) . "</td> <!-- Nombre del docente -->
-                            <td>" . htmlspecialchars($row['asignatura']) . "</td> <!-- Nombre de la asignatura -->
-                            <td>" . htmlspecialchars($row['programa']) . "</td> <!-- Nombre del programa -->
-                            <td>" . htmlspecialchars($row['semestre']) . "</td> <!-- Semestre -->
-                            <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td> <!-- Estado -->
-                            <td>
-                                <a href='../Controlador/Eliminar_Reserva.php?id=" . $row['ID_Registro'] .
-                                "' class='btn-eliminar'><span class='material-symbols-outlined'> 
-                                delete_forever
-                                </span></a>  </td> 
-                            
-                        </tr>";
+                            $fechaActual = $row['fechaReserva'];
+                            $esHoy = ($fechaActual === $fechaHoy); // Verificar si es el día actual
+
+                            if ($fechaActual !== $fechaAnterior) {
+                                // Mostrar encabezado de día
+                                echo "<tr class='separador-dia' data-registro-id='" . $row['ID_Registro'] . "'>
+                <td colspan='12' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                    📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+                </td>
+              </tr>";
+                                $fechaAnterior = $fechaActual;
+                            }
+
+                            // Agregar clase especial para registros del día actual y cancelados
+                            $claseHoy = $esHoy ? "registro-hoy" : "";
+                            $claseCancelado = $row['estado'] === 'Cancelada' ? "registro-cancelado" : "";
+
+                            // Combinar las clases
+                            $clases = trim("$claseHoy $claseCancelado");
+
+                            // Ahora tu fila normal de datos
+                            echo "<tr class='$clases' data-registro-id='" . $row['ID_Registro'] . "'>
+        <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
+        <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
+        <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
+        <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
+        <td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
+        <td>" . htmlspecialchars($row['correoUsuario']) . "</td>
+        <td>" . htmlspecialchars($row['nombreDocente']) . "</td>
+        <td>" . htmlspecialchars($row['asignatura']) . "</td>
+        <td>" . htmlspecialchars($row['programa']) . "</td>
+        <td>" . htmlspecialchars($row['semestre']) . "</td>
+        <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
+        <td>
+            <div class=\"menu-acciones\">
+                <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
+                    <span class=\"material-symbols-outlined\">steppers</span>
+                </button>
+                <div class=\"menu-desplegable\">
+                    <a href=\"#\" onclick='mostrarModal({
+                        \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
+                        \"fechaReserva\": \"" . date('Y-m-d', strtotime($row['fechaReserva'])) . "\",
+                        \"horaInicio\": \"" . date('H:i', strtotime($row['horaInicio'])) . "\",
+                        \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
+                        \"estado\": \"" . $row['estado'] . "\"
+                    }); return false;' class=\"menu-opcion\">Modificar</a>
+                    <a href=\"../Controlador/Eliminar_Reserva.php?id=" . $row['ID_Registro'] . "\" class=\"menu-opcion\">Eliminar</a>
+                </div>
+            </div>
+        </td>
+    </tr>";
                         }
                     } else {
-                        // Si no hay registros, muestra un mensaje en la tabla.
-                        echo "<tr><td colspan='10' class='sin-reservas'>No hay registros disponibles</td></tr>";
+                        echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";
                     }
 
-                    // Cierra la conexión a la base de datos.
+                    // Obtener usuarios, programas y recursos
+                    $usuarios = $conn->query("SELECT ID_Usuario, nombre, ID_Rol FROM usuario");
+                    $usuariosData = [];
+                    while ($u = $usuarios->fetch_assoc()) {
+                        $usuariosData[] = $u;
+                    }
+
+                    // Obtener programas para estudiantes
+                    $programas = $conn->query("SELECT ID_Programa, nombrePrograma FROM programa");
+                    $programasData = [];
+                    while ($p = $programas->fetch_assoc()) {
+                        $programasData[] = $p;
+                    }
+
+                    // Obtener recursos para el modal
+                    $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                    $recursosData = [];
+                    while ($r = $recursos->fetch_assoc()) {
+                        $recursosData[] = $r;
+                    }
+
+                    // Obtener usuarios para el modal de agregar antes de cerrar la conexión
+                    $usuarios = $conn->query("
+                        SELECT u.ID_Usuario, u.nombre, u.ID_Rol, r.nombreRol 
+                        FROM usuario u 
+                        INNER JOIN rol r ON u.ID_Rol = r.ID_Rol
+                        ORDER BY r.nombreRol, u.nombre
+                    ");
+
+                    echo "<!-- Debug roles: -->";
+                    $usuariosData = [];
+                    while ($u = $usuarios->fetch_assoc()) {
+                        echo "<!-- {$u['nombre']} - Rol: {$u['nombreRol']} (ID: {$u['ID_Rol']}) -->";
+                        $usuariosData[] = $u;
+                    }
+
                     $conn->close();
                     ?>
                 </tbody>
@@ -124,6 +305,545 @@ checkRole('Administrador');
         </div>
     </section>
 
-</body>
+    <script>
+        // Script de busaqueda en la tabla de reservas.
+        // Este script permite filtrar las filas de la tabla según el texto ingresado en el campo de búsqueda.
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.getElementById("filtroBusqueda");
+            input.addEventListener("keyup", () => {
+                const filtro = input.value.toLowerCase();
+                const filas = document.querySelectorAll(".tabla-reservas tbody tr");
 
+                filas.forEach(fila => {
+                    const texto = fila.textContent.toLowerCase();
+                    if (texto.includes(filtro)) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                });
+            });
+
+            document.getElementById("generarReporte").addEventListener("click", () => {
+                const fechaHoy = new Date();
+                const dia = String(fechaHoy.getDate()).padStart(2, '0');
+                const mes = String(fechaHoy.getMonth() + 1).padStart(2, '0');
+                const anio = fechaHoy.getFullYear();
+                const fechaObjetivo = `${dia}/${mes}/${anio}`; // Formato dd/mm/yyyy
+                const fechaArchivo = `${anio}-${mes}-${dia}`; // Formato yyyy-mm-dd
+
+                const filas = document.querySelectorAll(".tabla-reservas tbody tr.registro-hoy");
+                let reporte = `==========================================\n`;
+                reporte += `     REPORTE DE RECURSOS - ${fechaObjetivo}\n`;
+                reporte += `==========================================\n\n`;
+
+                let registrosEncontrados = false;
+
+                filas.forEach(fila => {
+                    const columnas = fila.querySelectorAll("td");
+                    const datos = Array.from(columnas).map(columna => columna.textContent.trim());
+
+                    registrosEncontrados = true;
+                    reporte += `------------------------------------------\n`;
+                    reporte += `Recurso:    ${datos[0]}\n`;
+                    reporte += `Fecha:      ${datos[1]}\n`;
+                    reporte += `Inicio:     ${datos[2]}\n`;
+                    reporte += `Fin:        ${datos[3]}\n`;
+                    reporte += `Usuario:    ${datos[4]}\n`;
+                    reporte += `Correo:     ${datos[5]}\n`;
+                    reporte += `Docente:    ${datos[6]}\n`;
+                    reporte += `Asignatura: ${datos[7]}\n`;
+                    reporte += `Programa:   ${datos[8]}\n`;
+                    reporte += `Semestre:   ${datos[9]}\n`;
+                    reporte += `Estado:     ${datos[10]}\n`;
+                    reporte += `------------------------------------------\n\n`;
+                });
+
+                if (!registrosEncontrados) {
+                    reporte += "No hay recursos programados para esta fecha.\n";
+                }
+
+                reporte += `\n==========================================\n`;
+                reporte += `Fin del reporte - Generado: ${new Date().toLocaleString()}\n`;
+                reporte += `==========================================`;
+
+                const blob = new Blob([reporte], {
+                    type: "text/plain"
+                });
+                const enlace = document.createElement("a");
+                enlace.href = URL.createObjectURL(blob);
+                enlace.download = `Reporte_Recursos_${fechaArchivo}.txt`;
+                enlace.click();
+            });
+
+            document.getElementById("generarReporteSiguiente").addEventListener("click", () => {
+                const hoy = new Date();
+                hoy.setDate(hoy.getDate() + 1); // Obtener fecha de mañana
+
+                const dia = String(hoy.getDate()).padStart(2, '0');
+                const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+                const anio = hoy.getFullYear();
+                const fechaObjetivo = `${dia}/${mes}/${anio}`; // Formato dd/mm/yyyy
+                const fechaArchivo = `${anio}-${mes}-${dia}`; // Formato yyyy-mm-dd
+
+                const filas = document.querySelectorAll(".tabla-reservas tbody tr:not(.separador-dia)");
+                let reporte = `==========================================\n`;
+                reporte += `     REPORTE DE RECURSOS - ${fechaObjetivo}\n`;
+                reporte += `==========================================\n\n`;
+
+                let registrosEncontrados = false;
+
+                filas.forEach(fila => {
+                    const columnas = fila.querySelectorAll("td");
+                    const datos = Array.from(columnas).map(columna => columna.textContent.trim());
+
+                    // Verificar si la fecha de la fila coincide con la fecha objetivo
+                    if (datos[1] === fechaObjetivo) {
+                        registrosEncontrados = true;
+                        reporte += `------------------------------------------\n`;
+                        reporte += `Recurso:    ${datos[0]}\n`;
+                        reporte += `Fecha:      ${datos[1]}\n`;
+                        reporte += `Inicio:     ${datos[2]}\n`;
+                        reporte += `Fin:        ${datos[3]}\n`;
+                        reporte += `Usuario:    ${datos[4]}\n`;
+                        reporte += `Correo:     ${datos[5]}\n`;
+                        reporte += `Docente:    ${datos[6]}\n`;
+                        reporte += `Asignatura: ${datos[7]}\n`;
+                        reporte += `Programa:   ${datos[8]}\n`;
+                        reporte += `Semestre:   ${datos[9]}\n`;
+                        reporte += `Estado:     ${datos[10]}\n`;
+                        reporte += `------------------------------------------\n\n`;
+                    }
+                });
+
+                if (!registrosEncontrados) {
+                    reporte += "No hay recursos programados para esta fecha.\n";
+                }
+
+                reporte += `\n==========================================\n`;
+                reporte += `Fin del reporte - Generado: ${new Date().toLocaleString()}\n`;
+                reporte += `==========================================`;
+
+                // Crear y descargar el archivo
+                const blob = new Blob([reporte], {
+                    type: "text/plain"
+                });
+                const enlace = document.createElement("a");
+                enlace.href = URL.createObjectURL(blob);
+                enlace.download = `Reporte_Recursos_${fechaArchivo}.txt`;
+                enlace.click();
+            });
+
+
+        });
+
+        function toggleMenu(button) {
+            const menu = button.nextElementSibling; // Selecciona el menú desplegable asociado al botón
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        }
+
+        // Funciones para el modal de modificar
+        function mostrarModal(registro) {
+            document.getElementById('registro_id').value = registro.ID_Registro;
+            document.getElementById('fecha').value = registro.fechaReserva;
+            document.getElementById('hora_inicio').value = registro.horaInicio;
+            document.getElementById('hora_fin').value = registro.horaFin;
+            document.getElementById('estado').value = registro.estado;
+
+            document.getElementById('modalModificar').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalModificar').style.display = 'none';
+        }
+
+        function guardarCambios(event) {
+            event.preventDefault();
+
+            const fecha = document.getElementById('fecha').value;
+            const horaInicio = document.getElementById('hora_inicio').value;
+            const horaFin = document.getElementById('hora_fin').value;
+
+            // Validar que la fecha no sea anterior a hoy
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const fechaSeleccionada = new Date(fecha);
+            if (fechaSeleccionada < hoy) {
+                alert('No puedes seleccionar una fecha pasada');
+                return false;
+            }
+
+            // Validar horario de operación (6:00 AM - 10:00 PM)
+            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
+            const horaFinNum = parseInt(horaFin.split(':')[0]);
+            if (horaInicioNum < 6 || horaFinNum > 22) {
+                alert('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
+                return false;
+            }
+
+            // Obtener fecha y hora actual
+            const ahora = new Date();
+            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+
+            // Solo validar si es el mismo día
+            if (fecha === ahora.toISOString().split('T')[0]) {
+                // Crear fecha actual sin segundos ni milisegundos para comparación justa
+                const ahoraRedondeada = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), ahora.getHours(), ahora.getMinutes(), 0, 0);
+                const fechaHoraInicioRedondeada = new Date(fechaHoraInicio.getFullYear(), fechaHoraInicio.getMonth(), fechaHoraInicio.getDate(), fechaHoraInicio.getHours(), fechaHoraInicio.getMinutes(), 0, 0);
+
+                if (fechaHoraInicioRedondeada < ahoraRedondeada) {
+                    alert('No puedes seleccionar una hora que ya pasó');
+                    return false;
+                }
+            }
+
+            // Validar que la hora de fin sea posterior a la hora de inicio
+            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
+            if (fechaHoraFin <= fechaHoraInicio) {
+                alert('La hora de finalización debe ser posterior a la hora de inicio');
+                return false;
+            }
+
+            // Si todas las validaciones pasan, enviar el formulario
+            const formData = new FormData(document.getElementById('formModificar'));
+
+            fetch('../Controlador/Modificar_Registro.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'success') {
+                        alert('Registro actualizado correctamente');
+                        cerrarModal();
+                        location.reload();
+                    } else if (result === 'overlap') {
+                        alert('Ya existe una reserva para este recurso en ese horario');
+                    } else if (result === 'invalid_time_past') {
+                        alert('No se puede seleccionar una hora que ya pasó');
+                    } else if (result === 'invalid_day') {
+                        alert('No se pueden hacer reservas los domingos');
+                    } else if (result === 'invalid_time') {
+                        alert('El horario debe estar entre las 7:00 AM y las 10:00 PM');
+                    } else {
+                        alert('Error al actualizar el registro');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud');
+                });
+        }
+
+        // Funciones para el modal de agregar
+        function abrirModalAgregar() {
+            const modal = document.getElementById('modalAgregar');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function cerrarModalAgregar() {
+            const modal = document.getElementById('modalAgregar');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function cargarDatosUsuario(idUsuario) {
+            const selectUsuario = document.getElementById('usuario_agregar');
+            const selectedOption = selectUsuario.options[selectUsuario.selectedIndex];
+            const rol = selectedOption.getAttribute('data-rol');
+            
+            console.log('Rol seleccionado:', rol); // Para debugging
+            
+            // Ocultar todos los campos adicionales primero
+            document.getElementById('campoAsignaturas').style.display = 'none';
+            document.getElementById('campoPrograma').style.display = 'none';
+            document.getElementById('campoDocente').style.display = 'none';
+
+            // Validar el rol del usuario
+            if (rol === '2') { // Docente
+                fetch(`../Controlador/Obtener_Asignaturas.php?id_usuario=${idUsuario}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const listaAsignaturas = document.getElementById('listaAsignaturas');
+                        listaAsignaturas.innerHTML = '';
+                        data.forEach(asig => {
+                            listaAsignaturas.innerHTML += `<div>${asig.nombreAsignatura}</div>`;
+                        });
+                        document.getElementById('campoAsignaturas').style.display = 'block';
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else if (rol === '1') { // Estudiante
+                document.getElementById('campoPrograma').style.display = 'block';
+                $('#programa_agregar').select2({
+                    placeholder: 'Seleccione un programa...',
+                    width: '100%'
+                });
+            }
+            // Para otros roles (como Administrativo), no mostrar campos adicionales
+        }
+
+        function cargarDocentes(idPrograma) {
+            if (!idPrograma) {
+                // Si no se selecciona un programa, limpiar el campo de docentes y ocultarlo
+                const docenteSelect = document.getElementById('docente_agregar');
+                docenteSelect.innerHTML = '<option value="">Seleccione un docente</option>';
+                document.getElementById('campoDocente').style.display = 'none';
+                return;
+            }
+
+            // Realizar la solicitud para obtener los docentes asociados al programa
+            fetch(`../Controlador/Obtener_Docentes.php?id_programa=${idPrograma}`)
+                .then(res => res.json())
+                .then(data => {
+                    const docenteSelect = document.getElementById('docente_agregar');
+                    docenteSelect.innerHTML = '<option value="">Seleccione un docente</option>';
+                    
+                    // Iterar sobre los datos recibidos y agregarlos al select
+                    data.forEach(doc => {
+                        const option = document.createElement('option');
+                        option.value = doc.ID_Usuario;
+                        option.textContent = doc.nombre;
+                        docenteSelect.appendChild(option);
+                    });
+
+                    // Mostrar el campo de docentes si hay datos
+                    if (data.length > 0) {
+                        document.getElementById('campoDocente').style.display = 'block';
+                    } else {
+                        alert('No hay docentes disponibles para este programa.');
+                        document.getElementById('campoDocente').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar los docentes:', error);
+                    alert('Hubo un error al cargar los docentes. Intente nuevamente.');
+                });
+        }
+
+        function guardarNuevoRegistro(event) {
+            event.preventDefault();
+            const form = document.getElementById('formAgregar');
+            const formData = new FormData(form);
+
+            // Verificar disponibilidad antes de enviar
+            const recurso = formData.get('recurso');
+            const fecha = formData.get('fecha');
+            const horaInicio = formData.get('hora_inicio');
+            const horaFin = formData.get('hora_fin');
+
+            fetch('../Controlador/Verificar_Disponibilidad.php', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        recurso,
+                        fecha,
+                        horaInicio,
+                        horaFin
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.disponible) {
+                        fetch('../Controlador/Agregar_Registro.php', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(res => res.text())
+                            .then(result => {
+                                if (result === 'success') {
+                                    alert('Registro agregado correctamente');
+                                    cerrarModalAgregar();
+                                    location.reload();
+                                } else {
+                                    alert('Error al guardar el registro');
+                                }
+                            });
+                    } else {
+                        alert('El recurso no está disponible en ese horario.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error al procesar la solicitud');
+                });
+        }
+
+        // Manejador de clics fuera de los modales
+        window.onclick = function(event) {
+            const modalAgregar = document.getElementById('modalAgregar');
+            const modalModificar = document.getElementById('modalModificar');
+            if (event.target === modalAgregar) {
+                cerrarModalAgregar();
+            }
+            if (event.target === modalModificar) {
+                cerrarModal();
+            }
+        };
+
+        // Filtrar usuarios en el select del modal de agregar
+        document.getElementById('buscarUsuario').addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+            const opciones = document.querySelectorAll('#usuario_agregar option');
+            opciones.forEach(opcion => {
+                const nombre = opcion.getAttribute('data-nombre');
+                if (nombre && nombre.includes(filtro)) {
+                    opcion.style.display = '';
+                } else {
+                    opcion.style.display = 'none';
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $('#usuario_agregar').select2({
+                placeholder: 'Buscar usuario...',
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Modal para modificar registros -->
+    <div id="modalModificar" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModal()">&times;</span>
+            <h2>Modificar Registro</h2>
+            <form id="formModificar" onsubmit="guardarCambios(event)">
+                <input type="hidden" id="registro_id" name="registro_id">
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" required>
+                </div>
+                <div class="form-group">
+                    <label for="hora_inicio">Hora Inicio:</label>
+                    <input type="time" id="hora_inicio" name="hora_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="hora_fin">Hora Fin:</label>
+                    <input type="time" id="hora_fin" name="hora_fin" required>
+                </div>
+                <div class="form-group">
+                    <label for="estado">Estado:</label>
+                    <select id="estado" name="estado" required>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-confirmar">Guardar cambios</button>
+                    <button type="button" onclick="cerrarModal()" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para agregar registros -->
+    <div id="modalAgregar" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="cerrarModalAgregar()">&times;</span>
+            <h2>Agregar Registro</h2>
+            <form id="formAgregar" onsubmit="guardarNuevoRegistro(event)">
+                <div class="form-group">
+                    <label for="usuario_agregar">Usuario:</label>
+                    <select id="usuario_agregar" name="usuario" required onchange="cargarDatosUsuario(this.value)" style="width: 100%;">
+                        <option value="">Seleccione un usuario</option>
+                        <?php foreach ($usuariosData as $u): ?>
+                            <option value="<?php echo $u['ID_Usuario']; ?>" 
+                                    data-rol="<?php echo $u['ID_Rol']; ?>">
+                                <?php echo htmlspecialchars($u['nombre']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Campo para mostrar asignaturas de docentes -->
+                <div class="form-group" id="campoAsignaturas" style="display:none;">
+                    <label><strong>Asignaturas que imparte el docente:</strong></label>
+                    <div id="listaAsignaturas" class="asignaturas-list"></div>
+                </div>
+
+                <!-- Campos para estudiantes -->
+                <div class="form-group" id="campoPrograma" style="display:none;">
+                    <label for="programa_agregar"><strong>Seleccione el programa:</strong></label>
+                    <select id="programa_agregar" name="programa" onchange="cargarDocentes(this.value)" style="width: 100%;">
+                        <option value="">Seleccione un programa</option>
+                        <?php foreach($programasData as $p): ?>
+                            <option value="<?php echo $p['ID_Programa']; ?>">
+                                <?php echo htmlspecialchars($p['nombrePrograma']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group" id="campoDocente" style="display:none;">
+                    <label for="docente_agregar"><strong>Seleccione el docente:</strong></label>
+                    <select id="docente_agregar" name="docente" style="width: 100%;">
+                        <option value="">Seleccione un docente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="recurso_agregar">Recurso:</label>
+                    <select id="recurso_agregar" name="recurso" required style="width: 100%;">
+                        <option value="">Seleccione un recurso</option>
+                        <?php foreach($recursosData as $r): ?>
+                            <option value="<?php echo $r['ID_Recurso']; ?>">
+                                <?php echo htmlspecialchars($r['nombreRecurso']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_agregar">Fecha:</label>
+                    <input type="date" id="fecha_agregar" name="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora_inicio_agregar">Hora Inicio:</label>
+                    <input type="time" id="hora_inicio_agregar" name="hora_inicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora_fin_agregar">Hora Fin:</label>
+                    <input type="time" id="hora_fin_agregar" name="hora_fin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado_agregar">Estado:</label>
+                    <select id="estado_agregar" name="estado" required>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-confirmar">Guardar</button>
+                    <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Inicializar Select2 para todos los selects
+            $('#usuario_agregar, #programa_agregar, #docente_agregar, #recurso_agregar').select2({
+                placeholder: 'Buscar...',
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    }
+                }
+            });
+        });
+    </script>
+</body>
 </html>

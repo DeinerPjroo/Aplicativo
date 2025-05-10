@@ -106,15 +106,15 @@ $fechaActual = date('Y-m-d');
                     <?php endforeach; ?>
                 </select>
 
-                <label for="programa">Programa:</label>
+                <label for="programa">Programa/Dependencia:</label>
                 <select id="programa" name="Programa" required>
-                    <option value="">Seleccione un Programa</option>
+                    <option value="">Seleccione un Programa/Dependencia</option>
                     <?php foreach ($Programa as $Pro): ?>
                         <option value="<?= $Pro['Id_Programa'] ?>"><?= $Pro['nombrePrograma'] ?></option>
                     <?php endforeach; ?>
                 </select>
 
-                <label for="docente">Docente:</label>
+                <label for="docente">Docente/Administrativo:</label>
                 <select id="docente" name="docente" required>
                     <option value="">Seleccione un Docente</option>
                 </select>
@@ -186,30 +186,29 @@ $fechaActual = date('Y-m-d');
                 return true; // Si no se han completado ambos campos, no validamos aún
             };
 
-            // Validar que la fecha no sea fin de semana
-            const validarFinDeSemana = () => {
-                if (fechaInput.value) {
-                    const fecha = new Date(fechaInput.value);
-                    const diaSemana = fecha.getDay(); // 0 es domingo, 6 es sábado
+            // Elimina la función de validación de fines de semana
+            // const validarFinDeSemana = () => {
+            //     if (fechaInput.value) {
+            //         const fecha = new Date(fechaInput.value);
+            //         const diaSemana = fecha.getDay(); // 0 es domingo, 6 es sábado
 
-                    if (diaSemana === 0 || diaSemana === 6) {
-                        mensajeError.textContent = "No se permiten reservas en fin de semana.";
-                        mensajeError.style.display = "block";
-                        return false;
-                    }
+            //         if (diaSemana === 0 || diaSemana === 6) {
+            //             mensajeError.textContent = "No se permiten reservas en fin de semana.";
+            //             mensajeError.style.display = "block";
+            //             return false;
+            //         }
 
-                    mensajeError.style.display = "none";
-                    return true;
-                }
-                return true;
-            };
+            //         mensajeError.style.display = "none";
+            //         return true;
+            //     }
+            //     return true;
+            // };
 
             // Función de validación completa del formulario
             window.validarFormulario = () => {
                 const validarDuracion = validarDuracionMinima();
-                const validarFecha = validarFinDeSemana();
 
-                if (!validarDuracion || !validarFecha) {
+                if (!validarDuracion) {
                     return false;
                 }
 
@@ -220,7 +219,7 @@ $fechaActual = date('Y-m-d');
             // Validar al cambiar los campos
             horaInicioInput.addEventListener("change", validarDuracionMinima);
             horaFinInput.addEventListener("change", validarDuracionMinima);
-            fechaInput.addEventListener("change", validarFinDeSemana);
+            fechaInput.addEventListener("change", validarDuracionMinima);
 
             // Función para verificar disponibilidad
             const verificarDisponibilidad = async () => {
@@ -233,7 +232,7 @@ $fechaActual = date('Y-m-d');
                 mensajeError.style.display = "none";
 
                 // Validar horas antes de consultar disponibilidad
-                if (!validarDuracionMinima() || !validarFinDeSemana()) {
+                if (!validarDuracionMinima()) {
                     return;
                 }
 

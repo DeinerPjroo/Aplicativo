@@ -1,14 +1,14 @@
 const sidebar = document.querySelector(".sidebar");
+sidebar.classList.add("collapsed"); // Sidebar cerrado por defecto
 const sidebarToggler = document.querySelector(".sidebar-toggler");
 const menuToggler = document.querySelector(".menu-toggler");
 
 const collapsedSidebarHeight = "56px";
 const fullSidebarHeight = "calc(100vh - 32px)";
 
-//Toggle sidebar"s collapsed state
-
-sidebarToggler.addEventListener("click", ()=> {
- sidebar.classList.toggle("collapsed");
+//Toggle sidebar's collapsed state
+sidebarToggler.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed"); // Toggle collapsed state
 });
 
 //update sidebar height and menu toggle text
@@ -30,5 +30,15 @@ window.addEventListener("resize", () => {
         sidebar.classList.remove("collapsed");
         sidebar.style.height = "auto";
         togglemenu(sidebar.classList.contains("menu-active"));
+    }
+});
+
+// Verifica si hay elementos con IDs duplicados o conflictos
+document.addEventListener("DOMContentLoaded", () => {
+    const botonReporteSiguiente = document.getElementById("generarReporteSiguiente");
+    if (!botonReporteSiguiente) {
+        console.error("El botón 'generarReporteSiguiente' no existe o no está definido.");
+    } else {
+        console.log("El botón 'generarReporteSiguiente' está correctamente definido.");
     }
 });
