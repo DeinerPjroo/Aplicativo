@@ -430,7 +430,7 @@ $programasResult = $conn->query($programasQuery);
             <input type="password" name="contraseña" id="form-contraseña" placeholder="Ingrese contraseña...">
 
             <label>Rol:</label>
-            <select name="id_rol" id="form-rol" required>
+            <select name="id_rol" id="form-rol" required onchange="toggleCamposEstudiante()">
                 <option value="">Seleccione un rol</option>
                 <option value="1" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '1') ? 'selected' : ''; ?>>Estudiante</option>
                 <option value="2" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '2') ? 'selected' : ''; ?>>Docente</option>
@@ -439,7 +439,7 @@ $programasResult = $conn->query($programasQuery);
             </select>
 
             <label>Semestre:</label>
-            <select name="semestre" id="form-semestre" required>
+            <select name="semestre" id="form-semestre" disabled>
                  <option value="">Seleccione un semestre</option>
                     <?php for ($i = 1; $i <= 10; $i++): ?>
                  <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
@@ -447,7 +447,7 @@ $programasResult = $conn->query($programasQuery);
             </select>
 
             <label>Programa:</label>
-            <select name="id_programa" id="form-programa" required>
+            <select name="id_programa" id="form-programa" disabled>
                 <option value="">Seleccione un programa</option>
                 <?php while ($programa = $programasResult->fetch_assoc()) : ?>
                     <option value="<?php echo $programa['ID_Programa']; ?>">
@@ -464,20 +464,20 @@ $programasResult = $conn->query($programasQuery);
 <script>
     // Toast notification functions
     function showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <div>${message}</div>
-            <button class="toast-close" onclick="closeToast(this.parentElement)">&times;</button>
-        `;
-        toastContainer.appendChild(toast);
-        
-        // Auto-close after 5 seconds
-        setTimeout(() => {
-            closeToast(toast);
-        }, 5000);
-    }
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ${type}';
+    toast.innerHTML = `
+        <div>${message}</div>
+        <button class="toast-close" onclick="closeToast(this.parentElement)">&times;</button>
+    `;
+    toastContainer.appendChild(toast);
+    
+    // Auto-close after 5 seconds
+    setTimeout(() => {
+        closeToast(toast);
+    }, 5000);
+}
     
     function closeToast(toast) {
         toast.style.animation = 'fade-out 0.3s forwards';
@@ -614,9 +614,12 @@ $programasResult = $conn->query($programasQuery);
         }
 
         modal.style.display = 'block';
+        
+        // Ejecutar para establecer los estados iniciales de los campos
+        setTimeout(toggleCamposEstudiante, 100);
     }
 
-    // Open form for modifying user
+    // Función modificada para abrir el formulario de modificación
     function openModificarForm(id, codigo_u, nombre, correo, programa, semestre, id_rol) {
         const modal = document.getElementById('formModal');
         const title = document.getElementById('modalTitle');
@@ -641,8 +644,12 @@ $programasResult = $conn->query($programasQuery);
         
         limpiarError();
         document.getElementById('form-codigo_u').setAttribute('data-original', codigo_u);
+        document.getElementById('form-correo').setAttribute('data-original', correo);
 
         modal.style.display = 'block';
+        
+        // Ejecutar toggleCamposEstudiante para establecer estados de acuerdo al rol
+        setTimeout(toggleCamposEstudiante, 100);
     }
     
     // Delete user with AJAX
@@ -682,38 +689,99 @@ $programasResult = $conn->query($programasQuery);
 
     // Submit form with AJAX
     function submitForm(event) {
-        event.preventDefault();
+    event.preventDefault();
+    
+    // Obtener el rol actual
+    const rol = document.getElementById('form-rol').value;
+    const esEstudiante = rol === '1';  // 1 = Estudiante
+    
+    const form = document.getElementById('usuarioForm');
+    const formData = new FormData(form);
+    
+    // Añadir un campo oculto para indicar si es estudiante
+    formData.append('es_estudiante', esEstudiante ? '1' : '0');
+    
+    // Si no es estudiante, asegurarse de que los campos estén vacíos
+    if (!esEstudiante) {
+        const semestreField = document.getElementById('form-semestre');
+        const programaField = document.getElementById('form-programa');
         
-        const form = document.getElementById('usuarioForm');
-        const formData = new FormData(form);
-        const action = form.getAttribute('data-action');
+        // Habilitar temporalmente para poder incluirlos en el FormData
+        semestreField.disabled = false;
+        programaField.disabled = false;
         
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', action, true);
+        // Establecer valores vacíos
+        semestreField.value = '';
+        programaField.value = '';
         
-        xhr.onload = function() {
-            if (this.status === 200) {
-                try {
-                    const response = JSON.parse(this.responseText);
-                    if (response.status === 'success') {
-                        showToast(response.message, 'success');
-                        closeModal();
-                        // Recargar la tabla
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showToast(response.message || 'Hubo un error en la operación', 'error');
-                    }
-                } catch (e) {
-                    showToast('Error en la respuesta del servidor', 'error');
+        // Actualizar en formData
+        formData.set('semestre', '');
+        formData.set('id_programa', '');
+        
+        // Volver a deshabilitar después de un pequeño delay
+        setTimeout(() => {
+            semestreField.disabled = true;
+            programaField.disabled = true;
+        }, 10);
+    }
+    
+    const action = form.getAttribute('data-action');
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', action, true);
+    
+    xhr.onload = function() {
+        // Volver a deshabilitar campos si es necesario
+        if (!esEstudiante) {
+            document.getElementById('form-semestre').disabled = true;
+            document.getElementById('form-programa').disabled = true;
+        }
+        
+        if (this.status === 200) {
+            let response;
+            try {
+                // Intentar analizar la respuesta como JSON
+                response = JSON.parse(this.responseText);
+                
+                if (response.status === 'success') {
+                    showToast(response.message, 'success');
+                    closeModal();
+                    // Recargar la tabla
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(response.message || 'Hubo un error en la operación', 'error');
+                }
+            } catch (e) {
+                // Si hay un error al analizar JSON, mostrar el texto de respuesta para debugging
+                console.error("Error al analizar respuesta JSON:", e);
+                console.log("Respuesta del servidor:", this.responseText);
+                
+                // Verificar si la respuesta contiene HTML (probable error PHP)
+                if (this.responseText.includes("<br />") || this.responseText.includes("<!DOCTYPE")) {
+                    showToast('Error del servidor. Revisa la consola para más detalles.', 'error');
+                } else {
+                    showToast('Error en la respuesta del servidor: ' + this.responseText, 'error');
                 }
             }
-        };
-        
-        xhr.send(formData);
-        return false;
-    }
+        } else {
+            showToast('Error en la comunicación con el servidor: ' + this.status, 'error');
+        }
+    };
+    
+    xhr.onerror = function() {
+        showToast('Error de conexión al servidor', 'error');
+        // Volver a deshabilitar campos si es necesario
+        if (!esEstudiante) {
+            document.getElementById('form-semestre').disabled = true;
+            document.getElementById('form-programa').disabled = true;
+        }
+    };
+    
+    xhr.send(formData);
+    return false;
+}
 
     // Close modal functions
     function closeModal() {
@@ -726,6 +794,45 @@ $programasResult = $conn->query($programasQuery);
             modal.style.display = "none";
         }
     }
+    function toggleCamposEstudiante() {
+    const rol = document.getElementById('form-rol').value;
+    const esEstudiante = rol === '1';  // 1 = Estudiante
+    
+    const semestreField = document.getElementById('form-semestre');
+    const programaField = document.getElementById('form-programa');
+    
+    // Si es estudiante, habilitar y hacer obligatorios
+    if (esEstudiante) {
+        semestreField.disabled = false;
+        programaField.disabled = false;
+        semestreField.required = true;
+        programaField.required = true;
+    } else {
+        // Si no es estudiante, deshabilitar y quitar obligatoriedad
+        semestreField.disabled = true;
+        programaField.disabled = true;
+        semestreField.required = false;
+        programaField.required = false;
+        // Limpiar valores
+        semestreField.value = '';
+        programaField.value = '';
+    }
+}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurar el evento onchange en el selector de rol
+        const rolSelect = document.getElementById('form-rol');
+        rolSelect.addEventListener('change', toggleCamposEstudiante);
+        
+        // También ejecutar al abrir el modal para establecer el estado inicial
+        const addBtn = document.querySelector('.btn-agregar');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                // Dar tiempo para que el modal se abra y luego ejecutar
+                setTimeout(toggleCamposEstudiante, 100);
+            });
+        }
+    });
 </script>
 </body>
 </html>
