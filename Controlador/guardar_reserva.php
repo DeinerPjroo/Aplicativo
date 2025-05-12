@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 session_start();
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 if (!isset($_SESSION['usuario_id'])) {
     echo json_encode([

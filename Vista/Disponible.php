@@ -1,7 +1,7 @@
 <?php
 // Incluye el archivo de conexión a la base de datos.
 // Este archivo establece la conexión con la base de datos MySQL utilizando la clase mysqli.
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Incluye el archivo que contiene la lógica para el control de roles.
 // Este archivo define funciones como `checkRole` para verificar si el usuario tiene permisos para acceder a esta página.

@@ -10,7 +10,7 @@ checkRole(['Docente', 'Estudiante', 'Administrador', 'Administrativo']); // Allo
 
 $role = getUserRole(); // Asegúrate de que esta función devuelve el rol del usuario actual
 // Incluir conexión a la base de datos
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 // Actualizar automáticamente reservas vencidas
 $actualizar = "UPDATE registro 

@@ -1,6 +1,6 @@
 <?php
 // Incluye el archivo de conexión a la base de datos
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 // Verifica si la solicitud es de tipo POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {

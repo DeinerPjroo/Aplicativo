@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Activar reporte de errores
 ini_set('display_errors', 1);

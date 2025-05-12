@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 // Incluye el archivo que contiene la lógica para el control de roles.
 // Este archivo define funciones como `checkRole` para verificar si el usuario tiene permisos para acceder a esta página.

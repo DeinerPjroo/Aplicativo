@@ -7,7 +7,7 @@ checkRole(['Docente', 'Estudiante', 'Administrador', 'Administrativo']); // Solo
 $role = getUserRole(); // Asume que esta función devuelve el rol del usuario actual
 
 // Conexión a la base de datos
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Obtener el ID del usuario logueado
 $usuario_id = $_SESSION['usuario_id'];

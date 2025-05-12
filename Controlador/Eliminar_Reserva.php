@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
 

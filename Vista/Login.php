@@ -16,7 +16,7 @@
         <form method="POST" action=""> <!-- (../Vista/Registro.php)Se envian los datos al controlador para validar el inicio de sesion -->
 
         <?php 
-        include("../database/Conexion.php");
+        include("../database/conection.php");
         include("../Controlador/Login.php"); ?>
        
 

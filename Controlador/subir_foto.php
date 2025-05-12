@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../database/conexion.php");
+include("../database/conection.php");
 
 $id_usuario = $_POST['id_usuario'];
 

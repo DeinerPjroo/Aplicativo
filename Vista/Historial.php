@@ -72,7 +72,7 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
                 <tbody>
                 <?php
 // Conexión a la base de datos
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Obtener el ID del usuario logueado
 $usuario_id = $_SESSION['usuario_id'];

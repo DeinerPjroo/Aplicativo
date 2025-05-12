@@ -1,5 +1,5 @@
 <?php
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Inicializamos la respuesta
 $response = ['existe' => false];

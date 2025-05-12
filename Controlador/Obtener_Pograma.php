@@ -1,5 +1,5 @@
 <?php
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $fecha = $_POST['fecha'] ?? '';

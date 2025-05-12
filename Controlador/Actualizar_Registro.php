@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('America/Bogota');
 
-include("../database/conexion.php");
+include("../database/conection.php");
 include("../Controlador/control_De_Rol.php");
 checkRole('Administrador');
 

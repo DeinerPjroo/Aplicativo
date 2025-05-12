@@ -1,6 +1,6 @@
 <?php
 // Controlador/Verificar_Correo.php
-include("../database/conexion.php");
+include("../database/conection.php");
 
 header('Content-Type: application/json');
 

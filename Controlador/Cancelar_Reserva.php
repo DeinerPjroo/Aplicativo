@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: ../Vista/Login.php");

@@ -6,7 +6,7 @@ date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogo
 
 
 // Incluye el archivo de conexión a la base de datos.
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Incluye el archivo que contiene la función para verificar el rol del usuario.
 include("../Controlador/control_De_Rol.php");

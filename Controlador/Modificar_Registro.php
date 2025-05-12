@@ -3,7 +3,7 @@
 date_default_timezone_set('America/Bogota');
 
 session_start();
-include("../database/Conexion.php");
+include("../database/conection.php");
 include("../Controlador/control_De_Rol.php");
 checkRole('Administrador');
 

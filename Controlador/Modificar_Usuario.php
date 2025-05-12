@@ -1,5 +1,5 @@
 <?php
-include("../database/conexion.php");
+include("../database/conection.php");
 
 // Asegurarse de que no haya salida antes de los encabezados
 ob_start(); // Iniciar buffer de salida

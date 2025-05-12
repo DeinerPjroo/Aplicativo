@@ -1,5 +1,5 @@
 <?php
-include("../database/Conexion.php");
+include("../database/conection.php");
 
 if (isset($_POST['id_programa'])) {
     $idPrograma = $_POST['id_programa'];
