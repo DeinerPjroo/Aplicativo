@@ -96,10 +96,7 @@ $programasResult = $conn->query($programasQuery);
             margin: 5px;
         }
 
-        .btn-agregar {
-            background-color: #28a745;
-            color: white;
-        }
+       
 
         .btn-modificar {
             background-color: #ffc107;
@@ -477,10 +474,26 @@ $programasResult = $conn->query($programasQuery);
         <!-- Toast Container for Notifications -->
         <div id="toastContainer" class="toast-container"></div>
 
+
+<button class="" onclick="abrirModalAgregar()">
+                    <img src="../Imagen/Iconos/Agregar_Registro.svg" alt="" />
+                    <span class="btn-text">Agregar</span>
+                </button>
+
+
+
         <div class="contenedor-usuarios">
             <h2>Lista de Usuarios</h2>
+            
 
-            <button class="btn btn-agregar" onclick="openModal('agregar')">Agregar Usuario</button>
+            <button class="btn-agregar" onclick="openModal('agregar')">
+                <img src="../Imagen/Iconos/Agregar_Usuario.svg" alt="" />
+                 <span class="btn-text">Agregar</span>
+
+
+            </button>
+
+            
 
             <div id="mensajeSinResultados" style="display:none;" class="sin-usuarios">
                 <p>No se encontraron usuarios con ese criterio de búsqueda</p>
