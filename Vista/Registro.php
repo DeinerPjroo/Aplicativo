@@ -55,33 +55,242 @@ if (!empty($fechaFiltrada)) {
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <style>
-        .asignaturas-list {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        
-        .asignaturas-list div {
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
-        }
+    .contenedor-usuarios {
+        width: 90%;
+        margin: 20px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-left: 110px !important;
+    }
 
-        .asignaturas-list div:last-child {
-            border-bottom: none;
-        }
+    .contenedor-usuarios h2 {
+        color: #333;
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-        #campoAsignaturas, #campoPrograma, #campoDocente {
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-        }
-    </style>
+    .tabla-usuarios {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .tabla-usuarios th,
+    .tabla-usuarios td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .tabla-usuarios th {
+        background-color: rgb(45, 158, 178);
+        color: white;
+        font-weight: 600;
+    }
+
+    .tabla-usuarios tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .sin-usuarios {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+        font-style: italic;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px;
+    }
+
+
+    .btn-modificar {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-eliminar {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    /* Estilos del modal mejorados */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        /* Cambiado de auto a hidden para evitar el scroll externo */
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 400px;
+        max-width: 90%;
+        border-radius: 10px;
+        max-height: 80vh;
+        /* Altura máxima del 80% de la ventana */
+        overflow-y: auto;
+        /* Añadir scroll vertical solo cuando sea necesario */
+        position: relative;
+        /* Para posicionamiento de elementos internos */
+    }
+
+    /* Estilos para la barra de desplazamiento */
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: #d07c2e;
+        border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: #b9651f;
+    }
+
+    /* Mantén el botón de cerrar siempre visible */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        position: sticky;
+        top: 0;
+        right: 0;
+    }
+
+    /* Resto de estilos del modal */
+    .modal-content label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .modal-content input,
+    .modal-content select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        /* Asegura que el padding no afecte el ancho total */
+    }
+
+    .modal-content button[type="submit"] {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px;
+        width: 100%;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    .modal-content button[type="submit"]:hover {
+        background-color: #218838;
+    }
+
+    /* barra de busques estilo / */
+    /* hola */
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+
+    .barra-superior {
+        background-color: #d07c2e;
+        /* Naranja similar */
+        padding: 15px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .busqueda-container {
+        background-color: white;
+        padding: 6px 10px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        width: 600px;
+        max-width: 90%;
+    }
+
+    .busqueda-container input[type="text"] {
+        border: none;
+        outline: none;
+        font-size: 14px;
+        flex: 1;
+        padding: 8px;
+    }
+
+    .busqueda-container button {
+        background-color: #d07c2e;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        margin-left: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .busqueda-container button:hover {
+        background-color: #b9651f;
+    }
+
+    #resultado {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 18px;
+    }
+
+    /* Estilo para el mensaje de error */
+    .error-message {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: -12px;
+        margin-bottom: 8px;
+    }
+</style>
+
 </head>
 
 <body class="Registro">
@@ -135,12 +344,20 @@ if (!empty($fechaFiltrada)) {
                 <label for="filtro_fecha">Filtrar por fecha: </label>
                 <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
 
-                <button type="submit" class="btn-filtrar">
-                    <center>Filtrar</center>
+
+
+
+                <!-- ddd -->
+                <button type="submit" class="btn-agregar">
+                    <img src="../Imagen/Iconos/Filtro.svg" alt="" />
+                    <span class="btn-text">Filtrar</span>
                 </button>
-                <a href="Registro.php" class="btn-limpiar">
-                    <center>Quitar filtros</center>
-                </a>
+                
+                <button type="button" class="btn-agregar" title="Limpiar Filtro" onclick="window.location.href='Registro.php'">
+                    <img src="../Imagen/Iconos/Quitar_Filtro.svg" alt="" />
+                    <span class="btn-text">Limpiar</span>
+                </button>
+
 
             </form>
             <table class="tabla-reservas">
@@ -240,7 +457,7 @@ if (!empty($fechaFiltrada)) {
         <td>
             <div class=\"menu-acciones\">
                 <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
-                    <span class=\"material-symbols-outlined\">steppers</span>
+                    <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
                 </button>
                 <div class=\"menu-desplegable\">
                     <a href=\"#\" onclick='mostrarModal({
@@ -552,9 +769,9 @@ if (!empty($fechaFiltrada)) {
             const selectUsuario = document.getElementById('usuario_agregar');
             const selectedOption = selectUsuario.options[selectUsuario.selectedIndex];
             const rol = selectedOption.getAttribute('data-rol');
-            
+
             console.log('Rol seleccionado:', rol); // Para debugging
-            
+
             // Ocultar todos los campos adicionales primero
             document.getElementById('campoAsignaturas').style.display = 'none';
             document.getElementById('campoPrograma').style.display = 'none';
@@ -598,7 +815,7 @@ if (!empty($fechaFiltrada)) {
                 .then(data => {
                     const docenteSelect = document.getElementById('docente_agregar');
                     docenteSelect.innerHTML = '<option value="">Seleccione un docente</option>';
-                    
+
                     // Iterar sobre los datos recibidos y agregarlos al select
                     data.forEach(doc => {
                         const option = document.createElement('option');
@@ -744,7 +961,7 @@ if (!empty($fechaFiltrada)) {
     <!-- Modal para agregar registros -->
     <div id="modalAgregar" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="cerrarModalAgregar()">&times;</span>
+            <span class="close" onclick="cerrarModalAgregar()">&times;</span>
             <h2>Agregar Registro</h2>
             <form id="formAgregar" onsubmit="guardarNuevoRegistro(event)">
                 <div class="form-group">
@@ -752,8 +969,8 @@ if (!empty($fechaFiltrada)) {
                     <select id="usuario_agregar" name="usuario" required onchange="cargarDatosUsuario(this.value)" style="width: 100%;">
                         <option value="">Seleccione un usuario</option>
                         <?php foreach ($usuariosData as $u): ?>
-                            <option value="<?php echo $u['ID_Usuario']; ?>" 
-                                    data-rol="<?php echo $u['ID_Rol']; ?>">
+                            <option value="<?php echo $u['ID_Usuario']; ?>"
+                                data-rol="<?php echo $u['ID_Rol']; ?>">
                                 <?php echo htmlspecialchars($u['nombre']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -771,7 +988,7 @@ if (!empty($fechaFiltrada)) {
                     <label for="programa_agregar"><strong>Seleccione el programa:</strong></label>
                     <select id="programa_agregar" name="programa" onchange="cargarDocentes(this.value)" style="width: 100%;">
                         <option value="">Seleccione un programa</option>
-                        <?php foreach($programasData as $p): ?>
+                        <?php foreach ($programasData as $p): ?>
                             <option value="<?php echo $p['ID_Programa']; ?>">
                                 <?php echo htmlspecialchars($p['nombrePrograma']); ?>
                             </option>
@@ -790,7 +1007,7 @@ if (!empty($fechaFiltrada)) {
                     <label for="recurso_agregar">Recurso:</label>
                     <select id="recurso_agregar" name="recurso" required style="width: 100%;">
                         <option value="">Seleccione un recurso</option>
-                        <?php foreach($recursosData as $r): ?>
+                        <?php foreach ($recursosData as $r): ?>
                             <option value="<?php echo $r['ID_Recurso']; ?>">
                                 <?php echo htmlspecialchars($r['nombreRecurso']); ?>
                             </option>
@@ -844,4 +1061,5 @@ if (!empty($fechaFiltrada)) {
         });
     </script>
 </body>
+
 </html>
