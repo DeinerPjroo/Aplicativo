@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root"; // o el usuario que tengas configurado
-$pass = "";     // si tienes contraseña, escríbela aquí
+$pass = "123456";     // si tienes contraseña, escríbela aquí
 $db = "SReservasI";
 
 $conn = new mysqli($host, $user, $pass, $db);

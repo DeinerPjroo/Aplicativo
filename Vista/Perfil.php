@@ -12,11 +12,11 @@ include("../database/conexion.php");
 // Obtener el ID del usuario logueado
 $usuario_id = $_SESSION['usuario_id'];
 
-// Consulta para obtener el nombre, programa, correo, teléfono y foto del usuario logueado
+// Consulta para obtener el nombre, programa, correo y foto del usuario logueado
+// NOTA: Se ha eliminado la referencia a u.telefono ya que no existe en la tabla
 $sql = "SELECT 
             u.nombre AS nombreUsuario,
             u.correo AS correoUsuario,
-            u.telefono AS telefonoUsuario,
             COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
             u.fotoPerfil AS fotoPerfil
         FROM usuario u
@@ -33,13 +33,13 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     $nombreUsuario = $row['nombreUsuario'];
     $correoUsuario = $row['correoUsuario'];
-    $telefonoUsuario = $row['telefonoUsuario'];
+    $telefonoUsuario = 'No disponible'; // Valor por defecto ya que no existe la columna
     $programa = $row['programa'];
     $fotoPerfil = !empty($row['fotoPerfil']) && file_exists("../" . $row['fotoPerfil']) ? "../" . $row['fotoPerfil'] : '../Imagen/default.jpg'; // Verifica si la imagen existe
 } else {
     $nombreUsuario = 'Usuario no identificado';
     $correoUsuario = 'Correo no disponible';
-    $telefonoUsuario = 'Teléfono no disponible';
+    $telefonoUsuario = 'No disponible';
     $programa = 'Sin programa';
     $fotoPerfil = '../Imagen/default.jpg'; // Imagen predeterminada
 }

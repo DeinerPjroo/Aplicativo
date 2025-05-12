@@ -332,6 +332,113 @@ $programasResult = $conn->query($programasQuery);
             opacity: 0;
         }
     }
+ /* Estilos mejorados para el modal de confirmación */
+.modal-confirm {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+
+.modal-confirm-content {
+    position: relative;
+    background-color: #fff;
+    width: 400px;
+    margin: 15% auto;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: scaleIn 0.4s ease;
+    border-top: 5px solid #d07c2e;
+}
+
+.modal-confirm-icon {
+    font-size: 48px;
+    color: #d07c2e;
+    margin-bottom: 20px;
+}
+
+.modal-confirm h3 {
+    margin-top: 10px;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+.modal-confirm-message {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.modal-confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.btn-confirmar {
+    background-color: #d07c2e;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
+}
+
+.btn-confirmar:hover {
+    background-color: #b9651f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
+}
+
+.btn-cancelar {
+    background-color: #2d9eb2;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(45, 158, 178, 0.3);
+}
+
+.btn-cancelar:hover {
+    background-color: #258797;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(45, 158, 178, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Efecto al hacer clic en los botones */
+.btn-confirmar:active, .btn-cancelar:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
     </style>
 </head>
 <body class="Registro">
@@ -653,39 +760,160 @@ $programasResult = $conn->query($programasQuery);
     }
     
     // Delete user with AJAX
-    function eliminarUsuario(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '../Controlador/Eliminar_Usuario.php', true);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            
-            xhr.onload = function() {
-                if (this.status === 200) {
-                    try {
-                        const response = JSON.parse(this.responseText);
-                        if (response.status === 'success') {
-                            showToast(response.message, 'success');
-                            // Remove the row from the table
-                            const rows = document.querySelectorAll('#tablaUsuario tbody tr');
-                            for (let row of rows) {
-                                const cells = row.getElementsByTagName('td');
-                                if (cells[0].textContent === response.codigo) {
-                                    row.remove();
-                                    break;
-                                }
+    // Modificación de la función eliminarUsuario en tu JavaScript
+// Coloca este código en el mismo archivo donde tienes la función eliminarUsuario
+
+// Añadir estos estilos al final de tu sección <style> en el HTML
+/*
+.modal-confirm {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    animation: fadeIn 0.3s;
+}
+
+.modal-confirm-content {
+    position: relative;
+    background-color: #fff;
+    width: 350px;
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: slideIn 0.3s;
+}
+
+.modal-confirm h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.modal-confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-confirmar {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-confirmar:hover {
+    background-color: #2980b9;
+}
+
+.btn-cancelar {
+    background-color: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-cancelar:hover {
+    background-color: #6c7a7d;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+*/
+
+// HTML para el modal de confirmación - Añádelo antes del cierre de tu </body>
+/*
+<div id="modalConfirmDelete" class="modal-confirm">
+    <div class="modal-confirm-content">
+        <h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
+        <div class="modal-confirm-buttons">
+            <button id="btnConfirmDelete" class="btn-confirmar">Aceptar</button>
+            <button id="btnCancelDelete" class="btn-cancelar">Cancelar</button>
+        </div>
+    </div>
+</div>
+*/
+
+// Función modificada para eliminar usuario
+function eliminarUsuario(id) {
+    // Mostrar el modal personalizado en lugar del confirm nativo
+    const modalConfirm = document.getElementById('modalConfirmDelete');
+    const btnConfirm = document.getElementById('btnConfirmDelete');
+    const btnCancel = document.getElementById('btnCancelDelete');
+    
+    modalConfirm.style.display = 'block';
+    
+    // Evento para el botón confirmar
+    btnConfirm.onclick = function() {
+        modalConfirm.style.display = 'none';
+        
+        // Realizar la eliminación mediante AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '../Controlador/Eliminar_Usuario.php', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        
+        xhr.onload = function() {
+            if (this.status === 200) {
+                try {
+                    const response = JSON.parse(this.responseText);
+                    if (response.status === 'success') {
+                        showToast(response.message, 'success');
+                        // Eliminar la fila de la tabla
+                        const rows = document.querySelectorAll('#tablaUsuario tbody tr');
+                        for (let row of rows) {
+                            const cells = row.getElementsByTagName('td');
+                            if (cells[0].textContent === response.codigo) {
+                                row.remove();
+                                break;
                             }
-                        } else {
-                            showToast(response.message || 'Error al eliminar usuario', 'error');
                         }
-                    } catch (e) {
-                        showToast('Error en la respuesta del servidor', 'error');
+                    } else {
+                        showToast(response.message || 'Error al eliminar usuario', 'error');
                     }
+                } catch (e) {
+                    showToast('Error en la respuesta del servidor', 'error');
                 }
-            };
-            
-            xhr.send('id_usuario=' + encodeURIComponent(id));
+            }
+        };
+        
+        xhr.send('id_usuario=' + encodeURIComponent(id));
+    };
+    
+    // Evento para el botón cancelar
+    btnCancel.onclick = function() {
+        modalConfirm.style.display = 'none';
+    };
+    
+    // Cerrar el modal al hacer clic fuera del contenido
+    window.onclick = function(event) {
+        if (event.target == modalConfirm) {
+            modalConfirm.style.display = 'none';
         }
-    }
+    };
+}
 
     // Submit form with AJAX
     function submitForm(event) {
@@ -834,6 +1062,26 @@ $programasResult = $conn->query($programasQuery);
         }
     });
 </script>
+<!-- HTML mejorado para el modal de confirmación -->
+<div id="modalConfirmDelete" class="modal-confirm">
+    <div class="modal-confirm-content">
+        <div class="modal-confirm-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>¿Estás seguro de eliminar este usuario?</h3>
+        <div class="modal-confirm-message">
+            Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.
+        </div>
+        <div class="modal-confirm-buttons">
+            <button id="btnCancelDelete" class="btn-cancelar">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button id="btnConfirmDelete" class="btn-confirmar">
+                <i class="fas fa-check"></i> Confirmar
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 
