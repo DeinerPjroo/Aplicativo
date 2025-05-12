@@ -2,6 +2,9 @@
 session_start();
 include("../database/Conexion.php");
 
+date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
+
+
 // Verifica si el usuario tiene permisos para eliminar reservas (por ejemplo, Administrador o Docente).
 include("../Controlador/control_De_Rol.php");
 checkRole(['Administrador', 'Docente']); // Solo roles permitidos pueden eliminar reservas.

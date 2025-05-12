@@ -391,6 +391,16 @@ font-size: 1.75rem;
     margin-left: 500px; /* Centra horizontalmente */
 }
 
+#busqueda{
+    padding: 10px; 
+    width: 30%; /* Ajusta el ancho para que sea más visible */
+    border-radius: 5px; 
+    border: 1px solid #ccc;
+    display: block; /* Asegura que se comporte como un bloque */
+    margin-right: 130px; /* Centra horizontalmente */ 
+    margin-left: 500px; /* Centra horizontalmente */
+}
+
 #filtro_recurso {
     display: flex;
     justify-content: space-between;

@@ -521,6 +521,42 @@ if (!empty($fechaFiltrada)) {
     </section>
 
     <script>
+        // Agregar esta función de validación común
+        function validarRegistro(fecha, horaInicio, horaFin) {
+            // Validar fecha no anterior a hoy
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const fechaSeleccionada = new Date(fecha);
+            fechaSeleccionada.setHours(0, 0, 0, 0);
+
+            if (fechaSeleccionada < hoy) {
+                throw new Error('No puedes seleccionar una fecha pasada');
+            }
+
+            // Validar horario de operación (6:00 AM - 10:00 PM)
+            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
+            const horaFinNum = parseInt(horaFin.split(':')[0]);
+            if (horaInicioNum < 6 || horaFinNum > 22) {
+                throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
+            }
+
+            // Validar hora actual si es el mismo día
+            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
+            const ahora = new Date();
+
+            if (fechaSeleccionada.getTime() === hoy.getTime() && fechaHoraInicio < ahora) {
+                throw new Error('No puedes seleccionar una hora que ya pasó');
+            }
+
+            // Validar que hora fin sea posterior a hora inicio
+            if (fechaHoraFin <= fechaHoraInicio) {
+                throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+            }
+
+            return true;
+        }
+
         // Script de busaqueda en la tabla de reservas.
         // Este script permite filtrar las filas de la tabla según el texto ingresado en el campo de búsqueda.
         document.addEventListener("DOMContentLoaded", () => {
@@ -657,6 +693,42 @@ if (!empty($fechaFiltrada)) {
             menu.style.display = menu.style.display === "block" ? "none" : "block";
         }
 
+        // Modificar la función guardarCambios
+        function guardarCambios(event) {
+            event.preventDefault();
+            
+            try {
+                const fecha = document.getElementById('fecha').value;
+                const horaInicio = document.getElementById('hora_inicio').value;
+                const horaFin = document.getElementById('hora_fin').value;
+
+                validarRegistro(fecha, horaInicio, horaFin);
+
+                const formData = new FormData(document.getElementById('formModificar'));
+                
+                fetch('../Controlador/Modificar_Registro.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'success') {
+                        alert('Registro actualizado correctamente');
+                        cerrarModal();
+                        location.reload();
+                    } else {
+                        throw new Error(result);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al actualizar el registro: ' + error.message);
+                });
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
         // Funciones para el modal de modificar
         function mostrarModal(registro) {
             document.getElementById('registro_id').value = registro.ID_Registro;
@@ -672,82 +744,51 @@ if (!empty($fechaFiltrada)) {
             document.getElementById('modalModificar').style.display = 'none';
         }
 
-        function guardarCambios(event) {
+        // Modificar la función guardarNuevoRegistro
+        function guardarNuevoRegistro(event) {
             event.preventDefault();
+            
+            try {
+                const fecha = document.getElementById('fecha_agregar').value;
+                const horaInicio = document.getElementById('hora_inicio_agregar').value;
+                const horaFin = document.getElementById('hora_fin_agregar').value;
 
-            const fecha = document.getElementById('fecha').value;
-            const horaInicio = document.getElementById('hora_inicio').value;
-            const horaFin = document.getElementById('hora_fin').value;
+                validarRegistro(fecha, horaInicio, horaFin);
 
-            // Validar que la fecha no sea anterior a hoy
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            const fechaSeleccionada = new Date(fecha);
-            if (fechaSeleccionada < hoy) {
-                alert('No puedes seleccionar una fecha pasada');
-                return false;
-            }
-
-            // Validar horario de operación (6:00 AM - 10:00 PM)
-            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
-            const horaFinNum = parseInt(horaFin.split(':')[0]);
-            if (horaInicioNum < 6 || horaFinNum > 22) {
-                alert('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
-                return false;
-            }
-
-            // Obtener fecha y hora actual
-            const ahora = new Date();
-            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
-
-            // Solo validar si es el mismo día
-            if (fecha === ahora.toISOString().split('T')[0]) {
-                // Crear fecha actual sin segundos ni milisegundos para comparación justa
-                const ahoraRedondeada = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), ahora.getHours(), ahora.getMinutes(), 0, 0);
-                const fechaHoraInicioRedondeada = new Date(fechaHoraInicio.getFullYear(), fechaHoraInicio.getMonth(), fechaHoraInicio.getDate(), fechaHoraInicio.getHours(), fechaHoraInicio.getMinutes(), 0, 0);
-
-                if (fechaHoraInicioRedondeada < ahoraRedondeada) {
-                    alert('No puedes seleccionar una hora que ya pasó');
-                    return false;
-                }
-            }
-
-            // Validar que la hora de fin sea posterior a la hora de inicio
-            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
-            if (fechaHoraFin <= fechaHoraInicio) {
-                alert('La hora de finalización debe ser posterior a la hora de inicio');
-                return false;
-            }
-
-            // Si todas las validaciones pasan, enviar el formulario
-            const formData = new FormData(document.getElementById('formModificar'));
-
-            fetch('../Controlador/Modificar_Registro.php', {
+                const formData = new FormData(document.getElementById('formAgregar'));
+                
+                fetch('../Controlador/Verificar_Disponibilidad.php', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.text())
-                .then(result => {
-                    if (result === 'success') {
-                        alert('Registro actualizado correctamente');
-                        cerrarModal();
-                        location.reload();
-                    } else if (result === 'overlap') {
-                        alert('Ya existe una reserva para este recurso en ese horario');
-                    } else if (result === 'invalid_time_past') {
-                        alert('No se puede seleccionar una hora que ya pasó');
-                    } else if (result === 'invalid_day') {
-                        alert('No se pueden hacer reservas los domingos');
-                    } else if (result === 'invalid_time') {
-                        alert('El horario debe estar entre las 7:00 AM y las 10:00 PM');
+                .then(res => res.json())
+                .then(data => {
+                    if (data.disponible) {
+                        return fetch('../Controlador/Agregar_Registro.php', {
+                            method: 'POST',
+                            body: formData
+                        });
                     } else {
-                        alert('Error al actualizar el registro');
+                        throw new Error('El recurso no está disponible en ese horario');
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Registro agregado correctamente');
+                        cerrarModalAgregar();
+                        location.reload();
+                    } else {
+                        throw new Error(data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error al procesar la solicitud');
+                    alert('Error al procesar la solicitud: ' + error.message);
                 });
+            } catch (error) {
+                alert(error.message);
+            }
         }
 
         // Funciones para el modal de agregar
@@ -835,53 +876,6 @@ if (!empty($fechaFiltrada)) {
                 .catch(error => {
                     console.error('Error al cargar los docentes:', error);
                     alert('Hubo un error al cargar los docentes. Intente nuevamente.');
-                });
-        }
-
-        function guardarNuevoRegistro(event) {
-            event.preventDefault();
-            const form = document.getElementById('formAgregar');
-            const formData = new FormData(form);
-
-            // Verificar disponibilidad antes de enviar
-            const recurso = formData.get('recurso');
-            const fecha = formData.get('fecha');
-            const horaInicio = formData.get('hora_inicio');
-            const horaFin = formData.get('hora_fin');
-
-            fetch('../Controlador/Verificar_Disponibilidad.php', {
-                    method: 'POST',
-                    body: new URLSearchParams({
-                        recurso,
-                        fecha,
-                        horaInicio,
-                        horaFin
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.disponible) {
-                        fetch('../Controlador/Agregar_Registro.php', {
-                                method: 'POST',
-                                body: formData
-                            })
-                            .then(res => res.text())
-                            .then(result => {
-                                if (result === 'success') {
-                                    alert('Registro agregado correctamente');
-                                    cerrarModalAgregar();
-                                    location.reload();
-                                } else {
-                                    alert('Error al guardar el registro');
-                                }
-                            });
-                    } else {
-                        alert('El recurso no está disponible en ese horario.');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Error al procesar la solicitud');
                 });
         }
 
@@ -1030,13 +1024,8 @@ if (!empty($fechaFiltrada)) {
                     <input type="time" id="hora_fin_agregar" name="hora_fin" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="estado_agregar">Estado:</label>
-                    <select id="estado_agregar" name="estado" required>
-                        <option value="Confirmada">Confirmada</option>
-                        <option value="Cancelada">Cancelada</option>
-                    </select>
-                </div>
+                <!-- Eliminado el campo de estado y agregado como valor oculto -->
+                <input type="hidden" name="estado" value="Confirmada">
 
                 <div class="form-actions">
                     <button type="submit" class="btn-confirmar">Guardar</button>

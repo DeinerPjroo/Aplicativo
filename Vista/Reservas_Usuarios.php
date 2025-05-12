@@ -77,6 +77,52 @@ if (isset($_GET['error'])) {
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="webside icon" type="png" href="images/logo.png">
     <title>Mis Reservas</title>
+    <style>
+    /* Estilos del modal mejorados */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 400px;
+        max-width: 90%;
+        border-radius: 10px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: #d07c2e;
+        border-radius: 10px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: #b9651f;
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="Registro">
@@ -172,13 +218,499 @@ if (isset($_GET['error'])) {
             <?php endif; ?>
 
             <center>
-                <button class="btn-agregar" onclick="window.location.href='<?php echo ($role === 'Estudiante') ? '../Vista/Nueva_Reserva_Estudiante.php' : '../Vista/Nueva_Reserva_Docente.php'; ?>'">
+                <button class="btn-agregar" onclick="abrirModalReserva()">
                     <img src="../Imagen/Iconos/Mas.svg" alt="" />
                     <span class="btn-text">Crear Nueva Reserva</span>
                 </button>
             </center>
         </div>
     </section>
-</body>
 
+    <!-- Modal para reserva de estudiante -->
+    <div id="modalReservaEstudiante" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModalReserva('modalReservaEstudiante')">&times;</span>
+            <h2>Nueva Reserva - Estudiante</h2>
+            <form id="reservaFormEstudiante" onsubmit="return guardarReservaEstudiante(event)">
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha_estudiante" name="fecha" min="<?php echo date('Y-m-d'); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaInicio">Hora de Inicio:</label>
+                    <input type="time" id="horaInicio_estudiante" name="horaInicio" min="06:00" max="19:00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaFin">Hora de Finalización:</label>
+                    <input type="time" id="horaFin_estudiante" name="horaFin" min="06:00" max="20:00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Recurso:</label>
+                    <select id="tipo_estudiante" name="recurso" required>
+                        <option value="">Seleccione un recurso</option>
+                        <?php 
+                        $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                        while($recurso = $recursos->fetch_assoc()): 
+                        ?>
+                            <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="programa_estudiante">Programa/Dependencia:</label>
+                    <select id="programa_estudiante" name="Programa" required>
+                        <option value="">Seleccione un Programa/Dependencia</option>
+                        <?php 
+                        $programas = $conn->query("SELECT Id_Programa, nombrePrograma FROM Programa");
+                        while($programa = $programas->fetch_assoc()): 
+                        ?>
+                            <option value="<?= $programa['Id_Programa'] ?>"><?= $programa['nombrePrograma'] ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="docente_estudiante">Docente/Administrativo:</label>
+                    <select id="docente_estudiante" name="docente" required>
+                        <option value="">Seleccione un Docente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="semestre_estudiante">Semestre:</label>
+                    <select id="semestre_estudiante" name="semestre" required>
+                        <option value="">Seleccione el semestre</option>
+                        <?php for($i = 1; $i <= 10; $i++): ?>
+                            <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <div id="mensajeErrorEstudiante" class="error-mensaje" style="display: none;"></div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-confirmar">Reservar</button>
+                    <button type="button" onclick="cerrarModalReserva('modalReservaEstudiante')" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para reserva de docente -->
+    <div id="modalReservaDocente" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModalReserva('modalReservaDocente')">&times;</span>
+            <h2>Nueva Reserva - Docente</h2>
+            <form id="reservaFormDocente" onsubmit="return guardarReservaDocente(event)">
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha_docente" name="fecha" min="<?php echo date('Y-m-d'); ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaInicio">Hora de Inicio:</label>
+                    <input type="time" id="horaInicio_docente" name="horaInicio" min="06:00" max="21:00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaFin">Hora Final:</label>
+                    <input type="time" id="horaFin_docente" name="horaFin" min="06:00" max="22:00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Recurso:</label>
+                    <select id="tipo_docente" name="recurso" required>
+                        <option value="">Seleccione un recurso</option>
+                        <?php 
+                        $recursos->data_seek(0);
+                        while($recurso = $recursos->fetch_assoc()): 
+                        ?>
+                            <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="asignatura_docente">Asignatura:</label>
+                    <select id="asignatura_docente" name="docente_asignatura" required>
+                        <option value="">Seleccione una asignatura</option>
+                        <?php 
+                        $asignaturas = $conn->prepare("SELECT da.ID_DocenteAsignatura, a.nombreAsignatura 
+                            FROM docente_asignatura da
+                            JOIN asignatura a ON da.ID_Asignatura = a.ID_Asignatura
+                            WHERE da.ID_Usuario = ?");
+                        $asignaturas->bind_param("i", $_SESSION['usuario_id']);
+                        $asignaturas->execute();
+                        $result = $asignaturas->get_result();
+                        while($asig = $result->fetch_assoc()): 
+                        ?>
+                            <option value="<?= $asig['ID_DocenteAsignatura'] ?>"><?= $asig['nombreAsignatura'] ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+
+                <div id="mensajeErrorDocente" class="error-mensaje" style="display: none;"></div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-confirmar">Reservar</button>
+                    <button type="button" onclick="cerrarModalReserva('modalReservaDocente')" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirModalReserva() {
+            const role = '<?php echo $role; ?>';
+            if (role === 'Estudiante') {
+                document.getElementById('modalReservaEstudiante').style.display = 'block';
+            } else if (role === 'Docente') {
+                document.getElementById('modalReservaDocente').style.display = 'block';
+            }
+        }
+
+        function cerrarModalReserva(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Agregar el resto del código JavaScript existente aquí
+        // ...existing code...
+
+        // Cargar docentes para estudiantes
+        document.getElementById('programa_estudiante').addEventListener('change', function() {
+            const programaId = this.value;
+            const docenteSelect = document.getElementById('docente_estudiante');
+            
+            if (programaId) {
+                fetch('../Controlador/Obtener_Docente.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'id_programa=' + encodeURIComponent(programaId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
+                    data.forEach(docente => {
+                        docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+
+        // Función común de validación para todos los formularios
+        function validarRegistro(fecha, horaInicio, horaFin) {
+            // Obtener fecha y hora actual de Bogotá
+            const ahora = new Date();
+            const fechaSeleccionada = new Date(fecha);
+            const horaInicioDate = new Date(`${fecha}T${horaInicio}`);
+            const horaFinDate = new Date(`${fecha}T${horaFin}`);
+            
+            // Ajustar a la zona horaria de Bogotá
+            const bogotaOffset = -5 * 60; // UTC-5
+            const fechaBogota = new Date(ahora.getTime() + (bogotaOffset + ahora.getTimezoneOffset()) * 60000);
+            
+            // Si es el día actual, validar la hora
+            if (fechaSeleccionada.toDateString() === fechaBogota.toDateString()) {
+                if (horaInicioDate < fechaBogota) {
+                    throw new Error('No puedes seleccionar una hora que ya pasó');
+                }
+            } else if (fechaSeleccionada < fechaBogota) {
+                // Si es un día anterior
+                throw new Error('No puedes seleccionar una fecha pasada');
+            }
+
+            // Validar que la hora de finalización sea posterior a la hora de inicio
+            if (horaFinDate <= horaInicioDate) {
+                throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+            }
+
+            // Validar duración mínima y máxima
+            const diffMinutos = (horaFinDate - horaInicioDate) / (1000 * 60);
+            const role = '<?php echo $role; ?>';
+
+            if (role === 'Estudiante') {
+                if (diffMinutos < 30) {
+                    throw new Error('La reserva debe durar al menos 30 minutos');
+                }
+                if (diffMinutos > 180) {
+                    throw new Error('La reserva no puede exceder las 3 horas');
+                }
+            } else {
+                if (diffMinutos < 30) {
+                    throw new Error('La reserva debe durar al menos 30 minutos');
+                }
+                if (diffMinutos > 360) {
+                    throw new Error('La reserva no puede exceder las 6 horas');
+                }
+            }
+
+            // Validar horario de operación
+            const horaInicioNum = horaInicioDate.getHours();
+            const horaFinNum = horaFinDate.getHours();
+
+            if (role === 'Estudiante') {
+                if (horaInicioNum < 6 || horaFinNum > 20) {
+                    throw new Error('El horario de reserva para estudiantes debe estar entre las 6:00 AM y las 8:00 PM');
+                }
+            } else {
+                if (horaInicioNum < 6 || horaFinNum > 22) {
+                    throw new Error('El horario de reserva para docentes debe estar entre las 6:00 AM y las 10:00 PM');
+                }
+            }
+
+            return true;
+        }
+
+        // Función para verificar disponibilidad de recurso
+        async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
+            const formData = new FormData();
+            formData.append("fecha", fecha);
+            formData.append("horaInicio", horaInicio);
+            formData.append("horaFin", horaFin);
+            formData.append("recurso", recurso);
+
+            try {
+                const response = await fetch("../Controlador/Obtener_Recurso.php", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!data.disponible) {
+                    throw new Error('El recurso no está disponible en ese horario');
+                }
+                return true;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Actualizar la función guardarReservaEstudiante
+        async function guardarReservaEstudiante(event) {
+            event.preventDefault();
+            const form = document.getElementById('reservaFormEstudiante');
+            
+            try {
+                // Validar el formulario
+                validarRegistro(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value
+                );
+
+                // Verificar disponibilidad
+                await verificarDisponibilidad(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value,
+                    form.recurso.value
+                );
+
+                // Si pasa todas las validaciones, enviar el formulario
+                const formData = new FormData(form);
+                const response = await fetch('../Controlador/guardar_reserva.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.error('Error parsing JSON:', await response.text());
+                    throw new Error('Error en la respuesta del servidor. Verifica la consola para más detalles.');
+                }
+
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        cerrarModalReserva('modalReservaEstudiante');
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(data.message || 'Error al guardar la reserva');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            }
+        }
+
+        // Actualizar la función guardarReservaDocente
+        async function guardarReservaDocente(event) {
+            event.preventDefault();
+            const form = document.getElementById('reservaFormDocente');
+            
+            try {
+                // Validar el formulario
+                validarRegistro(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value
+                );
+
+                // Verificar disponibilidad
+                await verificarDisponibilidad(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value,
+                    form.recurso.value
+                );
+
+                // Si pasa todas las validaciones, enviar el formulario
+                const formData = new FormData(form);
+                const response = await fetch('../Controlador/guardar_reserva.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.error('Error parsing JSON:', await response.text());
+                    throw new Error('Error en la respuesta del servidor. Verifica la consola para más detalles.');
+                }
+
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        cerrarModalReserva('modalReservaDocente');
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(data.message || 'Error al guardar la reserva');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            }
+        }
+
+        // Agregar validación en tiempo real para los campos de fecha y hora
+        document.addEventListener('DOMContentLoaded', function() {
+            const modales = ['modalReservaEstudiante', 'modalReservaDocente'];
+            
+            modales.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    const inputs = modal.querySelectorAll('input[type="date"], input[type="time"]');
+                    inputs.forEach(input => {
+                        input.addEventListener('change', function() {
+                            const form = this.closest('form');
+                            try {
+                                const fecha = form.querySelector('input[type="date"]').value;
+                                const horaInicio = form.querySelector('input[name="horaInicio"]').value;
+                                const horaFin = form.querySelector('input[name="horaFin"]').value;
+                                
+                                if (fecha && horaInicio && horaFin) {
+                                    validarRegistro(fecha, horaInicio, horaFin);
+                                    form.querySelector('.error-mensaje').style.display = 'none';
+                                }
+                            } catch (error) {
+                                form.querySelector('.error-mensaje').textContent = error.message;
+                                form.querySelector('.error-mensaje').style.display = 'block';
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        async function validarFormularioReserva(form, tipoUsuario) {
+            const fecha = form.querySelector('input[name="fecha"]').value;
+            const horaInicio = form.querySelector('input[name="horaInicio"]').value;
+            const horaFin = form.querySelector('input[name="horaFin"]').value;
+            const recurso = form.querySelector('select[name="recurso"]').value;
+
+            // Validar campos obligatorios
+            if (!fecha || !horaInicio || !horaFin || !recurso) {
+                throw new Error('Todos los campos son obligatorios');
+            }
+
+            // Validar fecha y horas
+            const inicio = new Date(`${fecha}T${horaInicio}`);
+            const fin = new Date(`${fecha}T${horaFin}`);
+            const ahora = new Date();
+
+            if (inicio < ahora) {
+                throw new Error('No puedes seleccionar una fecha y hora pasada');
+            }
+
+            if (fin <= inicio) {
+                throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+            }
+
+            // Validar duración según tipo de usuario
+            const duracionMinutos = (fin - inicio) / (1000 * 60);
+            if (tipoUsuario === 'Estudiante') {
+                if (duracionMinutos > 180) { // 3 horas máximo
+                    throw new Error('Los estudiantes pueden reservar máximo 3 horas');
+                }
+            } else {
+                if (duracionMinutos > 360) { // 6 horas máximo
+                    throw new Error('Los docentes pueden reservar máximo 6 horas');
+                }
+            }
+
+            // Verificar disponibilidad
+            const disponibilidad = await verificarDisponibilidad(fecha, horaInicio, horaFin, recurso);
+            if (!disponibilidad) {
+                throw new Error('El recurso no está disponible en ese horario');
+            }
+
+            return true;
+        }
+
+        // Agregar validaciones en tiempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            const modales = ['modalReservaEstudiante', 'modalReservaDocente'];
+            
+            modales.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    const inputs = modal.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.addEventListener('change', async function() {
+                            const form = this.closest('form');
+                            const tipoUsuario = modalId.includes('Estudiante') ? 'Estudiante' : 'Docente';
+                            try {
+                                await validarFormularioReserva(form, tipoUsuario);
+                                form.querySelector('.error-mensaje').style.display = 'none';
+                            } catch (error) {
+                                form.querySelector('.error-mensaje').textContent = error.message;
+                                form.querySelector('.error-mensaje').style.display = 'block';
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        // ...rest of existing code...
+    </script>
+</body>
 </html>
