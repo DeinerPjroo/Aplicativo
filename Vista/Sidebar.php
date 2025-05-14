@@ -14,11 +14,18 @@
             <a href="javascript:location.reload(true);" class="header-logo">
                 <img src="../Imagen/logo_sinLetra.png">
             </a>
+
+
             <button class="toggler sidebar-toggler">
                 <span class="material-symbols-outlined">
-                    menu
+                    <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="" />
                 </span>
             </button>
+
+
+
+       
+
 
             <button class="toggler menu-toggler">
                 <span class="material-symbols-outlined">
@@ -37,7 +44,7 @@
 
 
 
-            <!-- ROL ADMINISTRADOR -->
+                <!-- ROL ADMINISTRADOR -->
                 <!-- administrar usuarios administrador -->
                 <?php if ($_SESSION['usuario_rol'] === 'Administrador'): ?>
                     <li>
@@ -60,7 +67,7 @@
                 <?php if ($_SESSION['usuario_rol'] === 'Administrador'): ?>
                     <li class="nav-item">
                         <a href="../Vista/Registro.php" class="nav-link">
-                             <img src="../Imagen/Iconos/Registros.svg" alt="" />
+                            <img src="../Imagen/Iconos/Registros.svg" alt="" />
                             <span class="nav-label">Registro</span>
                         </a>
                         <span class="nav-tooltip">Registro</span>
@@ -98,28 +105,28 @@
 
 
 
-              
 
-<!-- ROL DOCENTE y estudiante -->
 
-                        <?php if ($_SESSION['usuario_rol'] !== 'Administrador'): ?>
+                <!-- ROL DOCENTE y estudiante -->
+
+                <?php if ($_SESSION['usuario_rol'] !== 'Administrador'): ?>
                     <li class="nav-item">
-                    <a href="../Vista/Reservas_Usuarios.php" class="nav-link">
-                        <img src="../Imagen/Iconos/Reservas.svg" alt="" />
-                        <span class="nav-label">Reservas</span>
-                    </a>
-                    <span class="nav-tooltip">Reservas</span>
-                </li>
+                        <a href="../Vista/Reservas_Usuarios.php" class="nav-link">
+                            <img src="../Imagen/Iconos/Reservas.svg" alt="" />
+                            <span class="nav-label">Reservas</span>
+                        </a>
+                        <span class="nav-tooltip">Reservas</span>
+                    </li>
                 <?php endif; ?>
 
-                            <?php if ($_SESSION['usuario_rol'] !== 'Administrador'): ?>
-                <li class="nav-item">
-                    <a href="../Vista/Historial.php" class="nav-link">
-                        <img src="../Imagen/Iconos/Historial.svg" alt="" />
-                        <span class="nav-label">Historial</span>
-                    </a>
-                    <span class="nav-tooltip">Historial</span>
-                </li>
+                <?php if ($_SESSION['usuario_rol'] !== 'Administrador'): ?>
+                    <li class="nav-item">
+                        <a href="../Vista/Historial.php" class="nav-link">
+                            <img src="../Imagen/Iconos/Historial.svg" alt="" />
+                            <span class="nav-label">Historial</span>
+                        </a>
+                        <span class="nav-tooltip">Historial</span>
+                    </li>
                 <?php endif; ?>
 
 

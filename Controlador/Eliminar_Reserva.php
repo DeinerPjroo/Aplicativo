@@ -1,40 +1,37 @@
 <?php
 session_start();
+header('Content-Type: application/json');
 include("../database/conection.php");
 
 date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
 
-
-// Verifica si el usuario tiene permisos para eliminar reservas (por ejemplo, Administrador o Docente).
 include("../Controlador/control_De_Rol.php");
 checkRole(['Administrador', 'Docente']); // Solo roles permitidos pueden eliminar reservas.
 
-// Verifica si se ha proporcionado un ID de reserva.
-if (!isset($_GET['id'])) { // Cambiado a 'id' para coincidir con el enlace en Registro.php
-    echo "<script>alert('❌ ID de reserva no proporcionado.'); window.history.back();</script>";
-    exit();
-}
+if (isset($_GET['id'])) {
+    $id_reserva = intval($_GET['id']); // Sanitiza el ID de la reserva.
 
-$id_reserva = intval($_GET['id']); // Sanitiza el ID de la reserva.
+    // Desactiva temporalmente las restricciones de claves foráneas (si es necesario).
+    $conn->query("SET FOREIGN_KEY_CHECKS=0");
 
-// Desactiva temporalmente las restricciones de claves foráneas (si es necesario).
-$conn->query("SET FOREIGN_KEY_CHECKS=0");
+    // Preparar la consulta usando una sentencia preparada
+    $stmt = $conn->prepare("DELETE FROM registro WHERE ID_Registro = ?");
+    $stmt->bind_param("i", $id_reserva);
 
-// Consulta para eliminar la reserva.
-$sql = "DELETE FROM registro WHERE ID_Registro = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_reserva);
+    if ($stmt->execute() && $stmt->affected_rows > 0) { // Verifica si se eliminó alguna fila.
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Error al eliminar la reserva o la reserva no existe.']);
+    }
 
-if ($stmt->execute() && $stmt->affected_rows > 0) { // Verifica si se eliminó alguna fila.
-    echo "<script>alert('✅ Reserva eliminada con éxito.'); window.location.href='../Vista/Registro.php';</script>";
+    // Reactiva las restricciones de claves foráneas.
+    $conn->query("SET FOREIGN_KEY_CHECKS=1");
+
+    $stmt->close();
 } else {
-    echo "<script>alert('❌ Error al eliminar la reserva o la reserva no existe.'); window.history.back();</script>";
+    echo json_encode(['success' => false, 'error' => 'No ID provided']);
 }
 
-// Reactiva las restricciones de claves foráneas.
-$conn->query("SET FOREIGN_KEY_CHECKS=1");
-
-$stmt->close();
 $conn->close();
 ?>
 

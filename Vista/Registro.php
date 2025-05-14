@@ -289,7 +289,173 @@ if (!empty($fechaFiltrada)) {
         margin-top: -12px;
         margin-bottom: 8px;
     }
+
+    /* Estilos mejorados para el modal de confirmación */
+    .modal-confirm {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 2000;
+        animation: fadeIn 0.3s ease;
+        backdrop-filter: blur(3px);
+    }
+
+    .modal-confirm-content {
+        position: relative;
+        background-color: #fff;
+        width: 400px;
+        margin: 15% auto;
+        padding: 35px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        text-align: center;
+        animation: scaleIn 0.4s ease;
+        border-top: 5px solid #d07c2e;
+    }
+
+    .modal-confirm-icon {
+        font-size: 48px;
+        color: #d07c2e;
+        margin-bottom: 20px;
+    }
+
+    .modal-confirm h3 {
+        margin-top: 10px;
+        color: #333;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        line-height: 1.4;
+    }
+
+    .modal-confirm-message {
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .modal-confirm-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .btn-confirmar {
+        background-color: #d07c2e;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
+    }
+
+    /* hola  */
+    .btn-confirmar:hover {
+        background-color: #b9651f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
+    }
+
+    .btn-cancelar {
+        background-color: #2d9eb2;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 8px rgba(45, 158, 178, 0.3);
+    }
+
+    .btn-cancelar:hover {
+        background-color: #258797;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(45, 158, 178, 0.4);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Efecto al hacer clic en los botones */
+    .btn-confirmar:active,
+    .btn-cancelar:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Estilo para notificaciones */
+    .toast-container {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1100;
+    }
+
+    .toast {
+        background-color: #fff;
+        color: #333;
+        border-radius: 4px;
+        padding: 8px 15px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 200px;
+        max-width: 300px;
+        font-size: 14px;
+        animation: slide-in 0.3s ease-out forwards;
+    }
+
+    .toast.success {
+        border-left: 4px solid #28a745;
+    }
+
+    .toast.error {
+        border-left: 4px solid #dc3545;
+    }
+
+    @keyframes slide-in {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fade-out {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 </head>
 
@@ -303,12 +469,14 @@ if (!empty($fechaFiltrada)) {
     <section class="Topbard">
 
         <input type="text" id="filtroBusqueda" placeholder="Buscar usuario, recurso o asignatura...">
+        <!-- Agregar el contenedor de toast después del Topbard -->
+        <div id="toastContainer" class="toast-container"></div>
         <div class="btn-reportes">
             <button title="Generar reportes de hoy" id="generarReporte" class="btn-reporte"><span class="material-symbols-outlined">
-                    today
+                    <img src="../Imagen/Iconos/Today.svg" alt="" />
                 </span></button>
             <button title="Generar reportes de mañana" id="generarReporteSiguiente" class="btn-reporte"><span class="material-symbols-outlined">
-                    event_upcoming
+                    <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
                 </span></button>
         </div>
 
@@ -963,18 +1131,73 @@ if (!empty($fechaFiltrada)) {
         let idRegistroEliminar = null;
 
         function confirmarEliminar(id) {
-            idRegistroEliminar = id;
-            document.getElementById('modalEliminar').style.display = 'block';
-            
-            // Configurar el botón de eliminar
-            document.getElementById('btnConfirmarEliminar').onclick = function() {
-                window.location.href = '../Controlador/Eliminar_Reserva.php?id=' + idRegistroEliminar;
+            const modalConfirm = document.getElementById('modalConfirmDelete');
+            const btnConfirm = document.getElementById('btnConfirmDelete');
+            const btnCancel = document.getElementById('btnCancelDelete');
+
+            modalConfirm.style.display = 'block';
+
+            btnConfirm.onclick = function() {
+                modalConfirm.style.display = 'none';
+                
+                fetch(`../Controlador/Eliminar_Reserva.php?id=${id}`, {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Registro eliminado correctamente', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showToast('Error al eliminar el registro', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error al eliminar el registro', 'error');
+                });
+            };
+
+            btnCancel.onclick = function() {
+                modalConfirm.style.display = 'none';
+            };
+
+            window.onclick = function(event) {
+                if (event.target == modalConfirm) {
+                    modalConfirm.style.display = 'none';
+                }
             };
         }
 
         function cerrarModalEliminar() {
             document.getElementById('modalEliminar').style.display = 'none';
             idRegistroEliminar = null;
+        }
+
+        // Agregar la función showToast si no existe
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div>${message}</div>
+                <button class="toast-close" onclick="closeToast(this.parentElement)">&times;</button>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Auto-close after 5 seconds
+            setTimeout(() => {
+                closeToast(toast);
+            }, 5000);
+        }
+
+        function closeToast(toast) {
+            toast.style.animation = 'fade-out 0.3s forwards';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
         }
     </script>
 
@@ -1049,7 +1272,6 @@ if (!empty($fechaFiltrada)) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div class="form-group" id="campoDocente" style="display:none;">
                     <label for="docente_agregar"><strong>Seleccione el docente:</strong></label>
                     <select id="docente_agregar" name="docente" style="width: 100%;">
@@ -1073,12 +1295,10 @@ if (!empty($fechaFiltrada)) {
                     <label for="fecha_agregar">Fecha:</label>
                     <input type="date" id="fecha_agregar" name="fecha" required>
                 </div>
-
                 <div class="form-group">
                     <label for="hora_inicio_agregar">Hora Inicio:</label>
                     <input type="time" id="hora_inicio_agregar" name="hora_inicio" required>
                 </div>
-
                 <div class="form-group">
                     <label for="hora_fin_agregar">Hora Fin:</label>
                     <input type="time" id="hora_fin_agregar" name="hora_fin" required>
@@ -1096,29 +1316,22 @@ if (!empty($fechaFiltrada)) {
     </div>
 
     <!-- Modal de confirmación para eliminar -->
-    <div id="modalConfirmacion" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <span class="close" onclick="cerrarModalConfirmacion()">&times;</span>
-            <h2>Confirmar Eliminación</h2>
-            <p>¿Está seguro de que desea eliminar este registro?</p>
-            <p>Esta acción no se puede deshacer.</p>
-            <div style="text-align: right; margin-top: 20px;">
-                <button onclick="eliminarRegistro()" class="btn btn-eliminar">Eliminar</button>
-                <button onclick="cerrarModalConfirmacion()" class="btn btn-cancelar">Cancelar</button>
+    <div id="modalConfirmDelete" class="modal-confirm">
+        <div class="modal-confirm-content">
+            <div class="modal-confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal de confirmación para eliminar -->
-    <div id="modalEliminar" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <span class="close" onclick="cerrarModalEliminar()">&times;</span>
-            <h2>Confirmar Eliminación</h2>
-            <p>¿Está seguro de que desea eliminar esta reserva?</p>
-            <p>Esta acción no se puede deshacer.</p>
-            <div style="text-align: right; margin-top: 20px;">
-                <button id="btnConfirmarEliminar" class="btn btn-eliminar" style="margin-right: 10px;">Eliminar</button>
-                <button onclick="cerrarModalEliminar()" class="btn btn-cancelar">Cancelar</button>
+            <h3>¿Estás seguro de eliminar esta reserva?</h3>
+            <div class="modal-confirm-message">
+                Esta acción no se puede deshacer y eliminará todos los datos asociados a la reserva.
+            </div>
+            <div class="modal-confirm-buttons">
+                <button id="btnCancelDelete" class="btn-cancelar">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="btnConfirmDelete" class="btn-confirmar">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
             </div>
         </div>
     </div>
