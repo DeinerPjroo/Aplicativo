@@ -6,7 +6,7 @@ setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252');
 
 
 include("../Controlador/control_De_Rol.php");
-checkRole(['Docente', 'Estudiante', 'Administrador', 'Administrativo']); // Allow both roles
+checkRole(['Docente', 'Estudiante', 'Administrativo']); // Allow both roles
 
 $role = getUserRole(); // Asegúrate de que esta función devuelve el rol del usuario actual
 // Incluir conexión a la base de datos

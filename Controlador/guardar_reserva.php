@@ -1,12 +1,12 @@
 <?php
-header('Content-Type: application/json');
-date_default_timezone_set('America/Bogota');
+
+
+date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
+
+
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Acceso no permitido'
-    ]);
+    echo "<script>alert('Acceso no permitido'); window.location.href='../Vista/Nueva_Reserva_Usuario.php';</script>";
     exit();
 }
 
@@ -14,10 +14,7 @@ session_start();
 include("../database/conection.php");
 
 if (!isset($_SESSION['usuario_id'])) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Usuario no autenticado'
-    ]);
+    header("Location: Login.php");
     exit();
 }
 
@@ -46,37 +43,21 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     // Recurso ocupado
-    echo json_encode([
-        'status' => 'warning',
-        'message' => '⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.'
-    ]);
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=warning&message=⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.");
     exit();
 }
 
-try {
-    // Insertar la reserva con los datos adicionales
-    $sql = "INSERT INTO registro (ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura, semestre) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+// Insertar la reserva con los datos adicionales
+$sql = "INSERT INTO registro (ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura, semestre) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iisssis", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("iisssis", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
 
-    if ($stmt->execute()) {
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Reserva guardada exitosamente'
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Error al guardar la reserva'
-        ]);
-    }
-} catch (Exception $e) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+if ($stmt->execute()) {
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=success&message=✅ Reserva realizada con éxito");
+} else {
+    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=error&message=❌ Error al guardar la reserva");
 }
 exit();
 ?>

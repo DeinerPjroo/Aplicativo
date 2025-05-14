@@ -1,6 +1,10 @@
 <?php
 include("../database/conection.php");
 
+
+date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
+
+
 $idPrograma = $_GET['id_programa'];
 
 $query = "SELECT DISTINCT u.ID_Usuario, u.nombre 

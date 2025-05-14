@@ -2,6 +2,8 @@
 header('Content-Type: application/json');
 include("../database/conection.php");
 
+date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
+
 // Activar reporte de errores
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -25,7 +27,7 @@ try {
     $fecha = $_POST['fecha'];
     $horaInicio = $_POST['hora_inicio'];
     $horaFin = $_POST['hora_fin'];
-    $estado = 'Confirmada';
+    $estado = $_POST['estado'];
 
     // Obtener el rol del usuario
     $sql_rol = "SELECT u.id_rol FROM usuario u WHERE u.ID_Usuario = ?";

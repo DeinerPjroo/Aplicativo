@@ -30,9 +30,8 @@ function checkRole($allowed_roles) {
     
     // Verifica si el rol del usuario está en la lista de roles permitidos.
     if (!in_array($_SESSION['usuario_rol'], $allowed_roles)) {
-        // Si el rol del usuario no está permitido, redirige a una página de error.
-        header("Location: ../Vista/Error_Permiso.php");
-        exit();
+        echo getErrorModal();
+        exit(); // Detener la ejecución aquí
     }
 }
 
@@ -44,5 +43,48 @@ function getUserRole() {
         return $_SESSION['usuario_rol']; // Devuelve el rol almacenado en la sesión
     }
     return null; // Devuelve null si no hay rol definido
+}
+
+// Agregar el HTML del modal al final de cada página que use checkRole
+function getErrorModal() {
+    return <<<HTML
+    <div class="modal" style="display: block;">
+        <div class="modal-content">
+            <h2>Acceso Denegado</h2>
+            <p>No tienes permiso para acceder a esta página.</p>
+            <p>Serás redirigido en 3 segundos...</p>
+        </div>
+    </div>
+    <style>
+        .modal {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .modal-content h2 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+    </style>
+    <script>
+        setTimeout(() => {
+            window.location.href = '../Controlador/logout.php';
+        }, 3000);
+    </script>
+HTML;
 }
 ?>

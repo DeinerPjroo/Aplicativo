@@ -521,37 +521,63 @@ if (!empty($fechaFiltrada)) {
     </section>
 
     <script>
-        // Agregar esta función de validación común
+        // Reemplazar la función validarRegistro existente con esta versión mejorada
         function validarRegistro(fecha, horaInicio, horaFin) {
-            // Validar fecha no anterior a hoy
+            // 1. Validar fecha no anterior a hoy
             const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
             const fechaSeleccionada = new Date(fecha);
-            fechaSeleccionada.setHours(0, 0, 0, 0);
+            
+            // Resetear las horas para comparar solo fechas
+            const hoyInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+            const fechaSeleccionadaInicio = new Date(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), fechaSeleccionada.getDate());
 
-            if (fechaSeleccionada < hoy) {
+            if (fechaSeleccionadaInicio < hoyInicio) {
                 throw new Error('No puedes seleccionar una fecha pasada');
             }
 
-            // Validar horario de operación (6:00 AM - 10:00 PM)
+            // 2. Validar horario de operación (6:00 AM - 10:00 PM)
             const horaInicioNum = parseInt(horaInicio.split(':')[0]);
             const horaFinNum = parseInt(horaFin.split(':')[0]);
-            if (horaInicioNum < 6 || horaFinNum > 22) {
+            const minInicioNum = parseInt(horaInicio.split(':')[1]);
+            const minFinNum = parseInt(horaFin.split(':')[1]);
+
+            if (horaInicioNum < 6 || (horaFinNum === 22 && minFinNum > 0) || horaFinNum > 22) {
                 throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
             }
 
-            // Validar hora actual si es el mismo día
-            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
-            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
-            const ahora = new Date();
-
-            if (fechaSeleccionada.getTime() === hoy.getTime() && fechaHoraInicio < ahora) {
-                throw new Error('No puedes seleccionar una hora que ya pasó');
+            // 3. Solo validar hora actual si es para hoy
+            if (fechaSeleccionadaInicio.getTime() === hoyInicio.getTime()) {
+                const ahora = new Date();
+                const horaActual = ahora.getHours();
+                const minutosActuales = ahora.getMinutes();
+                
+                // Convertir hora de inicio a minutos desde medianoche
+                const minutosInicio = (horaInicioNum * 60) + minInicioNum;
+                const minutosAhora = (horaActual * 60) + minutosActuales;
+                
+                if (minutosInicio <= minutosAhora) {
+                    throw new Error('Para reservas de hoy, la hora de inicio debe ser posterior a la hora actual');
+                }
             }
 
-            // Validar que hora fin sea posterior a hora inicio
+            // 4. Validar que hora fin sea posterior a hora inicio
+            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
+
             if (fechaHoraFin <= fechaHoraInicio) {
                 throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+            }
+
+            // 5. Validar duración mínima y máxima
+            const duracionMs = fechaHoraFin - fechaHoraInicio;
+            const duracionMinutos = duracionMs / (1000 * 60);
+
+            if (duracionMinutos < 30) {
+                throw new Error('La reserva debe ser de mínimo 30 minutos');
+            }
+
+            if (duracionMinutos > 240) {
+                throw new Error('La reserva no puede exceder 4 horas');
             }
 
             return true;
@@ -701,14 +727,28 @@ if (!empty($fechaFiltrada)) {
                 const fecha = document.getElementById('fecha').value;
                 const horaInicio = document.getElementById('hora_inicio').value;
                 const horaFin = document.getElementById('hora_fin').value;
+                const registroId = document.getElementById('registro_id').value;
 
                 validarRegistro(fecha, horaInicio, horaFin);
 
                 const formData = new FormData(document.getElementById('formModificar'));
                 
-                fetch('../Controlador/Modificar_Registro.php', {
+                // Primero verificar disponibilidad
+                fetch('../Controlador/Verificar_Disponibilidad.php', {
                     method: 'POST',
                     body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.disponible || data.mismo_registro) {
+                        // Si está disponible o es el mismo registro, proceder con la modificación
+                        return fetch('../Controlador/Modificar_Registro.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+                    } else {
+                        throw new Error('El recurso no está disponible en ese horario');
+                    }
                 })
                 .then(response => response.text())
                 .then(result => {
