@@ -467,7 +467,7 @@ if (!empty($fechaFiltrada)) {
                         \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
                         \"estado\": \"" . $row['estado'] . "\"
                     }); return false;' class=\"menu-opcion\">Modificar</a>
-                    <a href=\"../Controlador/Eliminar_Reserva.php?id=" . $row['ID_Registro'] . "\" class=\"menu-opcion\">Eliminar</a>
+                    <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar(" . $row['ID_Registro'] . ")\" class=\"menu-opcion\">Eliminar</a>
                 </div>
             </div>
         </td>
@@ -521,67 +521,60 @@ if (!empty($fechaFiltrada)) {
     </section>
 
     <script>
-        // Reemplazar la función validarRegistro existente con esta versión mejorada
+        // Agregar esta función de validación común
         function validarRegistro(fecha, horaInicio, horaFin) {
-            // 1. Validar fecha no anterior a hoy
-            const hoy = new Date();
-            const fechaSeleccionada = new Date(fecha);
-            
-            // Resetear las horas para comparar solo fechas
-            const hoyInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-            const fechaSeleccionadaInicio = new Date(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), fechaSeleccionada.getDate());
+    const hoy = new Date();
+    const fechaSeleccionada = new Date(fecha + 'T00:00');
 
-            if (fechaSeleccionadaInicio < hoyInicio) {
-                throw new Error('No puedes seleccionar una fecha pasada');
-            }
+    // Validar que no sea una fecha pasada
+    if (fechaSeleccionada.setHours(0, 0, 0, 0) < hoy.setHours(0, 0, 0, 0)) {
+        throw new Error('No puedes seleccionar una fecha pasada');
+    }
 
-            // 2. Validar horario de operación (6:00 AM - 10:00 PM)
-            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
-            const horaFinNum = parseInt(horaFin.split(':')[0]);
-            const minInicioNum = parseInt(horaInicio.split(':')[1]);
-            const minFinNum = parseInt(horaFin.split(':')[1]);
+    // Validar horario de operación (6:00 AM - 10:00 PM)
+    const [hInicio, mInicio] = horaInicio.split(':').map(Number);
+    const [hFin, mFin] = horaFin.split(':').map(Number);
+    if (hInicio < 6 || hFin > 22 || (hFin === 22 && mFin > 0)) {
+        throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
+    }
 
-            if (horaInicioNum < 6 || (horaFinNum === 22 && minFinNum > 0) || horaFinNum > 22) {
-                throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
-            }
+    const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+    const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
 
-            // 3. Solo validar hora actual si es para hoy
-            if (fechaSeleccionadaInicio.getTime() === hoyInicio.getTime()) {
-                const ahora = new Date();
-                const horaActual = ahora.getHours();
-                const minutosActuales = ahora.getMinutes();
-                
-                // Convertir hora de inicio a minutos desde medianoche
-                const minutosInicio = (horaInicioNum * 60) + minInicioNum;
-                const minutosAhora = (horaActual * 60) + minutosActuales;
-                
-                if (minutosInicio <= minutosAhora) {
-                    throw new Error('Para reservas de hoy, la hora de inicio debe ser posterior a la hora actual');
-                }
-            }
+    // Validar que si es para hoy, la hora de inicio sea al menos 10 minutos después de la actual
+    const ahora = new Date();
+    const hoyStr = ahora.toISOString().split('T')[0];
+    if (fecha === hoyStr) {
+        const margenMinutos = 10;
+        const ahoraConMargen = new Date(ahora.getTime() + margenMinutos * 60000);
 
-            // 4. Validar que hora fin sea posterior a hora inicio
-            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
-            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
-
-            if (fechaHoraFin <= fechaHoraInicio) {
-                throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
-            }
-
-            // 5. Validar duración mínima y máxima
-            const duracionMs = fechaHoraFin - fechaHoraInicio;
-            const duracionMinutos = duracionMs / (1000 * 60);
-
-            if (duracionMinutos < 30) {
-                throw new Error('La reserva debe ser de mínimo 30 minutos');
-            }
-
-            if (duracionMinutos > 240) {
-                throw new Error('La reserva no puede exceder 4 horas');
-            }
-
-            return true;
+        if (fechaHoraInicio <= ahoraConMargen) {
+            throw new Error('Solo puedes apartar con al menos 10 minutos de anticipación');
         }
+    }
+
+    // Validar que la hora de fin sea posterior a la de inicio
+    if (fechaHoraFin <= fechaHoraInicio) {
+        throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+    }
+
+    // Validar duración mínima y máxima
+    const duracionMin = 30; // minutos
+    const duracionMax = 240;
+    const duracionMs = fechaHoraFin - fechaHoraInicio;
+    const duracionMinutos = duracionMs / (1000 * 60);
+
+    if (duracionMinutos < duracionMin) {
+        throw new Error('La reserva debe durar al menos 30 minutos');
+    }
+
+    if (duracionMinutos > duracionMax) {
+        throw new Error('La reserva no puede exceder 4 horas');
+    }
+
+    return true;
+}
+
 
         // Script de busaqueda en la tabla de reservas.
         // Este script permite filtrar las filas de la tabla según el texto ingresado en el campo de búsqueda.
@@ -727,28 +720,14 @@ if (!empty($fechaFiltrada)) {
                 const fecha = document.getElementById('fecha').value;
                 const horaInicio = document.getElementById('hora_inicio').value;
                 const horaFin = document.getElementById('hora_fin').value;
-                const registroId = document.getElementById('registro_id').value;
 
                 validarRegistro(fecha, horaInicio, horaFin);
 
                 const formData = new FormData(document.getElementById('formModificar'));
                 
-                // Primero verificar disponibilidad
-                fetch('../Controlador/Verificar_Disponibilidad.php', {
+                fetch('../Controlador/Modificar_Registro.php', {
                     method: 'POST',
                     body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.disponible || data.mismo_registro) {
-                        // Si está disponible o es el mismo registro, proceder con la modificación
-                        return fetch('../Controlador/Modificar_Registro.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-                    } else {
-                        throw new Error('El recurso no está disponible en ese horario');
-                    }
                 })
                 .then(response => response.text())
                 .then(result => {
@@ -923,11 +902,16 @@ if (!empty($fechaFiltrada)) {
         window.onclick = function(event) {
             const modalAgregar = document.getElementById('modalAgregar');
             const modalModificar = document.getElementById('modalModificar');
+            const modalEliminar = document.getElementById('modalEliminar');
+            
             if (event.target === modalAgregar) {
                 cerrarModalAgregar();
             }
             if (event.target === modalModificar) {
                 cerrarModal();
+            }
+            if (event.target === modalEliminar) {
+                cerrarModalEliminar();
             }
         };
 
@@ -956,6 +940,42 @@ if (!empty($fechaFiltrada)) {
                 }
             });
         });
+
+        let registroAEliminar = null;
+
+        function mostrarModalConfirmacion(idRegistro) {
+            registroAEliminar = idRegistro;
+            document.getElementById('modalConfirmacion').style.display = 'block';
+        }
+
+        function cerrarModalConfirmacion() {
+            document.getElementById('modalConfirmacion').style.display = 'none';
+            registroAEliminar = null;
+        }
+
+        function eliminarRegistro() {
+            if (registroAEliminar) {
+                window.location.href = `../Controlador/Eliminar_Reserva.php?id=${registroAEliminar}`;
+            }
+        }
+
+        // Variables y funciones para el modal de eliminación
+        let idRegistroEliminar = null;
+
+        function confirmarEliminar(id) {
+            idRegistroEliminar = id;
+            document.getElementById('modalEliminar').style.display = 'block';
+            
+            // Configurar el botón de eliminar
+            document.getElementById('btnConfirmarEliminar').onclick = function() {
+                window.location.href = '../Controlador/Eliminar_Reserva.php?id=' + idRegistroEliminar;
+            };
+        }
+
+        function cerrarModalEliminar() {
+            document.getElementById('modalEliminar').style.display = 'none';
+            idRegistroEliminar = null;
+        }
     </script>
 
     <!-- Modal para modificar registros -->
@@ -1072,6 +1092,34 @@ if (!empty($fechaFiltrada)) {
                     <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div id="modalConfirmacion" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="cerrarModalConfirmacion()">&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Está seguro de que desea eliminar este registro?</p>
+            <p>Esta acción no se puede deshacer.</p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button onclick="eliminarRegistro()" class="btn btn-eliminar">Eliminar</button>
+                <button onclick="cerrarModalConfirmacion()" class="btn btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div id="modalEliminar" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="cerrarModalEliminar()">&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Está seguro de que desea eliminar esta reserva?</p>
+            <p>Esta acción no se puede deshacer.</p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="btnConfirmarEliminar" class="btn btn-eliminar" style="margin-right: 10px;">Eliminar</button>
+                <button onclick="cerrarModalEliminar()" class="btn btn-cancelar">Cancelar</button>
+            </div>
         </div>
     </div>
 

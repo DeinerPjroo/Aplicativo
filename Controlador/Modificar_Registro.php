@@ -1,7 +1,5 @@
 <?php
-date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
-
-
+date_default_timezone_set('America/Bogota');
 session_start();
 include("../database/conection.php");
 include("../Controlador/control_De_Rol.php");
@@ -14,6 +12,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hora_fin = $_POST['hora_fin'];
     $estado = $_POST['estado'];
 
+    // Validación básica
+    if (!$fecha || !$hora_inicio || !$hora_fin || !$id) {
+        echo 'error: Faltan datos';
+        exit;
+    }
+
+    // Validar anticipación mínima de 10 minutos
+    $fechaHoraInicio = new DateTime("$fecha $hora_inicio");
+    $ahora = new DateTime();
+    $ahora->modify('+10 minutes');
+
+    if ($fecha === date('Y-m-d') && $fechaHoraInicio < $ahora) {
+        echo 'error: Solo puedes modificar con al menos 10 minutos de anticipación';
+        exit;
+    }
+
     // Obtener el ID_Recurso del registro actual
     $sqlRecurso = "SELECT ID_Recurso FROM registro WHERE ID_Registro = ?";
     $stmtRecurso = $conn->prepare($sqlRecurso);
@@ -21,49 +35,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmtRecurso->execute();
     $resultRecurso = $stmtRecurso->get_result();
     $rowRecurso = $resultRecurso->fetch_assoc();
+
+    if (!$rowRecurso) {
+        echo 'error: Registro no encontrado';
+        exit;
+    }
+
     $id_recurso = $rowRecurso['ID_Recurso'];
 
-    // Verificar traslapes para el mismo recurso
+    // Verificar traslapes reales (cruces) para el mismo recurso
     $sqlTraslape = "SELECT COUNT(*) as traslapes FROM registro 
                     WHERE ID_Recurso = ? 
                     AND fechaReserva = ? 
                     AND ID_Registro != ?
-                    AND estado != 'Cancelada'
+                    AND estado = 'Confirmada'
                     AND (
-                        (horaInicio < ? AND horaFin > ?) OR
-                        (horaInicio < ? AND horaFin > ?) OR
-                        (horaInicio >= ? AND horaFin <= ?)
+                        horaInicio < ? AND horaFin > ?
                     )";
 
     $stmt = $conn->prepare($sqlTraslape);
-    $stmt->bind_param("isississs", 
+    $stmt->bind_param("isiss", 
         $id_recurso, 
         $fecha, 
         $id,
         $hora_fin, 
-        $hora_inicio,
-        $hora_inicio, 
-        $hora_inicio,
-        $hora_inicio, 
-        $hora_fin
+        $hora_inicio
     );
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
 
     if ($row['traslapes'] > 0) {
-        echo 'overlap';
+        echo 'error: El recurso no está disponible en ese horario';
         exit;
     }
 
-    // Si no hay traslapes, actualizar el registro
+    // Actualizar el registro
     $sqlUpdate = "UPDATE registro SET 
                   fechaReserva = ?,
                   horaInicio = ?,
                   horaFin = ?,
                   estado = ?
                   WHERE ID_Registro = ?";
-
     $stmtUpdate = $conn->prepare($sqlUpdate);
     $stmtUpdate->bind_param("ssssi", 
         $fecha,
@@ -76,32 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmtUpdate->execute()) {
         echo 'success';
     } else {
-        echo 'error';
+        echo 'error: No se pudo actualizar';
     }
-    
+
     $stmt->close();
     $conn->close();
     exit();
 }
-
-$id = $_GET['id'] ?? null;
-if (!$id) {
-    echo "ID no proporcionado";
-    exit;
-}
-
-// Obtener los datos del registro
-$sql = "SELECT * FROM registro WHERE ID_Registro = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$registro = $result->fetch_assoc();
-
-if (!$registro) {
-    echo "Registro no encontrado";
-    exit;
-}
 ?>
-
-
