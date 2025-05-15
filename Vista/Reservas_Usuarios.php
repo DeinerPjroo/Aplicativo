@@ -78,49 +78,49 @@ if (isset($_GET['error'])) {
     <link rel="webside icon" type="png" href="images/logo.png">
     <title>Mis Reservas</title>
     <style>
-    /* Estilos del modal mejorados */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
+        /* Estilos del modal mejorados */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
 
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 400px;
-        max-width: 90%;
-        border-radius: 10px;
-        max-height: 80vh;
-        overflow-y: auto;
-        position: relative;
-    }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            max-width: 90%;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
 
-    .modal-content::-webkit-scrollbar {
-        width: 8px;
-    }
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
 
-    .modal-content::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
 
-    .modal-content::-webkit-scrollbar-thumb {
-        background: #d07c2e;
-        border-radius: 10px;
-    }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #d07c2e;
+            border-radius: 10px;
+        }
 
-    .modal-content::-webkit-scrollbar-thumb:hover {
-        background: #b9651f;
-    }
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #b9651f;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -251,9 +251,9 @@ if (isset($_GET['error'])) {
                     <label for="tipo">Recurso:</label>
                     <select id="tipo_estudiante" name="recurso" required>
                         <option value="">Seleccione un recurso</option>
-                        <?php 
+                        <?php
                         $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
-                        while($recurso = $recursos->fetch_assoc()): 
+                        while ($recurso = $recursos->fetch_assoc()):
                         ?>
                             <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
                         <?php endwhile; ?>
@@ -264,9 +264,9 @@ if (isset($_GET['error'])) {
                     <label for="programa_estudiante">Programa/Dependencia:</label>
                     <select id="programa_estudiante" name="Programa" required>
                         <option value="">Seleccione un Programa/Dependencia</option>
-                        <?php 
+                        <?php
                         $programas = $conn->query("SELECT Id_Programa, nombrePrograma FROM Programa");
-                        while($programa = $programas->fetch_assoc()): 
+                        while ($programa = $programas->fetch_assoc()):
                         ?>
                             <option value="<?= $programa['Id_Programa'] ?>"><?= $programa['nombrePrograma'] ?></option>
                         <?php endwhile; ?>
@@ -284,7 +284,7 @@ if (isset($_GET['error'])) {
                     <label for="semestre_estudiante">Semestre:</label>
                     <select id="semestre_estudiante" name="semestre" required>
                         <option value="">Seleccione el semestre</option>
-                        <?php for($i = 1; $i <= 10; $i++): ?>
+                        <?php for ($i = 1; $i <= 10; $i++): ?>
                             <option value="<?= $i ?>"><?= $i ?></option>
                         <?php endfor; ?>
                     </select>
@@ -325,9 +325,9 @@ if (isset($_GET['error'])) {
                     <label for="tipo">Recurso:</label>
                     <select id="tipo_docente" name="recurso" required>
                         <option value="">Seleccione un recurso</option>
-                        <?php 
+                        <?php
                         $recursos->data_seek(0);
-                        while($recurso = $recursos->fetch_assoc()): 
+                        while ($recurso = $recursos->fetch_assoc()):
                         ?>
                             <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
                         <?php endwhile; ?>
@@ -338,7 +338,7 @@ if (isset($_GET['error'])) {
                     <label for="asignatura_docente">Asignatura:</label>
                     <select id="asignatura_docente" name="docente_asignatura" required>
                         <option value="">Seleccione una asignatura</option>
-                        <?php 
+                        <?php
                         $asignaturas = $conn->prepare("SELECT da.ID_DocenteAsignatura, a.nombreAsignatura 
                             FROM docente_asignatura da
                             JOIN asignatura a ON da.ID_Asignatura = a.ID_Asignatura
@@ -346,7 +346,7 @@ if (isset($_GET['error'])) {
                         $asignaturas->bind_param("i", $_SESSION['usuario_id']);
                         $asignaturas->execute();
                         $result = $asignaturas->get_result();
-                        while($asig = $result->fetch_assoc()): 
+                        while ($asig = $result->fetch_assoc()):
                         ?>
                             <option value="<?= $asig['ID_DocenteAsignatura'] ?>"><?= $asig['nombreAsignatura'] ?></option>
                         <?php endwhile; ?>
@@ -384,91 +384,82 @@ if (isset($_GET['error'])) {
         document.getElementById('programa_estudiante').addEventListener('change', function() {
             const programaId = this.value;
             const docenteSelect = document.getElementById('docente_estudiante');
-            
+
             if (programaId) {
-                fetch('../Controlador/Obtener_Docente.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id_programa=' + encodeURIComponent(programaId)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
-                    data.forEach(docente => {
-                        docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
-                    });
-                })
-                .catch(error => console.error('Error:', error));
+                fetch('../Controlador/obtener_docentes.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'id_programa=' + encodeURIComponent(programaId)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
+                        data.forEach(docente => {
+                            docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
             }
         });
 
         // Función común de validación para todos los formularios
         function validarRegistro(fecha, horaInicio, horaFin) {
-            // Obtener fecha y hora actual de Bogotá
-            const ahora = new Date();
-            const fechaSeleccionada = new Date(fecha);
-            const horaInicioDate = new Date(`${fecha}T${horaInicio}`);
-            const horaFinDate = new Date(`${fecha}T${horaFin}`);
-            
-            // Ajustar a la zona horaria de Bogotá
-            const bogotaOffset = -5 * 60; // UTC-5
-            const fechaBogota = new Date(ahora.getTime() + (bogotaOffset + ahora.getTimezoneOffset()) * 60000);
-            
-            // Si es el día actual, validar la hora
-            if (fechaSeleccionada.toDateString() === fechaBogota.toDateString()) {
-                if (horaInicioDate < fechaBogota) {
-                    throw new Error('No puedes seleccionar una hora que ya pasó');
-                }
-            } else if (fechaSeleccionada < fechaBogota) {
-                // Si es un día anterior
+            const hoy = new Date();
+            const fechaSeleccionada = new Date(fecha + 'T00:00');
+
+            // Validar que no sea una fecha pasada
+            if (fechaSeleccionada.setHours(0, 0, 0, 0) < hoy.setHours(0, 0, 0, 0)) {
                 throw new Error('No puedes seleccionar una fecha pasada');
             }
 
-            // Validar que la hora de finalización sea posterior a la hora de inicio
-            if (horaFinDate <= horaInicioDate) {
+            // Validar horario de operación (6:00 AM - 10:00 PM)
+            const [hInicio, mInicio] = horaInicio.split(':').map(Number);
+            const [hFin, mFin] = horaFin.split(':').map(Number);
+            if (hInicio < 6 || hFin > 22 || (hFin === 22 && mFin > 0)) {
+                throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
+            }
+
+            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
+
+            // Validar que si es para hoy, la hora de inicio sea al menos 10 minutos después de la actual
+            const ahora = new Date();
+            const hoyStr = ahora.toISOString().split('T')[0];
+            if (fecha === hoyStr) {
+                const margenMinutos = 10;
+                const ahoraConMargen = new Date(ahora.getTime() + margenMinutos * 60000);
+
+                if (fechaHoraInicio <= ahoraConMargen) {
+                    throw new Error('Solo puedes apartar con al menos 10 minutos de anticipación');
+                }
+            }
+
+            // Validar que la hora de fin sea posterior a la de inicio
+            if (fechaHoraFin <= fechaHoraInicio) {
                 throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
             }
 
             // Validar duración mínima y máxima
-            const diffMinutos = (horaFinDate - horaInicioDate) / (1000 * 60);
-            const role = '<?php echo $role; ?>';
+            const duracionMin = 30; // minutos
+            const duracionMax = 240;
+            const duracionMs = fechaHoraFin - fechaHoraInicio;
+            const duracionMinutos = duracionMs / (1000 * 60);
 
-            if (role === 'Estudiante') {
-                if (diffMinutos < 30) {
-                    throw new Error('La reserva debe durar al menos 30 minutos');
-                }
-                if (diffMinutos > 180) {
-                    throw new Error('La reserva no puede exceder las 3 horas');
-                }
-            } else {
-                if (diffMinutos < 30) {
-                    throw new Error('La reserva debe durar al menos 30 minutos');
-                }
-                if (diffMinutos > 360) {
-                    throw new Error('La reserva no puede exceder las 6 horas');
-                }
+            if (duracionMinutos < duracionMin) {
+                throw new Error('La reserva debe durar al menos 30 minutos');
             }
 
-            // Validar horario de operación
-            const horaInicioNum = horaInicioDate.getHours();
-            const horaFinNum = horaFinDate.getHours();
-
-            if (role === 'Estudiante') {
-                if (horaInicioNum < 6 || horaFinNum > 20) {
-                    throw new Error('El horario de reserva para estudiantes debe estar entre las 6:00 AM y las 8:00 PM');
-                }
-            } else {
-                if (horaInicioNum < 6 || horaFinNum > 22) {
-                    throw new Error('El horario de reserva para docentes debe estar entre las 6:00 AM y las 10:00 PM');
-                }
+            if (duracionMinutos > duracionMax) {
+                throw new Error('La reserva no puede exceder 4 horas');
             }
 
             return true;
         }
 
         // Función para verificar disponibilidad de recurso
+        // 1. Primero, arreglemos la función de verificación de disponibilidad
         async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
             const formData = new FormData();
             formData.append("fecha", fecha);
@@ -477,26 +468,39 @@ if (isset($_GET['error'])) {
             formData.append("recurso", recurso);
 
             try {
-                const response = await fetch("../Controlador/Obtener_Recurso.php", {
+                const response = await fetch("../Controlador/Obtener_Recursos.php", {
                     method: "POST",
                     body: formData
                 });
 
-                const data = await response.json();
-                if (!data.disponible) {
-                    throw new Error('El recurso no está disponible en ese horario');
+                // Leer el cuerpo de la respuesta una sola vez
+                const contentType = response.headers.get("content-type");
+                const responseBody = contentType && contentType.includes("application/json")
+                    ? await response.json()
+                    : await response.text();
+
+                if (typeof responseBody === "object") {
+                    console.log("Respuesta del servidor:", responseBody); // Depuración
+                    if (!responseBody.disponible) {
+                        throw new Error(responseBody.mensaje || 'El recurso no está disponible en ese horario');
+                    }
+                    return true;
+                } else {
+                    console.error("Respuesta no JSON:", responseBody); // Depuración
+                    throw new Error('Error en la respuesta del servidor. No es un formato JSON válido.');
                 }
-                return true;
             } catch (error) {
+                console.error("Error al verificar disponibilidad:", error); // Depuración
                 throw error;
             }
         }
+
 
         // Actualizar la función guardarReservaEstudiante
         async function guardarReservaEstudiante(event) {
             event.preventDefault();
             const form = document.getElementById('reservaFormEstudiante');
-            
+
             try {
                 // Validar el formulario
                 validarRegistro(
@@ -520,14 +524,7 @@ if (isset($_GET['error'])) {
                     body: formData
                 });
 
-                let data;
-                try {
-                    data = await response.json();
-                } catch (e) {
-                    console.error('Error parsing JSON:', await response.text());
-                    throw new Error('Error en la respuesta del servidor. Verifica la consola para más detalles.');
-                }
-
+                const data = await response.json();
                 if (data.status === 'success') {
                     Swal.fire({
                         icon: 'success',
@@ -540,7 +537,7 @@ if (isset($_GET['error'])) {
                         location.reload();
                     });
                 } else {
-                    throw new Error(data.message || 'Error al guardar la reserva');
+                    throw new Error(data.message);
                 }
             } catch (error) {
                 Swal.fire({
@@ -555,7 +552,7 @@ if (isset($_GET['error'])) {
         async function guardarReservaDocente(event) {
             event.preventDefault();
             const form = document.getElementById('reservaFormDocente');
-            
+
             try {
                 // Validar el formulario
                 validarRegistro(
@@ -579,14 +576,7 @@ if (isset($_GET['error'])) {
                     body: formData
                 });
 
-                let data;
-                try {
-                    data = await response.json();
-                } catch (e) {
-                    console.error('Error parsing JSON:', await response.text());
-                    throw new Error('Error en la respuesta del servidor. Verifica la consola para más detalles.');
-                }
-
+                const data = await response.json();
                 if (data.status === 'success') {
                     Swal.fire({
                         icon: 'success',
@@ -599,7 +589,7 @@ if (isset($_GET['error'])) {
                         location.reload();
                     });
                 } else {
-                    throw new Error(data.message || 'Error al guardar la reserva');
+                    throw new Error(data.message);
                 }
             } catch (error) {
                 Swal.fire({
@@ -613,7 +603,7 @@ if (isset($_GET['error'])) {
         // Agregar validación en tiempo real para los campos de fecha y hora
         document.addEventListener('DOMContentLoaded', function() {
             const modales = ['modalReservaEstudiante', 'modalReservaDocente'];
-            
+
             modales.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal) {
@@ -625,7 +615,7 @@ if (isset($_GET['error'])) {
                                 const fecha = form.querySelector('input[type="date"]').value;
                                 const horaInicio = form.querySelector('input[name="horaInicio"]').value;
                                 const horaFin = form.querySelector('input[name="horaFin"]').value;
-                                
+
                                 if (fecha && horaInicio && horaFin) {
                                     validarRegistro(fecha, horaInicio, horaFin);
                                     form.querySelector('.error-mensaje').style.display = 'none';
@@ -688,7 +678,7 @@ if (isset($_GET['error'])) {
         // Agregar validaciones en tiempo real
         document.addEventListener('DOMContentLoaded', function() {
             const modales = ['modalReservaEstudiante', 'modalReservaDocente'];
-            
+
             modales.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal) {
@@ -713,4 +703,5 @@ if (isset($_GET['error'])) {
         // ...rest of existing code...
     </script>
 </body>
+
 </html>

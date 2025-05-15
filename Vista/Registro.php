@@ -948,7 +948,12 @@ if (!empty($fechaFiltrada)) {
                     method: 'POST',
                     body: formData
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     if (data.disponible) {
                         return fetch('../Controlador/Agregar_Registro.php', {
@@ -956,7 +961,7 @@ if (!empty($fechaFiltrada)) {
                             body: formData
                         });
                     } else {
-                        throw new Error('El recurso no está disponible en ese horario');
+                        throw new Error(data.mensaje || 'El recurso no está disponible en ese horario');
                     }
                 })
                 .then(response => response.json())
@@ -1038,7 +1043,7 @@ if (!empty($fechaFiltrada)) {
             }
 
             // Realizar la solicitud para obtener los docentes asociados al programa
-            fetch(`../Controlador/Obtener_Docentes.php?id_programa=${idPrograma}`)
+            fetch(`../Controlador/obtener_docentes.php?id_programa=${idPrograma}`)
                 .then(res => res.json())
                 .then(data => {
                     const docenteSelect = document.getElementById('docente_agregar');

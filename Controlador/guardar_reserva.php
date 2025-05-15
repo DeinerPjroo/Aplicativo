@@ -1,12 +1,9 @@
 <?php
 
-
 date_default_timezone_set('America/Bogota'); // Establece la zona horaria a Bogotá, Colombia.
 
-
-
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo "<script>alert('Acceso no permitido'); window.location.href='../Vista/Nueva_Reserva_Usuario.php';</script>";
+    echo json_encode(['status' => 'error', 'message' => 'Acceso no permitido']);
     exit();
 }
 
@@ -14,7 +11,7 @@ session_start();
 include("../database/conection.php");
 
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: Login.php");
+    echo json_encode(['status' => 'error', 'message' => 'Usuario no autenticado']);
     exit();
 }
 
@@ -23,12 +20,9 @@ $fecha = $_POST['fecha'];
 $horaInicio = $_POST['horaInicio'];
 $horaFin = $_POST['horaFin'];
 $id_recurso = $_POST['recurso'];
-$id_docente_asignatura = $_POST['docente_asignatura']; // puede venir vacío si no es docente
-
-// Capturar los datos enviados desde el formulario
+$id_docente_asignatura = $_POST['docente_asignatura'] ?? null; // Puede venir vacío si no es docente
 $semestre = $_POST['semestre'] ?? null; // Semestre seleccionado
 $id_programa = $_POST['Programa'] ?? null; // Programa seleccionado
-$id_docente_asignatura = $_POST['docente'] ?? null; // Docente seleccionado
 
 // Verificar si el recurso ya está reservado en ese rango de fecha y hora
 $sql = "SELECT * FROM registro 
@@ -43,7 +37,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     // Recurso ocupado
-    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=warning&message=⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.");
+    echo json_encode(['status' => 'error', 'message' => '⚠️ El recurso no está disponible en ese horario. Intenta con otra hora o recurso.']);
     exit();
 }
 
@@ -55,9 +49,9 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("iisssis", $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
 
 if ($stmt->execute()) {
-    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=success&message=✅ Reserva realizada con éxito");
+    echo json_encode(['status' => 'success', 'message' => '✅ Reserva realizada con éxito']);
 } else {
-    header("Location: ../Vista/Nueva_Reserva_Docente.php?status=error&message=❌ Error al guardar la reserva");
+    echo json_encode(['status' => 'error', 'message' => '❌ Error al guardar la reserva']);
 }
 exit();
 ?>

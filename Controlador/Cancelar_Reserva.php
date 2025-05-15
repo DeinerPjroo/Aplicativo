@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST['id_reserva'])) {
     $stmt->bind_param("i", $id_reserva);
 
     if ($stmt->execute()) {
-        echo "<script>alert('✅ Reserva cancelada correctamente.'); window.location.href='../Vista/Inicio_Docente.php';</script>";
+        echo "<script>alert('✅ Reserva cancelada correctamente.'); window.location.href='../Vista/Reservas_Usuarios.php';</script>";
     } else {
         echo "<script>alert('❌ No se pudo cancelar la reserva.'); window.history.back();</script>";
     }
