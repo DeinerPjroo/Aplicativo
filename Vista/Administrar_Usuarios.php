@@ -517,7 +517,7 @@ $programasResult = $conn->query($programasQuery);
                             <tr>
                                 <td><?php echo htmlspecialchars($row['codigo_u']); ?></td>
                                 <td><?php echo htmlspecialchars($row['nombre']); ?></td>
-                                <td><?php echo htmlspecialchars($row['programa']); ?></td>
+                                <td><?php echo !empty($row['programa']) ? htmlspecialchars($row['programa']) : 'No aplica'; ?></td>
                                 <td><?php echo htmlspecialchars($row['semestre'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($row['correo']); ?></td>
                                 <td><?php echo htmlspecialchars($row['rol']); ?></td>

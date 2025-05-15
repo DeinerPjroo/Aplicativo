@@ -50,78 +50,269 @@ if ($row = $result->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Perfil de Usuario</title>
     <link rel="stylesheet" href="../css/Style.css">
-    <!--Link de google font (iconos)-->
-
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        /* Estilos adicionales para la página de perfil */
+        :root {
+            --primary-color: #258797;
+            --secondary-color: #d07c2e;
+            --background-light: #f5f7fa;
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #ddd;
+            --success-color: #2ecc71;
+            --hover-color: #2980b9;
+        }
 
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
 
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px; /* Ajusta según el ancho de tu sidebar */
+        }
+
+        .header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .profile-image {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-image img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .change-password-btn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .profile-details {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .btn-save {
+            background-color: var(--success-color);
+            margin-top: 10px;
+        }
+
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .close-modal:hover {
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            
+            .profile-container {
+                padding: 20px;
+            }
+            
+            .profile-image, .profile-details {
+                flex: 0 0 100%;
+            }
+            
+            .profile-image {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-
-    <!------------------------------------------------------------------------------------->
-    <!--SIDEBAR-->
+    <!-- Sidebar incluido desde el archivo externo -->
     <?php
     include("../Vista/Sidebar.php");
     ?>
-    <!------------------------------------------------------------------------------------->
 
-    <section class="Encabezado">
-        <h1>
-            <center>Perfil</center>
-        </h1>
-    </section>
-    <section class="Panel-Perfil">
-
-        <section class="Perfil">
-        <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
-        <br>
-        <br>
-
-            <section>
-                <form action="../Controlador/actualizar_usuario.php" method="POST">
-                    <!-- Muestra el nombre, programa, correo y teléfono del usuario logueado -->
-                    <label for="Nombre">Nombre</label><br>
-                    <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>"><br>
-
-                    <label for="Programa">Programa</label><br>
-                    <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>"><br>
-
-                    <label for="Correo">Correo</label><br>
-                    <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>"><br>
-
-                    <label for="Telefono">Teléfono</label><br>
-                    <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>"><br>
-
-                    <!-- Botón para abrir el modal de cambiar contraseña -->
-                    <center><button type="button" onclick="abrirModal()">Cambiar contraseña</button></center>
-                    <br>
-
-                    <!-- Agregar un botón para guardar los cambios -->
-                    <center><button type="submit">Guardar cambios</button></center>
-                </form>
-            </section>
-        </section>
-    </section>
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <h1>Perfil de Usuario</h1>
+            </div>
+            
+            <div class="profile-container">
+                <div class="profile-image">
+                    <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
+                    <button type="button" class="change-password-btn" onclick="abrirModal()">Cambiar contraseña</button>
+                </div>
+                
+                <div class="profile-details">
+                    <form action="../Controlador/actualizar_usuario.php" method="POST">
+                        <div class="form-group">
+                            <label for="nombreUsuario">Nombre</label>
+                            <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="programaUsuario">Programa</label>
+                            <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="correoUsuario">Correo</label>
+                            <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefonoUsuario">Teléfono</label>
+                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
+                        </div>
+                        
+                        <button type="submit" class="btn-save">Guardar cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para cambiar contraseña -->
-    <div id="modalCambiarContraseña" class="modal" style="display: none;">
+    <div id="modalCambiarContraseña" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
             <h2>Cambiar Contraseña</h2>
             <form action="../Controlador/actualizar_contraseña.php" method="POST">
-                <label for="passwordActual">Contraseña actual</label><br>
-                <input type="password" name="passwordActual" id="passwordActual" required><br>
-
-                <label for="passwordNueva">Nueva contraseña</label><br>
-                <input type="password" name="passwordNueva" id="passwordNueva" required><br>
-
-                <label for="passwordConfirmar">Confirmar nueva contraseña</label><br>
-                <input type="password" name="passwordConfirmar" id="passwordConfirmar" required><br>
-
-                <center><button type="submit">Guardar contraseña</button></center>
+                <div class="form-group">
+                    <label for="passwordActual">Contraseña actual</label>
+                    <input type="password" name="passwordActual" id="passwordActual" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passwordNueva">Nueva contraseña</label>
+                    <input type="password" name="passwordNueva" id="passwordNueva" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passwordConfirmar">Confirmar nueva contraseña</label>
+                    <input type="password" name="passwordConfirmar" id="passwordConfirmar" required>
+                </div>
+                
+                <button type="submit">Guardar contraseña</button>
             </form>
         </div>
     </div>
