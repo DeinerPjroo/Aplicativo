@@ -34,7 +34,8 @@ if (!empty($_POST["btningresar"])) {
             $usuario_data = $resultado->fetch_assoc();
             
             // Verificar la contraseña
-            if ($usuario_data['contraseña'] == $contraseña) { // Ideal sería usar password_verify()
+            if(password_verify($contraseña,$usuario_data['contraseña'])) {
+
                 // Guardar datos en la sesión
                 $_SESSION['usuario_id'] = $usuario_data['ID_Usuario'];
                 $_SESSION['codigo_usuario'] = $usuario_data['Codigo_U'];

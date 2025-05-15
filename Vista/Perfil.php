@@ -256,6 +256,40 @@ if ($row = $result->fetch_assoc()) {
                 <h1>Perfil de Usuario</h1>
             </div>
             
+            <?php
+            // Mostrar mensajes de éxito o error para actualización de datos
+            if (isset($_SESSION['success_message'])) {
+                echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message']) . '</div>';
+                unset($_SESSION['success_message']); // Limpiar mensaje después de mostrar
+            }
+            
+            if (isset($_SESSION['error_message'])) {
+                echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message']) . '</div>';
+                unset($_SESSION['error_message']);
+            }
+            
+            // Mostrar errores de validación de datos
+            if (isset($_SESSION['errores']) && !empty($_SESSION['errores'])) {
+                echo '<div class="alert alert-error"><ul style="margin: 0; padding-left: 20px;">';
+                foreach ($_SESSION['errores'] as $error) {
+                    echo '<li>' . htmlspecialchars($error) . '</li>';
+                }
+                echo '</ul></div>';
+                unset($_SESSION['errores']);
+            }
+            
+            // Mostrar mensajes de éxito o error para actualización de contraseña
+            if (isset($_SESSION['success_message_password'])) {
+                echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message_password']) . '</div>';
+                unset($_SESSION['success_message_password']);
+            }
+            
+            if (isset($_SESSION['error_message_password'])) {
+                echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message_password']) . '</div>';
+                unset($_SESSION['error_message_password']);
+            }
+            ?>
+            
             <div class="profile-container">
                 <div class="profile-image">
                     <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
@@ -271,7 +305,8 @@ if ($row = $result->fetch_assoc()) {
                         
                         <div class="form-group">
                             <label for="programaUsuario">Programa</label>
-                            <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>">
+                            <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
+                            <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
                         </div>
                         
                         <div class="form-group">
