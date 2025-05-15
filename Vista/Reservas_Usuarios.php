@@ -239,12 +239,12 @@ if (isset($_GET['error'])) {
 
                 <div class="form-group">
                     <label for="horaInicio">Hora de Inicio:</label>
-                    <input type="time" id="horaInicio_estudiante" name="horaInicio" min="06:00" max="19:00" required>
+                    <input type="time" id="horaInicio_estudiante" name="horaInicio" min="06:00" max="21:30" required>
                 </div>
 
                 <div class="form-group">
                     <label for="horaFin">Hora de Finalización:</label>
-                    <input type="time" id="horaFin_estudiante" name="horaFin" min="06:00" max="20:00" required>
+                    <input type="time" id="horaFin_estudiante" name="horaFin" min="06:30" max="22:00" required>
                 </div>
 
                 <div class="form-group">
@@ -277,6 +277,9 @@ if (isset($_GET['error'])) {
                     <label for="docente_estudiante">Docente/Administrativo:</label>
                     <select id="docente_estudiante" name="docente" required>
                         <option value="">Seleccione un Docente</option>
+                        <?php
+                        $docentes = $conn->query("SELECT ID_Usuario, nombre FROM usuario ");
+                        ?>
                     </select>
                 </div>
 
@@ -313,12 +316,12 @@ if (isset($_GET['error'])) {
 
                 <div class="form-group">
                     <label for="horaInicio">Hora de Inicio:</label>
-                    <input type="time" id="horaInicio_docente" name="horaInicio" min="06:00" max="21:00" required>
+                    <input type="time" id="horaInicio_docente" name="horaInicio" min="06:00" max="21:30" required>
                 </div>
 
                 <div class="form-group">
                     <label for="horaFin">Hora Final:</label>
-                    <input type="time" id="horaFin_docente" name="horaFin" min="06:00" max="22:00" required>
+                    <input type="time" id="horaFin_docente" name="horaFin" min="06:30" max="22:00" required>
                 </div>
 
                 <div class="form-group">
@@ -421,6 +424,7 @@ if (isset($_GET['error'])) {
                 throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
             }
 
+
             const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
             const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
 
@@ -475,9 +479,9 @@ if (isset($_GET['error'])) {
 
                 // Leer el cuerpo de la respuesta una sola vez
                 const contentType = response.headers.get("content-type");
-                const responseBody = contentType && contentType.includes("application/json")
-                    ? await response.json()
-                    : await response.text();
+                const responseBody = contentType && contentType.includes("application/json") ?
+                    await response.json() :
+                    await response.text();
 
                 if (typeof responseBody === "object") {
                     console.log("Respuesta del servidor:", responseBody); // Depuración
