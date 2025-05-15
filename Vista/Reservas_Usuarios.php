@@ -277,9 +277,7 @@ if (isset($_GET['error'])) {
                     <label for="docente_estudiante">Docente/Administrativo:</label>
                     <select id="docente_estudiante" name="docente" required>
                         <option value="">Seleccione un Docente</option>
-                        <?php
-                        $docentes = $conn->query("SELECT ID_Usuario, nombre FROM usuario ");
-                        ?>
+                    
                     </select>
                 </div>
 

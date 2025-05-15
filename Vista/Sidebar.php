@@ -47,11 +47,8 @@
                 <!-- ROL ADMINISTRADOR -->
                 <!-- administrar usuarios administrador -->
                 <?php if ($_SESSION['usuario_rol'] === 'Administrador'): ?>
-                    <li>
-                        <a
-                            id="users"
-                            href="../Vista/Administrar_Usuarios.php"
-                            class="nav-link">
+                    <li class="nav-item">
+                        <a href="../Vista/Administrar_Usuarios.php" class="nav-link">
                             <img src="../Imagen/Iconos/Administrar_Usuarios.svg" alt="" />
                             <span class="nav-label">Administrar Usuarios</span>
 
