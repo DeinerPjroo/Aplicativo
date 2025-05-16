@@ -24,8 +24,8 @@ $recursoFiltrado = isset($_GET['filtro_recurso']) ? $_GET['filtro_recurso'] : ''
 // Verificar si se seleccionó una fecha desde el formulario
 
 $fechaFiltrada = isset($_GET['filtro_fecha']) ? $_GET['filtro_fecha'] : '';
-
-
+// Verificar si se seleccionó una hora desde el formulario
+$horaFiltrada = isset($_GET['filtro_hora']) ? $_GET['filtro_hora'] : '';
 
 // Construir la condición SQL
 $filtroSQL = "";
@@ -36,6 +36,10 @@ if (!empty($recursoFiltrado)) {
 
 if (!empty($fechaFiltrada)) {
     $filtroSQL .= " AND r.fechaReserva = '" . $conn->real_escape_string($fechaFiltrada) . "'";
+}
+
+if (!empty($horaFiltrada)) {
+    $filtroSQL .= " AND r.horaInicio <= '" . $conn->real_escape_string($horaFiltrada) . "' AND r.horaFin >= '" . $conn->real_escape_string($horaFiltrada) . "'";
 }
 
 
@@ -511,6 +515,10 @@ if (!empty($fechaFiltrada)) {
                 <!-- CAMPO DE FECHA -->
                 <label for="filtro_fecha">Filtrar por fecha: </label>
                 <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
+
+                <!-- CAMPO DE HORA -->
+                <label for="filtro_hora">Filtrar por hora: </label>
+                <input type="time" name="filtro_hora" id="filtro_hora" value="<?= htmlspecialchars($horaFiltrada) ?>">
 
 
 

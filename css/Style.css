@@ -402,6 +402,7 @@ font-size: 1.75rem;
 }
 
 #filtro_recurso {
+    margin-right: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -428,9 +429,19 @@ display: flex;
 }
 
 #filtro_fecha{
-    width: 600px;
+    margin-right: 10px;
+    text-align: center;
+    width: 370px;
     align-items: center;
 }
+
+#filtro_hora{
+    margin-left:0%;
+    text-align: center;
+    width: 370px;
+    align-items: center;
+}
+
 
 .btn-limpiar {
     padding: 6px 12px;
@@ -571,8 +582,8 @@ button:hover {
 
 
 .contenedor-reservas {
-    margin-left: 120px !important;
-    width: 90%;
+    margin-left: 110px !important;
+    width: 92%;
     margin: 20px auto;
     background-color: #fff;
     border-radius: 8px;
