@@ -25,7 +25,9 @@ $recursoFiltrado = isset($_GET['filtro_recurso']) ? $_GET['filtro_recurso'] : ''
 
 $fechaFiltrada = isset($_GET['filtro_fecha']) ? $_GET['filtro_fecha'] : '';
 // Verificar si se seleccionó una hora desde el formulario
-$horaFiltrada = isset($_GET['filtro_hora']) ? $_GET['filtro_hora'] : '';
+// Verificar si se seleccionó una hora desde y hasta el formulario
+$horaDesde = isset($_GET['hora_desde']) ? $_GET['hora_desde'] : '';
+$horaHasta = isset($_GET['hora_hasta']) ? $_GET['hora_hasta'] : '';
 
 // Construir la condición SQL
 $filtroSQL = "";
@@ -38,9 +40,20 @@ if (!empty($fechaFiltrada)) {
     $filtroSQL .= " AND r.fechaReserva = '" . $conn->real_escape_string($fechaFiltrada) . "'";
 }
 
-if (!empty($horaFiltrada)) {
-    $filtroSQL .= " AND r.horaInicio <= '" . $conn->real_escape_string($horaFiltrada) . "' AND r.horaFin >= '" . $conn->real_escape_string($horaFiltrada) . "'";
+// Validación: si ambos campos están llenos, validar que desde <= hasta
+if (!empty($horaDesde) && !empty($horaHasta)) {
+    if ($horaDesde > $horaHasta) {
+        echo "<script>alert('La hora \"desde\" no puede ser mayor que la hora \"hasta\"');</script>";
+    } else {
+        $filtroSQL .= " AND r.horaInicio >= '" . $conn->real_escape_string($horaDesde) . "' AND r.horaFin <= '" . $conn->real_escape_string($horaHasta) . "'";
+    }
+} elseif (!empty($horaDesde)) {
+    $filtroSQL .= " AND r.horaInicio >= '" . $conn->real_escape_string($horaDesde) . "'";
+} elseif (!empty($horaHasta)) {
+    $filtroSQL .= " AND r.horaFin <= '" . $conn->real_escape_string($horaHasta) . "'";
 }
+
+// ...resto del código...
 
 
 
@@ -482,6 +495,12 @@ if (!empty($horaFiltrada)) {
             <button title="Generar reportes de mañana" id="generarReporteSiguiente" class="btn-reporte"><span class="material-symbols-outlined">
                     <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
                 </span></button>
+            <!-- Nuevo botón para reporte de la vista actual -->
+            <button title="Generar reporte de la vista actual" id="generarReporteVista" class="btn-reporte">
+                <span class="material-symbols-outlined">
+                    <img src="../Imagen/Iconos/Reporte_Vista.svg" alt="" />
+                </span>
+            </button>
         </div>
 
     </section>
@@ -517,8 +536,12 @@ if (!empty($horaFiltrada)) {
                 <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
 
                 <!-- CAMPO DE HORA -->
-                <label for="filtro_hora">Filtrar por hora: </label>
-                <input type="time" name="filtro_hora" id="filtro_hora" value="<?= htmlspecialchars($horaFiltrada) ?>">
+               <!-- NUEVOS CAMPOS DE HORA -->
+<label for="hora_desde">Hora desde:</label>
+<input type="time" name="hora_desde" id="hora_desde" value="<?= htmlspecialchars($horaDesde) ?>">
+
+<label for="hora_hasta">Hora hasta:</label>
+<input type="time" name="hora_hasta" id="hora_hasta" value="<?= htmlspecialchars($horaHasta) ?>">
 
 
 
@@ -880,6 +903,52 @@ if (!empty($horaFiltrada)) {
                 enlace.click();
             });
 
+            // Nuevo: Reporte solo de los registros actualmente visibles en la tabla
+            document.getElementById("generarReporteVista").addEventListener("click", () => {
+                const filas = document.querySelectorAll(".tabla-reservas tbody tr");
+                let reporte = `==========================================\n`;
+                reporte += `     REPORTE DE LA VISTA ACTUAL\n`;
+                reporte += `==========================================\n\n`;
+
+                let registrosEncontrados = false;
+
+                filas.forEach(fila => {
+                    // Solo incluir filas visibles y que no sean separadores de día
+                    if (fila.style.display === "none" || fila.classList.contains("separador-dia")) return;
+                    const columnas = fila.querySelectorAll("td");
+                    if (columnas.length < 11) return; // Evitar filas vacías o de encabezado
+
+                    const datos = Array.from(columnas).map(columna => columna.textContent.trim());
+                    registrosEncontrados = true;
+                    reporte += `------------------------------------------\n`;
+                    reporte += `Recurso:    ${datos[0]}\n`;
+                    reporte += `Fecha:      ${datos[1]}\n`;
+                    reporte += `Inicio:     ${datos[2]}\n`;
+                    reporte += `Fin:        ${datos[3]}\n`;
+                    reporte += `Usuario:    ${datos[4]}\n`;
+                    reporte += `Correo:     ${datos[5]}\n`;
+                    reporte += `Docente:    ${datos[6]}\n`;
+                    reporte += `Asignatura: ${datos[7]}\n`;
+                    reporte += `Programa:   ${datos[8]}\n`;
+                    reporte += `Semestre:   ${datos[9]}\n`;
+                    reporte += `Estado:     ${datos[10]}\n`;
+                    reporte += `------------------------------------------\n\n`;
+                });
+
+                if (!registrosEncontrados) {
+                    reporte += "No hay registros visibles en la tabla.\n";
+                }
+
+                reporte += `\n==========================================\n`;
+                reporte += `Fin del reporte - Generado: ${new Date().toLocaleString()}\n`;
+                reporte += `==========================================`;
+
+                const blob = new Blob([reporte], { type: "text/plain" });
+                const enlace = document.createElement("a");
+                enlace.href = URL.createObjectURL(blob);
+                enlace.download = `Reporte_Vista_Actual.txt`;
+                enlace.click();
+            });
 
         });
 
