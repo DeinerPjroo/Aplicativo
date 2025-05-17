@@ -74,405 +74,419 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
-    .contenedor-usuarios {
-        width: 90%;
-        margin: 20px auto;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-left: 110px !important;
-    }
-
-    .contenedor-usuarios h2 {
-        color: #333;
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    .tabla-usuarios {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .tabla-usuarios th,
-    .tabla-usuarios td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .tabla-usuarios th {
-        background-color: rgb(45, 158, 178);
-        color: white;
-        font-weight: 600;
-    }
-
-    .tabla-usuarios tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    .sin-usuarios {
-        text-align: center;
-        padding: 40px 20px;
-        color: #6c757d;
-        font-style: italic;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-        margin: 20px 0;
-    }
-
-    .btn {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin: 5px;
-    }
-
-
-    .btn-modificar {
-        background-color: #ffc107;
-        color: black;
-    }
-
-    .btn-eliminar {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .btn:hover {
-        opacity: 0.9;
-    }
-
-    /* Estilos del modal mejorados */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        /* Cambiado de auto a hidden para evitar el scroll externo */
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 400px;
-        max-width: 90%;
-        border-radius: 10px;
-        max-height: 80vh;
-        /* Altura máxima del 80% de la ventana */
-        overflow-y: auto;
-        /* Añadir scroll vertical solo cuando sea necesario */
-        position: relative;
-        /* Para posicionamiento de elementos internos */
-    }
-
-    /* Estilos para la barra de desplazamiento */
-    .modal-content::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .modal-content::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb {
-        background: #d07c2e;
-        border-radius: 10px;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb:hover {
-        background: #b9651f;
-    }
-
-    /* Mantén el botón de cerrar siempre visible */
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        position: sticky;
-        top: 0;
-        right: 0;
-    }
-
-    /* Resto de estilos del modal */
-    .modal-content label {
-        display: block;
-        margin-top: 10px;
-        font-weight: bold;
-    }
-
-    .modal-content input,
-    .modal-content select {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        margin-bottom: 15px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-        /* Asegura que el padding no afecte el ancho total */
-    }
-
-    .modal-content button[type="submit"] {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 10px;
-        width: 100%;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 10px;
-        margin-bottom: 5px;
-    }
-
-    .modal-content button[type="submit"]:hover {
-        background-color: #218838;
-    }
-
-    /* barra de busques estilo / */
-    /* hola */
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-    }
-
-    .barra-superior {
-        background-color: #d07c2e;
-        /* Naranja similar */
-        padding: 15px 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .busqueda-container {
-        background-color: white;
-        padding: 6px 10px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        width: 600px;
-        max-width: 90%;
-    }
-
-    .busqueda-container input[type="text"] {
-        border: none;
-        outline: none;
-        font-size: 14px;
-        flex: 1;
-        padding: 8px;
-    }
-
-    .busqueda-container button {
-        background-color: #d07c2e;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        margin-left: 8px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .busqueda-container button:hover {
-        background-color: #b9651f;
-    }
-
-    #resultado {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 18px;
-    }
-
-    /* Estilo para el mensaje de error */
-    .error-message {
-        color: #e74c3c;
-        font-size: 12px;
-        margin-top: -12px;
-        margin-bottom: 8px;
-    }
-
-    /* Estilos mejorados para el modal de confirmación */
-    .modal-confirm {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        z-index: 2000;
-        animation: fadeIn 0.3s ease;
-        backdrop-filter: blur(3px);
-    }
-
-    .modal-confirm-content {
-        position: relative;
-        background-color: #fff;
-        width: 400px;
-        margin: 15% auto;
-        padding: 35px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-        text-align: center;
-        animation: scaleIn 0.4s ease;
-        border-top: 5px solid #d07c2e;
-    }
-
-    .modal-confirm-icon {
-        font-size: 48px;
-        color: #d07c2e;
-        margin-bottom: 20px;
-    }
-
-    .modal-confirm h3 {
-        margin-top: 10px;
-        color: #333;
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 25px;
-        line-height: 1.4;
-    }
-
-    .modal-confirm-message {
-        color: #666;
-        font-size: 15px;
-        margin-bottom: 30px;
-        line-height: 1.5;
-    }
-
-    .modal-confirm-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .btn-confirmar {
-        background-color: #d07c2e;
-        color: white;
-        border: none;
-        padding: 12px 28px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
-    }
-
-    /* hola  */
-    .btn-confirmar:hover {
-        background-color: #b9651f;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
-    }
-
-    .btn-cancelar {
-        background-color: #2d9eb2;
-        color: white;
-        border: none;
-        padding: 12px 28px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        box-shadow: 0 3px 8px rgba(45, 158, 178, 0.3);
-    }
-
-    .btn-cancelar:hover {
-        background-color: #258797;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(45, 158, 178, 0.4);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes scaleIn {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-    }
-
-    /* Efecto al hacer clic en los botones */
-    .btn-confirmar:active,
-    .btn-cancelar:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Estilo para notificaciones */
-    .toast-container {
-        position: fixed;
-        top: 15px;
-        right: 15px;
-        z-index: 1100;
-    }
-
-    .toast {
-        background-color: #fff;
-        color: #333;
-        border-radius: 4px;
-        padding: 8px 15px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-width: 200px;
-        max-width: 300px;
-        font-size: 14px;
-        animation: slide-in 0.3s ease-out forwards;
-    }
-
-    .toast.success {
-        border-left: 4px solid #28a745;
-    }
-
-    .toast.error {
-        border-left: 4px solid #dc3545;
-    }
-
-    @keyframes slide-in {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
+        .contenedor-usuarios {
+            width: 90%;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-left: 110px !important;
         }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
 
-    @keyframes fade-out {
-        from {
-            transform: translateX(0);
-            opacity: 1;
+        .contenedor-usuarios h2 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-</style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        .tabla-usuarios {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .tabla-usuarios th,
+        .tabla-usuarios td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tabla-usuarios th {
+            background-color: rgb(45, 158, 178);
+            color: white;
+            font-weight: 600;
+        }
+
+        .tabla-usuarios tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .sin-usuarios {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+
+        .btn-modificar {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Estilos del modal mejorados */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Cambiado de auto a hidden para evitar el scroll externo */
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            max-width: 90%;
+            border-radius: 10px;
+            max-height: 80vh;
+            /* Altura máxima del 80% de la ventana */
+            overflow-y: auto;
+            /* Añadir scroll vertical solo cuando sea necesario */
+            position: relative;
+            /* Para posicionamiento de elementos internos */
+        }
+
+        /* Estilos para la barra de desplazamiento */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #d07c2e;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #b9651f;
+        }
+
+        /* Mantén el botón de cerrar siempre visible */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            right: 0;
+        }
+
+        /* Resto de estilos del modal */
+        .modal-content label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            /* Asegura que el padding no afecte el ancho total */
+        }
+
+        .modal-content button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        /* barra de busques estilo / */
+        /* hola */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .barra-superior {
+            background-color: #d07c2e;
+            /* Naranja similar */
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .busqueda-container {
+            background-color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            width: 600px;
+            max-width: 90%;
+        }
+
+        .busqueda-container input[type="text"] {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            flex: 1;
+            padding: 8px;
+        }
+
+        .busqueda-container button {
+            background-color: #d07c2e;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin-left: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .busqueda-container button:hover {
+            background-color: #b9651f;
+        }
+
+        #resultado {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+
+        /* Estilo para el mensaje de error */
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: -12px;
+            margin-bottom: 8px;
+        }
+
+        /* Estilos mejorados para el modal de confirmación */
+        .modal-confirm {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-confirm-content {
+            position: relative;
+            background-color: #fff;
+            width: 400px;
+            margin: 15% auto;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            animation: scaleIn 0.4s ease;
+            border-top: 5px solid #d07c2e;
+        }
+
+        .modal-confirm-icon {
+            font-size: 48px;
+            color: #d07c2e;
+            margin-bottom: 20px;
+        }
+
+        .modal-confirm h3 {
+            margin-top: 10px;
+            color: #333;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .modal-confirm-message {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .modal-confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-confirmar {
+            background-color: #d07c2e;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
+        }
+
+        /* hola  */
+        .btn-confirmar:hover {
+            background-color: #b9651f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
+        }
+
+        .btn-cancelar {
+            background-color: #2d9eb2;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(45, 158, 178, 0.3);
+        }
+
+        .btn-cancelar:hover {
+            background-color: #258797;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(45, 158, 178, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Efecto al hacer clic en los botones */
+        .btn-confirmar:active,
+        .btn-cancelar:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilo para notificaciones */
+        .toast-container {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1100;
+        }
+
+        .toast {
+            background-color: #fff;
+            color: #333;
+            border-radius: 4px;
+            padding: 8px 15px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 200px;
+            max-width: 300px;
+            font-size: 14px;
+            animation: slide-in 0.3s ease-out forwards;
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fade-out {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 </head>
 
@@ -481,7 +495,13 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     <?php
     // Incluye la barra lateral de navegación.
     include("../Vista/Sidebar.php");
+
+
+
+    // Detectar si hay algún filtro activo
+    $filtrosActivos = !empty($_GET['filtro_recurso']) || !empty($_GET['filtro_fecha']) || !empty($_GET['hora_desde']) || !empty($_GET['hora_hasta']);
     ?>
+
 
     <section class="Topbard">
 
@@ -489,12 +509,28 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         <!-- Agregar el contenedor de toast después del Topbard -->
         <div id="toastContainer" class="toast-container"></div>
         <div class="btn-reportes">
-            <button title="Generar reportes de hoy" id="generarReporte" class="btn-reporte"><span class="material-symbols-outlined">
-                    <img src="../Imagen/Iconos/Today.svg" alt="" />
-                </span></button>
-            <button title="Generar reportes de mañana" id="generarReporteSiguiente" class="btn-reporte"><span class="material-symbols-outlined">
-                    <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
-                </span></button>
+
+
+            <button 
+    title="Generar reportes de hoy" 
+    id="generarReporte" 
+    class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>" 
+    <?php if ($filtrosActivos) echo 'disabled'; ?>>
+    <span class="material-symbols-outlined">
+        <img src="../Imagen/Iconos/Today.svg" alt="" />
+    </span>
+</button>
+
+            <button title="Generar reportes de mañana" id="generarReporteSiguiente"
+    class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>"
+    <?php if ($filtrosActivos) echo 'disabled'; ?>>
+    
+    <span class="material-symbols-outlined">
+        <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
+    </span>
+</button>
+
+            <!-- El de la vista actual no se modifica -->
             <!-- Nuevo botón para reporte de la vista actual -->
             <button title="Generar reporte de la vista actual" id="generarReporteVista" class="btn-reporte">
                 <span class="material-symbols-outlined">
@@ -536,12 +572,14 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
 
                 <!-- CAMPO DE HORA -->
-               <!-- NUEVOS CAMPOS DE HORA -->
-<label for="hora_desde">Hora desde:</label>
-<input type="time" name="hora_desde" id="hora_desde" value="<?= htmlspecialchars($horaDesde) ?>">
+                <!-- NUEVOS CAMPOS DE HORA -->
 
-<label for="hora_hasta">Hora hasta:</label>
-<input type="time" name="hora_hasta" id="hora_hasta" value="<?= htmlspecialchars($horaHasta) ?>">
+                <label for="hora_desde">Hora desde:</label>
+                <input type="time" name="hora_desde" id="hora_desde" value="<?= htmlspecialchars($horaDesde) ?>">
+
+                <label for="hora_hasta">Hora hasta:</label>
+                <input type="time" name="hora_hasta" id="hora_hasta" value="<?= htmlspecialchars($horaHasta) ?>">
+
 
 
 
@@ -551,7 +589,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     <img src="../Imagen/Iconos/Filtro.svg" alt="" />
                     <span class="btn-text">Filtrar</span>
                 </button>
-                
+
                 <button type="button" class="btn-agregar" title="Limpiar Filtro" onclick="window.location.href='Registro.php'">
                     <img src="../Imagen/Iconos/Quitar_Filtro.svg" alt="" />
                     <span class="btn-text">Limpiar</span>
@@ -567,8 +605,10 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                         <th>Fecha</th>
                         <th>Hora Inicio</th>
                         <th>Hora Fin</th>
+                        <th>Código U</th> <!-- Nuevo encabezado -->
                         <th>Nombre Usuario</th>
                         <th>Correo</th>
+                        
                         <th>Nombre Docente</th>
                         <th>Asignatura</th>
                         <th>Programa</th>
@@ -582,33 +622,35 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     // Consulta SQL para obtener los registros de reservas con sus relaciones.
 
                     $sql = "SELECT 
-                    r.ID_Registro,
-                    r.fechaReserva,
-                    r.horaInicio,
-                    r.horaFin,
-                    rc.nombreRecurso,
-                    u.nombre AS nombreUsuario,
-                    u.correo AS correoUsuario,
-                    CASE 
-                        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
-                        ELSE COALESCE(doc.nombre, 'Sin docente')
-                    END AS nombreDocente,
-                    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
-                    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
-                    CASE 
-                        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(u.semestre, 'Sin semestre')
-                        ELSE 'No aplica'
-                    END AS semestre,
-                    r.estado
-                FROM registro r
-                LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
-                LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
-                LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
-                LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
-                LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
-                LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
-                WHERE 1=1 $filtroSQL
-                ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
+                        r.ID_Registro,
+                        r.fechaReserva,
+                        r.horaInicio,
+                        r.horaFin,
+                        rc.nombreRecurso,
+                        u.nombre AS nombreUsuario,
+                        u.correo AS correoUsuario,
+                        u.Codigo_U, -- Nuevo campo
+                        u.ID_Rol,   -- Necesario para mostrar 'No aplica'
+                        CASE 
+                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
+                            ELSE COALESCE(doc.nombre, 'Sin docente')
+                        END AS nombreDocente,
+                        COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+                        COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
+                        CASE 
+                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(u.semestre, 'Sin semestre')
+                            ELSE 'No aplica'
+                        END AS semestre,
+                        r.estado
+                    FROM registro r
+                    LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+                    LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
+                    LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+                    LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
+                    LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
+                    LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
+                    WHERE 1=1 $filtroSQL
+                    ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
 
                     // Ejecuta la consulta y obtiene los resultados.
                     $result = $conn->query($sql);
@@ -646,8 +688,10 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
         <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
         <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
+        <td>" . htmlspecialchars($row['Codigo_U']) . "</td>
         <td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
         <td>" . htmlspecialchars($row['correoUsuario']) . "</td>
+        
         <td>" . htmlspecialchars($row['nombreDocente']) . "</td>
         <td>" . htmlspecialchars($row['asignatura']) . "</td>
         <td>" . htmlspecialchars($row['programa']) . "</td>
@@ -670,7 +714,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 </div>
             </div>
         </td>
-    </tr>";
+</tr>";
                         }
                     } else {
                         echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";
@@ -722,57 +766,57 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     <script>
         // Agregar esta función de validación común
         function validarRegistro(fecha, horaInicio, horaFin) {
-    const hoy = new Date();
-    const fechaSeleccionada = new Date(fecha + 'T00:00');
+            const hoy = new Date();
+            const fechaSeleccionada = new Date(fecha + 'T00:00');
 
-    // Validar que no sea una fecha pasada
-    if (fechaSeleccionada.setHours(0, 0, 0, 0) < hoy.setHours(0, 0, 0, 0)) {
-        throw new Error('No puedes seleccionar una fecha pasada');
-    }
+            // Validar que no sea una fecha pasada
+            if (fechaSeleccionada.setHours(0, 0, 0, 0) < hoy.setHours(0, 0, 0, 0)) {
+                throw new Error('No puedes seleccionar una fecha pasada');
+            }
 
-    // Validar horario de operación (6:00 AM - 10:00 PM)
-    const [hInicio, mInicio] = horaInicio.split(':').map(Number);
-    const [hFin, mFin] = horaFin.split(':').map(Number);
-    if (hInicio < 6 || hFin > 22 || (hFin === 22 && mFin > 0)) {
-        throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
-    }
+            // Validar horario de operación (6:00 AM - 10:00 PM)
+            const [hInicio, mInicio] = horaInicio.split(':').map(Number);
+            const [hFin, mFin] = horaFin.split(':').map(Number);
+            if (hInicio < 6 || hFin > 22 || (hFin === 22 && mFin > 0)) {
+                throw new Error('El horario de reserva debe estar entre las 6:00 AM y las 10:00 PM');
+            }
 
-    const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
-    const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
+            const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+            const fechaHoraFin = new Date(`${fecha}T${horaFin}`);
 
-    // Validar que si es para hoy, la hora de inicio sea al menos 10 minutos después de la actual
-    const ahora = new Date();
-    const hoyStr = ahora.toISOString().split('T')[0];
-    if (fecha === hoyStr) {
-        const margenMinutos = 10;
-        const ahoraConMargen = new Date(ahora.getTime() + margenMinutos * 60000);
+            // Validar que si es para hoy, la hora de inicio sea al menos 10 minutos después de la actual
+            const ahora = new Date();
+            const hoyStr = ahora.toISOString().split('T')[0];
+            if (fecha === hoyStr) {
+                const margenMinutos = 10;
+                const ahoraConMargen = new Date(ahora.getTime() + margenMinutos * 60000);
 
-        if (fechaHoraInicio <= ahoraConMargen) {
-            throw new Error('Solo puedes apartar con al menos 10 minutos de anticipación');
+                if (fechaHoraInicio <= ahoraConMargen) {
+                    throw new Error('Solo puedes apartar con al menos 10 minutos de anticipación');
+                }
+            }
+
+            // Validar que la hora de fin sea posterior a la de inicio
+            if (fechaHoraFin <= fechaHoraInicio) {
+                throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
+            }
+
+            // Validar duración mínima y máxima
+            const duracionMin = 30; // minutos
+            const duracionMax = 240;
+            const duracionMs = fechaHoraFin - fechaHoraInicio;
+            const duracionMinutos = duracionMs / (1000 * 60);
+
+            if (duracionMinutos < duracionMin) {
+                throw new Error('La reserva debe durar al menos 30 minutos');
+            }
+
+            if (duracionMinutos > duracionMax) {
+                throw new Error('La reserva no puede exceder 4 horas');
+            }
+
+            return true;
         }
-    }
-
-    // Validar que la hora de fin sea posterior a la de inicio
-    if (fechaHoraFin <= fechaHoraInicio) {
-        throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
-    }
-
-    // Validar duración mínima y máxima
-    const duracionMin = 30; // minutos
-    const duracionMax = 240;
-    const duracionMs = fechaHoraFin - fechaHoraInicio;
-    const duracionMinutos = duracionMs / (1000 * 60);
-
-    if (duracionMinutos < duracionMin) {
-        throw new Error('La reserva debe durar al menos 30 minutos');
-    }
-
-    if (duracionMinutos > duracionMax) {
-        throw new Error('La reserva no puede exceder 4 horas');
-    }
-
-    return true;
-}
 
 
         // Script de busaqueda en la tabla de reservas.
@@ -943,7 +987,9 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 reporte += `Fin del reporte - Generado: ${new Date().toLocaleString()}\n`;
                 reporte += `==========================================`;
 
-                const blob = new Blob([reporte], { type: "text/plain" });
+                const blob = new Blob([reporte], {
+                    type: "text/plain"
+                });
                 const enlace = document.createElement("a");
                 enlace.href = URL.createObjectURL(blob);
                 enlace.download = `Reporte_Vista_Actual.txt`;
@@ -960,7 +1006,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         // Modificar la función guardarCambios
         function guardarCambios(event) {
             event.preventDefault();
-            
+
             try {
                 const fecha = document.getElementById('fecha').value;
                 const horaInicio = document.getElementById('hora_inicio').value;
@@ -969,25 +1015,25 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 validarRegistro(fecha, horaInicio, horaFin);
 
                 const formData = new FormData(document.getElementById('formModificar'));
-                
+
                 fetch('../Controlador/Modificar_Registro.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(result => {
-                    if (result === 'success') {
-                        alert('Registro actualizado correctamente');
-                        cerrarModal();
-                        location.reload();
-                    } else {
-                        throw new Error(result);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al actualizar el registro: ' + error.message);
-                });
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        if (result === 'success') {
+                            alert('Registro actualizado correctamente');
+                            cerrarModal();
+                            location.reload();
+                        } else {
+                            throw new Error(result);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar el registro: ' + error.message);
+                    });
             } catch (error) {
                 alert(error.message);
             }
@@ -1011,7 +1057,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         // Modificar la función guardarNuevoRegistro
         function guardarNuevoRegistro(event) {
             event.preventDefault();
-            
+
             try {
                 const fecha = document.getElementById('fecha_agregar').value;
                 const horaInicio = document.getElementById('hora_inicio_agregar').value;
@@ -1020,41 +1066,41 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 validarRegistro(fecha, horaInicio, horaFin);
 
                 const formData = new FormData(document.getElementById('formAgregar'));
-                
+
                 fetch('../Controlador/Verificar_Disponibilidad.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.disponible) {
-                        return fetch('../Controlador/Agregar_Registro.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-                    } else {
-                        throw new Error(data.mensaje || 'El recurso no está disponible en ese horario');
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Registro agregado correctamente');
-                        cerrarModalAgregar();
-                        location.reload();
-                    } else {
-                        throw new Error(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al procesar la solicitud: ' + error.message);
-                });
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Error en la respuesta del servidor');
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.disponible) {
+                            return fetch('../Controlador/Agregar_Registro.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+                        } else {
+                            throw new Error(data.mensaje || 'El recurso no está disponible en ese horario');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Registro agregado correctamente');
+                            cerrarModalAgregar();
+                            location.reload();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al procesar la solicitud: ' + error.message);
+                    });
             } catch (error) {
                 alert(error.message);
             }
@@ -1153,7 +1199,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             const modalAgregar = document.getElementById('modalAgregar');
             const modalModificar = document.getElementById('modalModificar');
             const modalEliminar = document.getElementById('modalEliminar');
-            
+
             if (event.target === modalAgregar) {
                 cerrarModalAgregar();
             }
@@ -1221,25 +1267,25 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
             btnConfirm.onclick = function() {
                 modalConfirm.style.display = 'none';
-                
+
                 fetch(`../Controlador/Eliminar_Reserva.php?id=${id}`, {
-                    method: 'GET'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Registro eliminado correctamente', 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
+                        method: 'GET'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Registro eliminado correctamente', 'success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showToast('Error al eliminar el registro', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         showToast('Error al eliminar el registro', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error al eliminar el registro', 'error');
-                });
+                    });
             };
 
             btnCancel.onclick = function() {
