@@ -3,6 +3,7 @@ include("../database/conection.php");
 include("../Controlador/control_De_Rol.php");
 //checkRole('Administrador'); // Solo administradores pueden acceder
 
+ 
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, p.nombrePrograma AS programa, u.Id_Programa, u.semestre, u.correo, r.nombreRol AS rol, u.id_rol
