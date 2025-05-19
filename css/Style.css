@@ -102,6 +102,7 @@ del administrador*/
     text-align: center;
     padding: 10px;
     color: #333;
+    width: 100% !important;
 }
 
 /*colocar fondo con degradado*/
@@ -546,6 +547,8 @@ display: flex;
     color: #333;
     margin-bottom: 15px;
     text-align: center;
+    line-height: 15px;
+    
 }
 
 .tabla-reservas {
@@ -555,7 +558,10 @@ display: flex;
 }
 
 .tabla-reservas th, .tabla-reservas td {
-    padding: 12px;
+    padding-right: 9px;
+    padding-left: 9px;
+    padding-top: 12px;
+    padding-bottom: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
@@ -565,6 +571,8 @@ display: flex;
     color: white;
     font-weight: 600;
     width: 93%;
+    line-height: 25px;
+    
 }
 
 .tabla-reservas tr:hover {

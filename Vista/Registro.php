@@ -668,7 +668,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             if ($fechaActual !== $fechaAnterior) {
                                 // Mostrar encabezado de día
                                 echo "<tr class='separador-dia' data-registro-id='" . $row['ID_Registro'] . "'>
-                <td colspan='12' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                <td colspan='13' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
                     📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
                 </td>
               </tr>";
