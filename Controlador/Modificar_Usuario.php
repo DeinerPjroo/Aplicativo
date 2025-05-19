@@ -1,4 +1,5 @@
 <?php
+
 include("../database/conection.php");
 
 // Asegurarse de que no haya salida antes de los encabezados

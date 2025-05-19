@@ -3,7 +3,7 @@ include("../database/conection.php");
 include("../Controlador/control_De_Rol.php");
 //checkRole('Administrador'); // Solo administradores pueden acceder
 
- 
+
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, p.nombrePrograma AS programa, u.Id_Programa, u.semestre, u.correo, r.nombreRol AS rol, u.id_rol
@@ -11,17 +11,26 @@ $query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, p.nombrePrograma AS program
              LEFT JOIN programa p ON u.Id_Programa = p.ID_Programa
              LEFT JOIN rol r ON u.id_rol = r.id_rol";
 
-
 if (!empty($search)) {
-    $query .= " WHERE u.codigo_u LIKE '%$search%' 
-                OR u.nombre LIKE '%$search%' 
-                OR u.correo LIKE '%$search%'";
+    $query .= " WHERE u.codigo_u LIKE ? OR u.nombre LIKE ? OR u.correo LIKE ?";
+    $stmt = $conn->prepare($query);
+    $likeSearch = "%$search%";
+    $stmt->bind_param("sss", $likeSearch, $likeSearch, $likeSearch);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query($query);
 }
-$result = $conn->query($query);
+// ...existing code...
 
 // Obtener los programas desde la base de datos
 $programasQuery = "SELECT ID_Programa, nombrePrograma FROM programa";
 $programasResult = $conn->query($programasQuery);
+
+$programas = [];
+while ($row = $programasResult->fetch_assoc()) {
+    $programas[] = $row;
+}
 
 ?>
 
@@ -97,7 +106,7 @@ $programasResult = $conn->query($programasQuery);
             margin: 5px;
         }
 
-       
+
 
         .btn-modificar {
             background-color: #ffc107;
@@ -467,64 +476,60 @@ $programasResult = $conn->query($programasQuery);
 
     <?php include("../Vista/Sidebar.php"); ?>
 
-    
-        <div class="Topbard">
-            <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
-        </div>
 
-        <!-- Toast Container for Notifications -->
-        <div id="toastContainer" class="toast-container"></div>
+    <div class="Topbard">
+        <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
 
 
-        <button class="" onclick="abrirModalAgregar()">
-            <img src="../Imagen/Iconos/Agregar_Registro.svg" alt="" />
+
+
+
+    <div class="contenedor-usuarios">
+        <h2>Lista de Usuarios</h2>
+
+
+        <button class="btn-agregar" onclick="openModal('agregar')">
+            <img src="../Imagen/Iconos/Agregar_Usuario.svg" alt="" />
             <span class="btn-text">Agregar</span>
+
+
         </button>
 
 
 
-        <div class="contenedor-usuarios">
-            <h2>Lista de Usuarios</h2>
-            
+        <div id="mensajeSinResultados" style="display:none;" class="sin-usuarios">
+            <p>No se encontraron usuarios con ese criterio de búsqueda</p>
+        </div>
 
-            <button class="btn-agregar" onclick="openModal('agregar')">
-                <img src="../Imagen/Iconos/Agregar_Usuario.svg" alt="" />
-                 <span class="btn-text">Agregar</span>
-
-
-            </button>
-
-            
-
-            <div id="mensajeSinResultados" style="display:none;" class="sin-usuarios">
-                <p>No se encontraron usuarios con ese criterio de búsqueda</p>
-            </div>
-
-            <?php if ($result->num_rows > 0) : ?>
-                <table id="tablaUsuario" class="tabla-usuarios">
-                    <thead>
+        <?php if ($result->num_rows > 0) : ?>
+            <table id="tablaUsuario" class="tabla-usuarios">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Programa</th>
+                        <th>Semestre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
-                            <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Programa</th>
-                            <th>Semestre</th>
-                            <th>Correo</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $result->fetch_assoc()) : ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['codigo_u']); ?></td>
-                                <td><?php echo htmlspecialchars($row['nombre']); ?></td>
-                                <td><?php echo !empty($row['programa']) ? htmlspecialchars($row['programa']) : 'No aplica'; ?></td>
-                                <td><?php echo htmlspecialchars($row['semestre'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($row['correo']); ?></td>
-                                <td><?php echo htmlspecialchars($row['rol']); ?></td>
-                                <td>
-                                    <button class="btn btn-modificar"
-                                        onclick="openModificarForm(
+                            <td><?php echo htmlspecialchars($row['codigo_u']); ?></td>
+                            <td><?php echo htmlspecialchars($row['nombre']); ?></td>
+                            <td><?php echo !empty($row['programa']) ? htmlspecialchars($row['programa']) : 'No aplica'; ?></td>
+                            <td><?php echo htmlspecialchars($row['semestre'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($row['correo']); ?></td>
+                            <td><?php echo htmlspecialchars($row['rol']); ?></td>
+                            <td>
+                                <button class="btn btn-modificar"
+                                    onclick="openModificarForm(
                                         <?php echo $row['ID_Usuario']; ?>,
                                         '<?php echo htmlspecialchars($row['codigo_u'], ENT_QUOTES); ?>',
                                         '<?php echo htmlspecialchars($row['nombre'], ENT_QUOTES); ?>',
@@ -533,105 +538,128 @@ $programasResult = $conn->query($programasQuery);
                                         '<?php echo htmlspecialchars($row['semestre'], ENT_QUOTES); ?>',
                                         <?php echo $row['id_rol']; ?> /* Cambiamos la variable a id_rol para pasar el número */
                                     )">
-                                        Modificar
-                                    </button>
-                                    <button class="btn btn-eliminar" onclick="eliminarUsuario(<?php echo $row['ID_Usuario']; ?>)">Eliminar</button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else : ?>
-                <div class="sin-usuarios">
-                    <p>No hay usuarios registrados en este momento</p>
-                </div>
-            <?php endif; ?>
+                                    Modificar
+                                </button>
+                                <button class="btn btn-eliminar" onclick="eliminarUsuario(<?php echo $row['ID_Usuario']; ?>)">Eliminar</button>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else : ?>
+            <div class="sin-usuarios">
+                <p>No hay usuarios registrados en este momento</p>
+            </div>
+        <?php endif; ?>
+    </div>
+
+
+    <!-- Modal para Agregar/Modificar Usuario -->
+    <div id="formModal" class="modal" aria-modal="true" role="dialog">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Agregar Usuario</h2>
+            <form id="usuarioForm" onsubmit="return submitForm(event)">
+                <input type="hidden" name="id_usuario" id="form-id">
+                <label>Código de Usuario:</label>
+                <input type="text" name="codigo_u" id="form-codigo_u" placeholder="Ingrese código de identificación..." required oninput="limpiarErrorCodigo()" onblur="verificarCodigoExistente(this.value)">
+                <div id="error-message" class="error-message" style="display:none;"></div>
+
+                <label>Nombre:</label>
+                <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>
+
+                <label>Correo:</label>
+                <input type="email" name="correo" id="form-correo" placeholder="Ingrese correo electrónico..." required oninput="limpiarErrorCorreo()" onblur="verificarCorreoExistente(this.value)">
+                <div id="error-message-correo" class="error-message" style="display:none;"></div>
+
+                <label>Contraseña:</label>
+                <input type="password" name="contraseña" id="form-contraseña" placeholder="Ingrese contraseña...">
+
+                <label>Rol:</label>
+                <select name="id_rol" id="form-rol" required onchange="toggleCamposEstudiante()">
+                    <option value="">Seleccione un rol</option>
+                    <option value="1" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '1') ? 'selected' : ''; ?>>Estudiante</option>
+                    <option value="2" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '2') ? 'selected' : ''; ?>>Docente</option>
+                    <option value="3" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '3') ? 'selected' : ''; ?>>Administrativo</option>
+                    <option value="4" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '4') ? 'selected' : ''; ?>>Administrador</option>
+                </select>
+
+                <label>Semestre:</label>
+                <select name="semestre" id="form-semestre" disabled>
+                    <option value="">Seleccione un semestre</option>
+                    <?php for ($i = 1; $i <= 10; $i++): ?>
+                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                    <?php endfor; ?>
+                </select>
+
+                <label>Programa:</label>
+                <select name="id_programa" id="form-programa" disabled>
+                    <option value="">Seleccione un programa</option>
+                    <?php foreach ($programas as $programa) : ?>
+                        <option value="<?php echo $programa['ID_Programa']; ?>">
+                            <?php echo htmlspecialchars($programa['nombrePrograma']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <button type="submit" id="submitBtn">
+                    <span id="submitBtnText">Guardar</span>
+                    <span id="submitBtnLoader" style="display:none; margin-left:8px;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </form>
         </div>
-  
+    </div>
 
-        <!-- Modal para Agregar/Modificar Usuario -->
-        <div id="formModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h2 id="modalTitle">Agregar Usuario</h2>
-                <form id="usuarioForm" onsubmit="return submitForm(event)">
-                    <input type="hidden" name="id_usuario" id="form-id">
-                    <label>Código de Usuario:</label>
-                    <input type="text" name="codigo_u" id="form-codigo_u" placeholder="Ingrese código de identificación..." required oninput="limpiarErrorCodigo()" onblur="verificarCodigoExistente(this.value)">
-                    <div id="error-message" class="error-message" style="display:none;"></div>
-
-                    <label>Nombre:</label>
-                    <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>
-
-                    <label>Correo:</label>
-                    <input type="email" name="correo" id="form-correo" placeholder="Ingrese correo electrónico..." required oninput="limpiarErrorCorreo()" onblur="verificarCorreoExistente(this.value)">
-                    <div id="error-message-correo" class="error-message" style="display:none;"></div>
-
-                    <label>Contraseña:</label>
-                    <input type="password" name="contraseña" id="form-contraseña" placeholder="Ingrese contraseña...">
-
-                    <label>Rol:</label>
-                    <select name="id_rol" id="form-rol" required onchange="toggleCamposEstudiante()">
-                        <option value="">Seleccione un rol</option>
-                        <option value="1" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '1') ? 'selected' : ''; ?>>Estudiante</option>
-                        <option value="2" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '2') ? 'selected' : ''; ?>>Docente</option>
-                        <option value="3" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '3') ? 'selected' : ''; ?>>Administrativo</option>
-                        <option value="4" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '4') ? 'selected' : ''; ?>>Administrador</option>
-                    </select>
-
-                    <label>Semestre:</label>
-                    <select name="semestre" id="form-semestre" disabled>
-                        <option value="">Seleccione un semestre</option>
-                        <?php for ($i = 1; $i <= 10; $i++): ?>
-                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                        <?php endfor; ?>
-                    </select>
-
-                    <label>Programa:</label>
-                    <select name="id_programa" id="form-programa" disabled>
-                        <option value="">Seleccione un programa</option>
-                        <?php while ($programa = $programasResult->fetch_assoc()) : ?>
-                            <option value="<?php echo $programa['ID_Programa']; ?>">
-                                <?php echo htmlspecialchars($programa['nombrePrograma']); ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
-
-                    <button type="submit" id="submitBtn">Guardar</button>
-                </form>
+    <!-- HTML mejorado para el modal de confirmación -->
+    <div id="modalConfirmDelete" class="modal-confirm" aria-modal="true" role="dialog">
+        <div class="modal-confirm-content">
+            <div class="modal-confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>¿Estás seguro de eliminar este usuario?</h3>
+            <div class="modal-confirm-message">
+                Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.
+            </div>
+            <div class="modal-confirm-buttons">
+                <button id="btnCancelDelete" class="btn-cancelar">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="btnConfirmDelete" class="btn-confirmar">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
             </div>
         </div>
-
-        <!-- HTML mejorado para el modal de confirmación -->
-        <div id="modalConfirmDelete" class="modal-confirm">
-            <div class="modal-confirm-content">
-                <div class="modal-confirm-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h3>¿Estás seguro de eliminar este usuario?</h3>
-                <div class="modal-confirm-message">
-                    Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.
-                </div>
-                <div class="modal-confirm-buttons">
-                    <button id="btnCancelDelete" class="btn-cancelar">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button id="btnConfirmDelete" class="btn-confirmar">
-                        <i class="fas fa-check"></i> Confirmar
-                    </button>
-                </div>
-            </div>
-        </div>
+    </div>
 </body>
 
 </html>
 
 <script>
+    // recargar la tabla y no la pagina completa
+    function recargarTablaUsuarios() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '../Controlador/Tabla_Usuarios.php', true); // Debes crear este archivo PHP
+        xhr.onload = function() {
+            if (this.status === 200) {
+                document.querySelector('#tablaUsuario tbody').innerHTML = this.responseText;
+            } else {
+                showToast('No se pudo actualizar la tabla de usuarios', 'error');
+            }
+        };
+        xhr.send();
+    }
+
+
+
+
+
     // Toast notification functions
     function showToast(message, type = 'info') {
         const toastContainer = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        toast.className = 'toast ${type}';
+        toast.className = `toast ${type}`;
         toast.innerHTML = `
         <div>${message}</div>
         <button class="toast-close" onclick="closeToast(this.parentElement)">&times;</button>`;
@@ -728,13 +756,13 @@ $programasResult = $conn->query($programasQuery);
     }
 
 
-            function limpiarErrorCodigo() {
+    function limpiarErrorCodigo() {
         document.getElementById('error-message').style.display = 'none';
         document.getElementById('form-codigo_u').dataset.error = 'false';
         actualizarEstadoBoton();
     }
 
-            function limpiarErrores() {
+    function limpiarErrores() {
         document.getElementById('error-message').style.display = 'none';
         document.getElementById('error-message-correo').style.display = 'none';
         document.getElementById('form-codigo_u').dataset.error = 'false';
@@ -782,14 +810,14 @@ $programasResult = $conn->query($programasQuery);
         const codigoInput = document.getElementById('form-codigo_u');
         const correoInput = document.getElementById('form-correo');
         const submitBtn = document.getElementById('submitBtn');
-        
+
         // Check for errors in code and email
         const codigoError = codigoInput.dataset.error === 'true';
         const correoError = correoInput.dataset.error === 'true';
-        
+
         // Disable button if there are errors
         submitBtn.disabled = codigoError || correoError;
-        
+
         // Add visual feedback when button is disabled
         if (submitBtn.disabled) {
             submitBtn.style.opacity = '0.6';
@@ -826,10 +854,12 @@ $programasResult = $conn->query($programasQuery);
         }
 
         modal.style.display = 'block';
-
-        // Ejecutar para establecer los estados iniciales de los campos
+        setTimeout(() => {
+            document.getElementById('form-codigo_u').focus();
+        }, 200);
         setTimeout(toggleCamposEstudiante, 100);
     }
+
 
     // Función modificada para abrir el formulario de modificación
     function openModificarForm(id, codigo_u, nombre, correo, programa, semestre, id_rol) {
@@ -864,114 +894,20 @@ $programasResult = $conn->query($programasQuery);
         setTimeout(toggleCamposEstudiante, 100);
     }
 
-    // Delete user with AJAX
-    // Modificación de la función eliminarUsuario en tu JavaScript
-    // Coloca este código en el mismo archivo donde tienes la función eliminarUsuario
 
-    // Añadir estos estilos al final de tu sección <style> en el HTML
-    /*
-    .modal-confirm {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 2000;
-        animation: fadeIn 0.3s;
-    }
+    let usuarioAEliminar = null;
 
-    .modal-confirm-content {
-        position: relative;
-        background-color: #fff;
-        width: 350px;
-        margin: 15% auto;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        animation: slideIn 0.3s;
-    }
-
-    .modal-confirm h3 {
-        margin-top: 0;
-        color: #333;
-        font-size: 18px;
-        margin-bottom: 30px;
-    }
-
-    .modal-confirm-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 25px;
-    }
-
-    .btn-confirmar {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-
-    .btn-confirmar:hover {
-        background-color: #2980b9;
-    }
-
-    .btn-cancelar {
-        background-color: #7f8c8d;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-
-    .btn-cancelar:hover {
-        background-color: #6c7a7d;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    */
-
-    // HTML para el modal de confirmación - Añádelo antes del cierre de tu </body>
-    /*
-    <div id="modalConfirmDelete" class="modal-confirm">
-        <div class="modal-confirm-content">
-            <h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
-            <div class="modal-confirm-buttons">
-                <button id="btnConfirmDelete" class="btn-confirmar">Aceptar</button>
-                <button id="btnCancelDelete" class="btn-cancelar">Cancelar</button>
-            </div>
-        </div>
-    </div>
-    */
-
-    // Función modificada para eliminar usuario
     function eliminarUsuario(id) {
-        // Mostrar el modal personalizado en lugar del confirm nativo
-        const modalConfirm = document.getElementById('modalConfirmDelete');
+        usuarioAEliminar = id;
+        document.getElementById('modalConfirmDelete').style.display = 'block';
+    }
+
+    // Asigna los listeners solo una vez
+    document.addEventListener('DOMContentLoaded', function() {
         const btnConfirm = document.getElementById('btnConfirmDelete');
         const btnCancel = document.getElementById('btnCancelDelete');
+        const modalConfirm = document.getElementById('modalConfirmDelete');
 
-        modalConfirm.style.display = 'block';
-
-        // Evento para el botón confirmar
         btnConfirm.onclick = function() {
             modalConfirm.style.display = 'none';
 
@@ -986,15 +922,9 @@ $programasResult = $conn->query($programasQuery);
                         const response = JSON.parse(this.responseText);
                         if (response.status === 'success') {
                             showToast(response.message, 'success');
-                            // Eliminar la fila de la tabla
-                            const rows = document.querySelectorAll('#tablaUsuario tbody tr');
-                            for (let row of rows) {
-                                const cells = row.getElementsByTagName('td');
-                                if (cells[0].textContent === response.codigo) {
-                                    row.remove();
-                                    break;
-                                }
-                            }
+                            setTimeout(() => {
+                                recargarTablaUsuarios();
+                            }, 500);
                         } else {
                             showToast(response.message || 'Error al eliminar usuario', 'error');
                         }
@@ -1004,129 +934,151 @@ $programasResult = $conn->query($programasQuery);
                 }
             };
 
-            xhr.send('id_usuario=' + encodeURIComponent(id));
+            xhr.send('id_usuario=' + encodeURIComponent(usuarioAEliminar));
         };
 
-        // Evento para el botón cancelar
         btnCancel.onclick = function() {
             modalConfirm.style.display = 'none';
         };
-
-        // Cerrar el modal al hacer clic fuera del contenido
-        window.onclick = function(event) {
-            if (event.target == modalConfirm) {
-                modalConfirm.style.display = 'none';
-            }
-        };
-    }
+    });
 
     // Submit form with AJAX
     function submitForm(event) {
-        event.preventDefault();
+    event.preventDefault();
 
-        // Obtener el rol actual
-        const rol = document.getElementById('form-rol').value;
-        const esEstudiante = rol === '1'; // 1 = Estudiante
+    // Validación adicional en frontend
+    const rol = document.getElementById('form-rol').value;
+    const esEstudiante = rol === '1';
+    const codigo = document.getElementById('form-codigo_u').value.trim();
+    const nombre = document.getElementById('form-nombre').value.trim();
+    const correo = document.getElementById('form-correo').value.trim();
+    const semestre = document.getElementById('form-semestre').value.trim();
+    const programa = document.getElementById('form-programa').value.trim();
 
-        const form = document.getElementById('usuarioForm');
-        const formData = new FormData(form);
-
-        // Añadir un campo oculto para indicar si es estudiante
-        formData.append('es_estudiante', esEstudiante ? '1' : '0');
-
-        // Si no es estudiante, asegurarse de que los campos estén vacíos
-        if (!esEstudiante) {
-            const semestreField = document.getElementById('form-semestre');
-            const programaField = document.getElementById('form-programa');
-
-            // Habilitar temporalmente para poder incluirlos en el FormData
-            semestreField.disabled = false;
-            programaField.disabled = false;
-
-            // Establecer valores vacíos
-            semestreField.value = '';
-            programaField.value = '';
-
-            // Actualizar en formData
-            formData.set('semestre', '');
-            formData.set('id_programa', '');
-
-            // Volver a deshabilitar después de un pequeño delay
-            setTimeout(() => {
-                semestreField.disabled = true;
-                programaField.disabled = true;
-            }, 10);
-        }
-
-        const action = form.getAttribute('data-action');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', action, true);
-
-        xhr.onload = function() {
-            // Volver a deshabilitar campos si es necesario
-            if (!esEstudiante) {
-                document.getElementById('form-semestre').disabled = true;
-                document.getElementById('form-programa').disabled = true;
-            }
-
-            if (this.status === 200) {
-                let response;
-                try {
-                    // Intentar analizar la respuesta como JSON
-                    response = JSON.parse(this.responseText);
-
-                    if (response.status === 'success') {
-                        showToast(response.message, 'success');
-                        closeModal();
-                        // Recargar la tabla
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showToast(response.message || 'Hubo un error en la operación', 'error');
-                    }
-                } catch (e) {
-                    // Si hay un error al analizar JSON, mostrar el texto de respuesta para debugging
-                    console.error("Error al analizar respuesta JSON:", e);
-                    console.log("Respuesta del servidor:", this.responseText);
-
-                    // Verificar si la respuesta contiene HTML (probable error PHP)
-                    if (this.responseText.includes("<br />") || this.responseText.includes("<!DOCTYPE")) {
-                        showToast('Error del servidor. Revisa la consola para más detalles.', 'error');
-                    } else {
-                        showToast('Error en la respuesta del servidor: ' + this.responseText, 'error');
-                    }
-                }
-            } else {
-                showToast('Error en la comunicación con el servidor: ' + this.status, 'error');
-            }
-        };
-
-        xhr.onerror = function() {
-            showToast('Error de conexión al servidor', 'error');
-            // Volver a deshabilitar campos si es necesario
-            if (!esEstudiante) {
-                document.getElementById('form-semestre').disabled = true;
-                document.getElementById('form-programa').disabled = true;
-            }
-        };
-
-        xhr.send(formData);
+    // Validar campos obligatorios
+    if (!codigo || !nombre || !correo || !rol) {
+        showToast('Por favor, complete todos los campos obligatorios.', 'error');
         return false;
     }
+
+    // Validar correo electrónico (formato simple)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+        showToast('Ingrese un correo electrónico válido.', 'error');
+        return false;
+    }
+
+    // Si es estudiante, validar semestre y programa
+    if (esEstudiante && (!semestre || !programa)) {
+        showToast('Por favor, seleccione el semestre y el programa.', 'error');
+        return false;
+    }
+
+    // --- Tu código AJAX y loader a partir de aquí ---
+    const form = document.getElementById('usuarioForm');
+    const formData = new FormData(form);
+
+    // Loader en el botón
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const submitBtnLoader = document.getElementById('submitBtnLoader');
+    submitBtn.disabled = true;
+    submitBtnText.style.display = 'none';
+    submitBtnLoader.style.display = 'inline-block';
+
+    // Añadir un campo oculto para indicar si es estudiante
+    formData.append('es_estudiante', esEstudiante ? '1' : '0');
+
+    // Si no es estudiante, asegurarse de que los campos estén vacíos
+    if (!esEstudiante) {
+        const semestreField = document.getElementById('form-semestre');
+        const programaField = document.getElementById('form-programa');
+        semestreField.disabled = false;
+        programaField.disabled = false;
+        semestreField.value = '';
+        programaField.value = '';
+        formData.set('semestre', '');
+        formData.set('id_programa', '');
+        setTimeout(() => {
+            semestreField.disabled = true;
+            programaField.disabled = true;
+        }, 10);
+    }
+
+    const action = form.getAttribute('data-action');
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', action, true);
+
+    xhr.onload = function() {
+        if (!esEstudiante) {
+            document.getElementById('form-semestre').disabled = true;
+            document.getElementById('form-programa').disabled = true;
+        }
+        submitBtn.disabled = false;
+        submitBtnText.style.display = 'inline';
+        submitBtnLoader.style.display = 'none';
+
+        if (this.status === 200) {
+            let response;
+            try {
+                response = JSON.parse(this.responseText);
+                if (response.status === 'success') {
+                    showToast(response.message, 'success');
+                    closeModal();
+                    setTimeout(() => {
+                        recargarTablaUsuarios();
+                    }, 500);
+                } else {
+                    showToast(response.message || 'Hubo un error en la operación', 'error');
+                }
+            } catch (e) {
+                console.error("Error al analizar respuesta JSON:", e);
+                console.log("Respuesta del servidor:", this.responseText);
+                if (this.responseText.includes("<br />") || this.responseText.includes("<!DOCTYPE")) {
+                    showToast('Error del servidor. Revisa la consola para más detalles.', 'error');
+                } else {
+                    showToast('Error en la respuesta del servidor: ' + this.responseText, 'error');
+                }
+            }
+        } else {
+            showToast('Error en la comunicación con el servidor: ' + this.status, 'error');
+        }
+    };
+
+    xhr.onerror = function() {
+        showToast('Error de conexión al servidor', 'error');
+        if (!esEstudiante) {
+            document.getElementById('form-semestre').disabled = true;
+            document.getElementById('form-programa').disabled = true;
+        }
+        submitBtn.disabled = false;
+        submitBtnText.style.display = 'inline';
+        submitBtnLoader.style.display = 'none';
+    };
+
+    xhr.send(formData);
+    return false;
+}
 
     // Close modal functions
     function closeModal() {
         document.getElementById('formModal').style.display = 'none';
+        document.getElementById('usuarioForm').reset();
+        limpiarErrores();
     }
 
     window.onclick = function(event) {
-        const modal = document.getElementById('formModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
+        const modalForm = document.getElementById('formModal');
+        const modalConfirm = document.getElementById('modalConfirmDelete');
+        // Cierra el modal de formulario si el click es fuera de su contenido
+        if (event.target === modalForm) {
+            modalForm.style.display = "none";
         }
-    }
+        // Cierra el modal de confirmación si el click es fuera de su contenido
+        if (event.target === modalConfirm) {
+            modalConfirm.style.display = "none";
+        }
+    };
 
     function toggleCamposEstudiante() {
         const rol = document.getElementById('form-rol').value;
