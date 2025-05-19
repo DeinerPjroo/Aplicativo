@@ -349,6 +349,13 @@ while ($row = $programasResult->fetch_assoc()) {
             }
         }
 
+        /* ...existing code... */
+
+        .input-error {
+            border: 2px solid #e74c3c !important;
+            background-color: #fff6f6;
+        }
+
         /* Estilos mejorados para el modal de confirmación */
         .modal-confirm {
             display: none;
@@ -492,11 +499,9 @@ while ($row = $programasResult->fetch_assoc()) {
         <h2>Lista de Usuarios</h2>
 
 
-        <button class="btn-agregar" onclick="openModal('agregar')">
-            <img src="../Imagen/Iconos/Agregar_Usuario.svg" alt="" />
+        <button class="btn-agregar" onclick="openModal('agregar')" title="Agregar nuevo usuario">
+            <img src="../Imagen/Iconos/Agregar_Usuario.svg" alt="Agregar usuario" />
             <span class="btn-text">Agregar</span>
-
-
         </button>
 
 
@@ -738,9 +743,11 @@ while ($row = $programasResult->fetch_assoc()) {
                     errorMessage.innerText = 'El código de usuario ya existe.';
                     errorMessage.style.display = 'block';
                     codigoInput.dataset.error = 'true';
+                    codigoInput.classList.add('input-error'); // <-- Añade esto
                 } else {
                     document.getElementById('error-message').style.display = 'none';
                     codigoInput.dataset.error = 'false';
+                    codigoInput.classList.remove('input-error'); // <-- Añade esto
                 }
                 actualizarEstadoBoton();
             }
@@ -758,16 +765,18 @@ while ($row = $programasResult->fetch_assoc()) {
 
     function limpiarErrorCodigo() {
         document.getElementById('error-message').style.display = 'none';
-        document.getElementById('form-codigo_u').dataset.error = 'false';
+        const codigoInput = document.getElementById('form-codigo_u');
+        codigoInput.dataset.error = 'false';
+        codigoInput.classList.remove('input-error'); // <-- Añade esto
         actualizarEstadoBoton();
     }
 
     function limpiarErrores() {
-        document.getElementById('error-message').style.display = 'none';
         document.getElementById('error-message-correo').style.display = 'none';
-        document.getElementById('form-codigo_u').dataset.error = 'false';
-        document.getElementById('form-correo').dataset.error = 'false';
-        document.getElementById('submitBtn').disabled = false;
+        const correoInput = document.getElementById('form-correo');
+        correoInput.dataset.error = 'false';
+        correoInput.classList.remove('input-error'); // <-- Añade esto
+        actualizarEstadoBoton();
     }
 
     function verificarCorreoExistente(correo) {
@@ -795,9 +804,11 @@ while ($row = $programasResult->fetch_assoc()) {
                     errorMessage.innerText = 'El correo electrónico ya está registrado.';
                     errorMessage.style.display = 'block';
                     correoInput.dataset.error = 'true';
+                    correoInput.classList.add('input-error'); // <-- Añade esto
                 } else {
                     document.getElementById('error-message-correo').style.display = 'none';
                     correoInput.dataset.error = 'false';
+                    correoInput.classList.remove('input-error'); // <-- Añade esto
                 }
                 actualizarEstadoBoton();
             }
@@ -944,121 +955,121 @@ while ($row = $programasResult->fetch_assoc()) {
 
     // Submit form with AJAX
     function submitForm(event) {
-    event.preventDefault();
+        event.preventDefault();
 
-    // Validación adicional en frontend
-    const rol = document.getElementById('form-rol').value;
-    const esEstudiante = rol === '1';
-    const codigo = document.getElementById('form-codigo_u').value.trim();
-    const nombre = document.getElementById('form-nombre').value.trim();
-    const correo = document.getElementById('form-correo').value.trim();
-    const semestre = document.getElementById('form-semestre').value.trim();
-    const programa = document.getElementById('form-programa').value.trim();
+        // Validación adicional en frontend
+        const rol = document.getElementById('form-rol').value;
+        const esEstudiante = rol === '1';
+        const codigo = document.getElementById('form-codigo_u').value.trim();
+        const nombre = document.getElementById('form-nombre').value.trim();
+        const correo = document.getElementById('form-correo').value.trim();
+        const semestre = document.getElementById('form-semestre').value.trim();
+        const programa = document.getElementById('form-programa').value.trim();
 
-    // Validar campos obligatorios
-    if (!codigo || !nombre || !correo || !rol) {
-        showToast('Por favor, complete todos los campos obligatorios.', 'error');
-        return false;
-    }
-
-    // Validar correo electrónico (formato simple)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correo)) {
-        showToast('Ingrese un correo electrónico válido.', 'error');
-        return false;
-    }
-
-    // Si es estudiante, validar semestre y programa
-    if (esEstudiante && (!semestre || !programa)) {
-        showToast('Por favor, seleccione el semestre y el programa.', 'error');
-        return false;
-    }
-
-    // --- Tu código AJAX y loader a partir de aquí ---
-    const form = document.getElementById('usuarioForm');
-    const formData = new FormData(form);
-
-    // Loader en el botón
-    const submitBtn = document.getElementById('submitBtn');
-    const submitBtnText = document.getElementById('submitBtnText');
-    const submitBtnLoader = document.getElementById('submitBtnLoader');
-    submitBtn.disabled = true;
-    submitBtnText.style.display = 'none';
-    submitBtnLoader.style.display = 'inline-block';
-
-    // Añadir un campo oculto para indicar si es estudiante
-    formData.append('es_estudiante', esEstudiante ? '1' : '0');
-
-    // Si no es estudiante, asegurarse de que los campos estén vacíos
-    if (!esEstudiante) {
-        const semestreField = document.getElementById('form-semestre');
-        const programaField = document.getElementById('form-programa');
-        semestreField.disabled = false;
-        programaField.disabled = false;
-        semestreField.value = '';
-        programaField.value = '';
-        formData.set('semestre', '');
-        formData.set('id_programa', '');
-        setTimeout(() => {
-            semestreField.disabled = true;
-            programaField.disabled = true;
-        }, 10);
-    }
-
-    const action = form.getAttribute('data-action');
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', action, true);
-
-    xhr.onload = function() {
-        if (!esEstudiante) {
-            document.getElementById('form-semestre').disabled = true;
-            document.getElementById('form-programa').disabled = true;
+        // Validar campos obligatorios
+        if (!codigo || !nombre || !correo || !rol) {
+            showToast('Por favor, complete todos los campos obligatorios.', 'error');
+            return false;
         }
-        submitBtn.disabled = false;
-        submitBtnText.style.display = 'inline';
-        submitBtnLoader.style.display = 'none';
 
-        if (this.status === 200) {
-            let response;
-            try {
-                response = JSON.parse(this.responseText);
-                if (response.status === 'success') {
-                    showToast(response.message, 'success');
-                    closeModal();
-                    setTimeout(() => {
-                        recargarTablaUsuarios();
-                    }, 500);
-                } else {
-                    showToast(response.message || 'Hubo un error en la operación', 'error');
-                }
-            } catch (e) {
-                console.error("Error al analizar respuesta JSON:", e);
-                console.log("Respuesta del servidor:", this.responseText);
-                if (this.responseText.includes("<br />") || this.responseText.includes("<!DOCTYPE")) {
-                    showToast('Error del servidor. Revisa la consola para más detalles.', 'error');
-                } else {
-                    showToast('Error en la respuesta del servidor: ' + this.responseText, 'error');
-                }
+        // Validar correo electrónico (formato simple)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo)) {
+            showToast('Ingrese un correo electrónico válido.', 'error');
+            return false;
+        }
+
+        // Si es estudiante, validar semestre y programa
+        if (esEstudiante && (!semestre || !programa)) {
+            showToast('Por favor, seleccione el semestre y el programa.', 'error');
+            return false;
+        }
+
+        // --- Tu código AJAX y loader a partir de aquí ---
+        const form = document.getElementById('usuarioForm');
+        const formData = new FormData(form);
+
+        // Loader en el botón
+        const submitBtn = document.getElementById('submitBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const submitBtnLoader = document.getElementById('submitBtnLoader');
+        submitBtn.disabled = true;
+        submitBtnText.style.display = 'none';
+        submitBtnLoader.style.display = 'inline-block';
+
+        // Añadir un campo oculto para indicar si es estudiante
+        formData.append('es_estudiante', esEstudiante ? '1' : '0');
+
+        // Si no es estudiante, asegurarse de que los campos estén vacíos
+        if (!esEstudiante) {
+            const semestreField = document.getElementById('form-semestre');
+            const programaField = document.getElementById('form-programa');
+            semestreField.disabled = false;
+            programaField.disabled = false;
+            semestreField.value = '';
+            programaField.value = '';
+            formData.set('semestre', '');
+            formData.set('id_programa', '');
+            setTimeout(() => {
+                semestreField.disabled = true;
+                programaField.disabled = true;
+            }, 10);
+        }
+
+        const action = form.getAttribute('data-action');
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', action, true);
+
+        xhr.onload = function() {
+            if (!esEstudiante) {
+                document.getElementById('form-semestre').disabled = true;
+                document.getElementById('form-programa').disabled = true;
             }
-        } else {
-            showToast('Error en la comunicación con el servidor: ' + this.status, 'error');
-        }
-    };
+            submitBtn.disabled = false;
+            submitBtnText.style.display = 'inline';
+            submitBtnLoader.style.display = 'none';
 
-    xhr.onerror = function() {
-        showToast('Error de conexión al servidor', 'error');
-        if (!esEstudiante) {
-            document.getElementById('form-semestre').disabled = true;
-            document.getElementById('form-programa').disabled = true;
-        }
-        submitBtn.disabled = false;
-        submitBtnText.style.display = 'inline';
-        submitBtnLoader.style.display = 'none';
-    };
+            if (this.status === 200) {
+                let response;
+                try {
+                    response = JSON.parse(this.responseText);
+                    if (response.status === 'success') {
+                        showToast(response.message, 'success');
+                        closeModal();
+                        setTimeout(() => {
+                            recargarTablaUsuarios();
+                        }, 500);
+                    } else {
+                        showToast(response.message || 'Hubo un error en la operación', 'error');
+                    }
+                } catch (e) {
+                    console.error("Error al analizar respuesta JSON:", e);
+                    console.log("Respuesta del servidor:", this.responseText);
+                    if (this.responseText.includes("<br />") || this.responseText.includes("<!DOCTYPE")) {
+                        showToast('Error del servidor. Revisa la consola para más detalles.', 'error');
+                    } else {
+                        showToast('Error en la respuesta del servidor: ' + this.responseText, 'error');
+                    }
+                }
+            } else {
+                showToast('Error en la comunicación con el servidor: ' + this.status, 'error');
+            }
+        };
 
-    xhr.send(formData);
-    return false;
-}
+        xhr.onerror = function() {
+            showToast('Error de conexión al servidor', 'error');
+            if (!esEstudiante) {
+                document.getElementById('form-semestre').disabled = true;
+                document.getElementById('form-programa').disabled = true;
+            }
+            submitBtn.disabled = false;
+            submitBtnText.style.display = 'inline';
+            submitBtnLoader.style.display = 'none';
+        };
+
+        xhr.send(formData);
+        return false;
+    }
 
     // Close modal functions
     function closeModal() {
@@ -1069,15 +1080,15 @@ while ($row = $programasResult->fetch_assoc()) {
 
     window.onclick = function(event) {
         const modalForm = document.getElementById('formModal');
-        const modalConfirm = document.getElementById('modalConfirmDelete');
-        // Cierra el modal de formulario si el click es fuera de su contenido
-        if (event.target === modalForm) {
-            modalForm.style.display = "none";
-        }
-        // Cierra el modal de confirmación si el click es fuera de su contenido
-        if (event.target === modalConfirm) {
-            modalConfirm.style.display = "none";
-        }
+    const modalConfirm = document.getElementById('modalConfirmDelete');
+    // Cierra el modal de formulario si el click es fuera de su contenido
+    if (event.target === modalForm) {
+        closeModal(); // <-- Cambia esto
+    }
+    // Cierra el modal de confirmación si el click es fuera de su contenido
+    if (event.target === modalConfirm) {
+        modalConfirm.style.display = "none";
+    }
     };
 
     function toggleCamposEstudiante() {
