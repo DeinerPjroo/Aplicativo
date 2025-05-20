@@ -363,64 +363,13 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             margin-top: 20px;
         }
 
-        .btn-confirmar {
-            background-color: #d07c2e;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
-        }
+        
 
-        /* hola  */
-        .btn-confirmar:hover {
-            background-color: #b9651f;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
-        }
 
-        .btn-cancelar {
-            background-color: #2d9eb2;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            box-shadow: 0 3px 8px rgba(45, 158, 178, 0.3);
-        }
+       
 
-        .btn-cancelar:hover {
-            background-color: #258797;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgba(45, 158, 178, 0.4);
-        }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
+       
 
         /* Efecto al hacer clic en los botones */
         .btn-confirmar:active,
