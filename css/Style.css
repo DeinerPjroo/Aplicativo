@@ -250,7 +250,7 @@ font-size: 1.75rem;
     position: relative;
 }
 .sidebar-nav .nav-tooltip{
-    color: #d3892e;
+    color: #006064;
     opacity: 0;
     pointer-events: none;
     background: #fff;
@@ -342,20 +342,7 @@ font-size: 1.75rem;
 
 /****Aqui comienzo con el resto ( lo que esta fuera del sidebar)*/
 
-.Encabezado{
-    font-size: 35px;
-    align-items: center;
-    text-align: center;
-    color: #fff;
-    background: #d3892e;
-    border-bottom-right-radius: 10px;
-    margin-left:  16px; ;
-    height: 75px;
-    padding-top: 10px;
-  
-    
-    
-}
+
 .Topbard{
     font-size: 35px;
     align-items: center;
@@ -368,9 +355,10 @@ font-size: 1.75rem;
     padding-top: 10px;
     display: flex
     ;
+   
 }
 .btn-reportes{
-    margin-left: 250px;
+    margin-left: 200px;
 }
 
 .Encabezado h1{
@@ -1198,12 +1186,15 @@ display: flex;
         /* Estilos de la barra superior mejorada */
         .Topbard {
             background-color: var(--color-primary);
+           
+            
             padding: 20px;
-            width: 100%;
+            width: 99%;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-left: 6px solid var(--color-accent);
+            border-bottom: 6px solid var(--color-accent);
+            border-left: 6px solid var(--color-coral);
             border-right: 6px solid var(--color-coral);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }

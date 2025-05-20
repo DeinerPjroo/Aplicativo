@@ -147,7 +147,7 @@ while ($row = $resProgramas->fetch_assoc()) {
 </head>
 <body class="Registro">
     <?php include("../Vista/Sidebar.php"); ?>
-    <section class="Encabezado">
+    <section class="Topbard">
         <h1><center>Estadísticas de Reservas</center></h1>
     </section>
     <div class="estadisticas-container">
