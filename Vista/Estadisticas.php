@@ -224,9 +224,13 @@ while ($row = $resProgramas->fetch_assoc()) {
     <!-- Botón para descargar las estadísticas en PDF -->
     <div >
         <button onclick="descargarEstadisticasPDF()" class="btn-pdf">
-            <span class="material-symbols-outlined" style="vertical-align:middle;">download</span>
-            Descargar estadísticas en PDF
+             <img src="../Imagen/Iconos/download.svg" alt="" />
+            <span class="nav-tooltip">Descargar estadísticas en PDF</span>
+            
         </button>
+
+
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
