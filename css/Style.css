@@ -1560,3 +1560,522 @@ display: flex;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
     
+
+/* --- */
+    
+/* Estilos generales refinados */
+
+/* Paleta refinada */
+:root {
+    --color-primary: #006D75;           /* Verde azulado mejorado */
+    --color-accent: #E0A43C;            /* Naranja/dorado para acentos */
+    --color-coral: #D87863;             /* Coral para acentos secundarios */
+    --color-background: #FFFFFF;        /* Fondo blanco */
+    --color-alternate: #F0F8F8;         /* Verde azulado muy claro para filas alternas */
+    --color-agregar: #2E8B57;           /* Verde para botón agregar */
+    --color-modificar: #E8A800;         /* Amarillo dorado mejorado */
+    --color-eliminar: #C82333;          /* Rojo mejorado menos brillante */
+    --border-radius: 12px;
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --transition-speed: 0.3s ease;
+}
+
+/* Contenedor principal de usuarios */
+.contenedor-usuarios {
+    width: 90%;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-left: 110px !important;
+}
+
+/* Tabla moderna */
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-usuarios th,
+.tabla-usuarios td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-usuarios th {
+    background-color: var(--color-primary);  /* Usando la variable de color primario */
+    color: white;
+    font-weight: 600;
+}
+
+.sin-usuarios {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin: 5px;
+}
+
+.tabla-usuarios tr {
+    transition: background-color 0.2s;
+}
+
+.tabla-usuarios tr:nth-child(even) {
+    background-color: var(--color-alternate);  /* Usando la variable para filas alternas */
+}
+
+.tabla-usuarios tr:hover {
+    background-color: #e6f3f3;  /* Un tono un poco más oscuro que --color-alternate al hacer hover */
+}
+
+.tabla-usuarios td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Botones modernos */
+.btn-agregar img {
+    margin-right: 8px;
+    height: 20px;
+    width: 20px;
+}
+
+.btn-modificar {
+    background-color: var(--color-modificar);  /* Usando la variable para botón modificar */
+    color: #333;  /* Mejor contraste para texto en fondo amarillo */
+}
+
+.btn-eliminar {
+    background-color: var(--color-eliminar);  /* Usando la variable para botón eliminar */
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-modificar:hover {
+    background-color: #D69A00;  /* Versión más oscura del amarillo */
+}
+
+.btn-eliminar:hover {
+    background-color: #B01E2D;  /* Versión más oscura del rojo */
+}
+
+/* Mensaje sin usuarios */
+.sin-usuarios {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px dashed #dee2e6;
+}
+
+/* Estilos de la barra superior mejorada */
+.Topbard {
+    background-color: var(--color-primary);
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-left: 6px solid var(--color-accent);
+    border-right: 6px solid var(--color-coral);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.Topbard-center {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.sidebar, .sidebar-menu {
+    background-color: var(--color-primary) !important;
+    border-left: 6px solid var(--color-accent);
+    border-right: 6px solid var(--color-coral);
+}
+
+/* Campo de búsqueda mejorado */
+.Topbard input[type="text"] {
+    border: none;
+    outline: none;
+    width: 600px;
+    max-width: 90%;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 50px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+}
+
+.Topbard input[type="text"]:focus {
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.Topbard input[type="text"]::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Modal estilos refinados */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 30px;
+    border: none;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.4s;
+}
+
+@keyframes modalFadeIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Estilos para la barra de desplazamiento */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #b9651f;
+}
+
+/* Botón de cerrar mejorado */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+.barra-superior {
+    background-color: var(--color-accent);  /* Usando la variable de color acento */
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Título del modal */
+.modal-content h2 {
+    color: var(--color-primary);
+    font-size: 22px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Campos del formulario */
+.modal-content label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    /* Asegura que el padding no afecte el ancho total */
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(224, 164, 60, 0.2);
+    outline: none;
+}
+
+.modal-content button[type="submit"] {
+    background-color: var(--color-agregar);  /* Usando la variable para el botón de agregar/enviar */
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.modal-content button[type="submit"]:hover {
+    background-color: #26704c;  /* Versión más oscura del verde */
+}
+
+/* Mensaje de error */
+/* Estilo para el mensaje de error */
+.error-message {
+    color: var(--color-eliminar);  /* Usando la variable para color de error */
+    font-size: 12px;
+    margin-top: -12px;
+    margin-bottom: 8px;
+}
+
+/* Estilo para notificaciones */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
+}
+
+.toast {
+    background-color: #fff;
+    color: #333;
+    border-radius: 5px;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 250px;
+    max-width: 350px;
+    animation: slide-in 0.3s ease-out forwards;
+}
+
+.toast.success {
+    border-left: 5px solid var(--color-agregar);  /* Usando la variable para éxito */
+}
+
+.toast.error {
+    border-left: 5px solid var(--color-eliminar);  /* Usando la variable para error */
+}
+
+.toast.info {
+    border-left: 5px solid var(--color-primary);  /* Usando la variable para información */
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.toast-close:hover {
+    color: #333;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.input-error {
+    border: 2px solid var(--color-eliminar) !important;  /* Usando la variable para borde de error */
+    background-color: #fff6f6;
+}
+
+/* Modal de confirmación moderno */
+.modal-confirm {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+
+.modal-confirm-content {
+    position: relative;
+    background-color: #fff;
+    width: 400px;
+    margin: 15% auto;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: scaleIn 0.4s ease;
+    border-top: 5px solid var(--color-accent);  /* Usando la variable para el borde superior */
+}
+
+.modal-confirm-icon {
+    font-size: 48px;
+    color: var(--color-accent);  /* Usando la variable para el ícono */
+    margin-bottom: 20px;
+}
+
+.modal-confirm h3 {
+    margin-top: 10px;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+.modal-confirm-message {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.modal-confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.btn-confirmar {
+    background-color: var(--color-accent);  /* Usando la variable para botón confirmar */
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
+}
+
+.btn-confirmar:hover {
+    background-color: #b9651f;  /* Versión más oscura del naranja/dorado */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);
+}
+
+.btn-cancelar {
+    background-color: var(--color-primary);  /* Usando la variable para botón cancelar */
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(0, 109, 117, 0.3);
+}
+
+.btn-cancelar:hover {
+    background-color: #005761;  /* Versión más oscura del color primario */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 109, 117, 0.4);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Efecto al hacer clic en los botones */
+.btn-confirmar:active,
+.btn-cancelar:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
