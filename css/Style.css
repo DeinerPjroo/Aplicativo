@@ -163,7 +163,7 @@ transition: 0.5s ease;
 
 
 .sidebar.collapsed .sidebar-header .sidebar-toggler{
-    transform: translate(-4px, 65px);
+    transform: translate( 5px, 65px);
 }
 
 .sidebar-header .sidebar-toggler span{
@@ -442,27 +442,14 @@ display: flex;
     margin-left: 10px;
     border-radius: 4px;
 }
-.btn-filtrar {
-    padding: 6px 12px;
-    background-color: #ccc;
-    border: none;
-    text-decoration: none;
-    color: black;
-    margin-left: 10px;
-    border-radius: 4px;
-}
 
-.btn-filtrar:hover {
-    background-color: #bbb; /* Cambia a un gris más oscuro al hacer hover */
-    color: black; /* Asegura que el texto permanezca negro */
-}
 
 
 .registro-cancelado {
-    background-color: #ec9eaa !important; /* Light red background */
+    background-color: #d87863a9 !important; /* Light red background */
 }
 .registro-cancelado:hover {
-    background-color: #ffcdd2 !important; /* Slightly darker on hover */
+    background-color: #D87863 !important; /* Slightly darker on hover */
 }
 
 
@@ -487,7 +474,7 @@ display: flex;
 
 .btn-agregar{
     margin: 10px;
-    background: #248b8b;
+    background: #027b80;
     color: #FFF;
     border: 2px solid #269696;
     border-radius: 12px;
@@ -514,7 +501,7 @@ display: flex;
 
 
 .contenedor-reservas {
-    margin-left: 90px !important;
+    margin-left: 95px !important;
     width: 93%;
     margin: 20px auto;
     background-color: #fff;
@@ -529,6 +516,7 @@ display: flex;
     margin-bottom: 15px;
     text-align: center;
     line-height: 15px;
+    font-size: 30px;
     
 }
 
@@ -548,7 +536,7 @@ display: flex;
 }
 
 .tabla-reservas th {
-    background-color:rgb(45, 158, 178);
+    background-color: #027b80;
     color: white;
     font-weight: 600;
     width: 93%;
@@ -658,7 +646,7 @@ display: flex;
     font-weight: bold;
     margin: 0% ;
     margin-bottom: 10px !important;
-    background: #248b8b;
+    background: #027b80;
     color: #FFF;
     border: 2px solid #269696;
     border-radius: 12px;
@@ -691,17 +679,13 @@ display: flex;
 
 /* Estilo para registros del día actual */
 .registro-hoy {
-    background-color: #d3892eba; /* Fondo verde claro */
+    background-color: #e0a43cd3; /* Fondo verde claro */
     
 }
 .registro-hoy:hover {
     background-color: #dd9032 !important; /* Cambia el color de toda la fila al pasar el mouse */
 }
 
-.registro-siguiente {
-    background-color: #f0f7ff; /* Color azul claro para distinguir los registros del día siguiente */
-    font-weight: bold;
-}
 
 .menu-acciones {
     position: relative;
@@ -1507,7 +1491,11 @@ display: flex;
             margin-top: 20px;
         }
 
-        .btn-confirmar {
+        .btn-pdf {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-color: #d07c2e;
             color: white;
             border: none;
@@ -1519,7 +1507,7 @@ display: flex;
             box-shadow: 0 3px 8px rgba(208, 124, 46, 0.3);
         }
 
-        .btn-confirmar:hover {
+        .btn-pdf:hover {
             background-color: #b9651f;
             transform: translateY(-2px);
             box-shadow: 0 5px 12px rgba(208, 124, 46, 0.4);

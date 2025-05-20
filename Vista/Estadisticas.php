@@ -72,7 +72,8 @@ while ($row = $resProgramas->fetch_assoc()) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .estadisticas-container {
-            margin-left: 110px;
+
+            margin-left: 200px;
             margin-top: 30px;
             background: #fff;
             border-radius: 12px;
@@ -120,11 +121,19 @@ while ($row = $resProgramas->fetch_assoc()) {
         .filtros-form {
             margin-bottom: 25px;
             display: flex;
-            gap: 20px;
+            gap: 10px;
             align-items: center;
+            
+            margin-left: 300px;
         }
         .filtros-form label {
             font-weight: bold;
+        }
+
+        .filtros-form input[type="date"] {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
         .tabla-resumen {
             width: 100%;
@@ -148,13 +157,13 @@ while ($row = $resProgramas->fetch_assoc()) {
 <body class="Registro">
     <?php include("../Vista/Sidebar.php"); ?>
     <section class="Topbard">
-        <h1><center>Estadísticas de Reservas</center></h1>
+        <h1><center>Estadísticas</center></h1>
     </section>
     <div class="estadisticas-container">
         <form class="filtros-form" method="get">
             <label>Desde: <input type="date" name="fecha_inicio" value="<?php echo htmlspecialchars($fecha_inicio); ?>"></label>
             <label>Hasta: <input type="date" name="fecha_fin" value="<?php echo htmlspecialchars($fecha_fin); ?>"></label>
-            <button type="submit" class="btn-confirmar">Filtrar</button>
+            <button type="submit" class="btn-pdf">Filtrar</button>
         </form>
         <div class="estadisticas-cards">
             <div class="estadistica-card">
@@ -213,8 +222,8 @@ while ($row = $resProgramas->fetch_assoc()) {
         </table>
     </div>
     <!-- Botón para descargar las estadísticas en PDF -->
-    <div style="text-align:right; margin: 30px 110px 0 0;">
-        <button onclick="descargarEstadisticasPDF()" class="btn-confirmar" style="font-size:16px;">
+    <div >
+        <button onclick="descargarEstadisticasPDF()" class="btn-pdf">
             <span class="material-symbols-outlined" style="vertical-align:middle;">download</span>
             Descargar estadísticas en PDF
         </button>
