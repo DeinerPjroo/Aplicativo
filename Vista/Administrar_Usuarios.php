@@ -54,7 +54,7 @@ while ($row = $programasResult->fetch_assoc()) {
     <?php include("../Vista/Sidebar.php"); ?>
 
 
-    <div class="Topbard">
+    <div class="Topbard" style="padding-bottom: 10px;">
         <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
     </div>
 

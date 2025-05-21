@@ -55,24 +55,9 @@ if ($row = $result->fetch_assoc()) {
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <style>
         /* Estilos adicionales para la página de perfil */
-        :root {
-            --primary-color: #258797;
-            --secondary-color: #d07c2e;
-            --background-light: #f5f7fa;
-            --text-dark: #333;
-            --text-light: #666;
-            --border-color: #ddd;
-            --success-color: #2ecc71;
-            --hover-color: #2980b9;
-        }
+       
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--background-light);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 0;
-        }
+       
 
         .container {
             display: flex;
@@ -82,17 +67,11 @@ if ($row = $result->fetch_assoc()) {
         .main-content {
             flex: 1;
             padding: 20px;
-            margin-left: 250px; /* Ajusta según el ancho de tu sidebar */
+            margin-left: 250px;
+            /* Ajusta según el ancho de tu sidebar */
         }
 
-        .header {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+
 
         .profile-container {
             display: flex;
@@ -120,11 +99,6 @@ if ($row = $result->fetch_assoc()) {
             object-fit: cover;
             border: 4px solid var(--primary-color);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .change-password-btn {
-            margin-top: 20px;
-            width: 100%;
         }
 
         .profile-details {
@@ -162,29 +136,7 @@ if ($row = $result->fetch_assoc()) {
             box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
         }
 
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
 
-        button:hover {
-            background-color: var(--hover-color);
-        }
-
-        .btn-save {
-            background-color: var(--success-color);
-            margin-top: 10px;
-        }
-
-        .btn-save:hover {
-            background-color: #27ae60;
-        }
 
         /* Estilos para el modal */
         .modal {
@@ -228,15 +180,16 @@ if ($row = $result->fetch_assoc()) {
                 margin-left: 0;
                 padding: 10px;
             }
-            
+
             .profile-container {
                 padding: 20px;
             }
-            
-            .profile-image, .profile-details {
+
+            .profile-image,
+            .profile-details {
                 flex: 0 0 100%;
             }
-            
+
             .profile-image {
                 margin-bottom: 20px;
             }
@@ -251,23 +204,23 @@ if ($row = $result->fetch_assoc()) {
     ?>
 
     <div class="container">
-        <div class="main-content">
-            <div class="header">
+        <div class="main-content" style="padding: 0px !important;">
+            <div class="Topbard" style="padding: 0px !important;">
                 <h1>Perfil de Usuario</h1>
             </div>
-            
+
             <?php
             // Mostrar mensajes de éxito o error para actualización de datos
             if (isset($_SESSION['success_message'])) {
                 echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message']) . '</div>';
                 unset($_SESSION['success_message']); // Limpiar mensaje después de mostrar
             }
-            
+
             if (isset($_SESSION['error_message'])) {
                 echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message']) . '</div>';
                 unset($_SESSION['error_message']);
             }
-            
+
             // Mostrar errores de validación de datos
             if (isset($_SESSION['errores']) && !empty($_SESSION['errores'])) {
                 echo '<div class="alert alert-error"><ul style="margin: 0; padding-left: 20px;">';
@@ -277,49 +230,49 @@ if ($row = $result->fetch_assoc()) {
                 echo '</ul></div>';
                 unset($_SESSION['errores']);
             }
-            
+
             // Mostrar mensajes de éxito o error para actualización de contraseña
             if (isset($_SESSION['success_message_password'])) {
                 echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message_password']) . '</div>';
                 unset($_SESSION['success_message_password']);
             }
-            
+
             if (isset($_SESSION['error_message_password'])) {
                 echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message_password']) . '</div>';
                 unset($_SESSION['error_message_password']);
             }
             ?>
-            
+
             <div class="profile-container">
                 <div class="profile-image">
                     <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
-                    <button type="button" class="change-password-btn" onclick="abrirModal()">Cambiar contraseña</button>
+                    <button type="button" class="btn-agregar" onclick="abrirModal()">Cambiar contraseña</button>
                 </div>
-                
+
                 <div class="profile-details">
                     <form action="../Controlador/actualizar_usuario.php" method="POST">
                         <div class="form-group">
                             <label for="nombreUsuario">Nombre</label>
                             <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="programaUsuario">Programa</label>
                             <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
                             <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="correoUsuario">Correo</label>
                             <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>">
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="telefonoUsuario">Teléfono</label>
                             <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
                         </div>
-                        
-                        <button type="submit" class="btn-save">Guardar cambios</button>
+
+                        <button type="submit" class="btn-agregar">Guardar cambios</button>
                     </form>
                 </div>
             </div>
@@ -336,18 +289,18 @@ if ($row = $result->fetch_assoc()) {
                     <label for="passwordActual">Contraseña actual</label>
                     <input type="password" name="passwordActual" id="passwordActual" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="passwordNueva">Nueva contraseña</label>
                     <input type="password" name="passwordNueva" id="passwordNueva" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="passwordConfirmar">Confirmar nueva contraseña</label>
                     <input type="password" name="passwordConfirmar" id="passwordConfirmar" required>
                 </div>
-                
-                <button type="submit">Guardar contraseña</button>
+
+                <button type="submit" class="btn-agregar" style="margin: 0 auto; justify-content: center; width: 60%; text-align: center !important; display: flex;">Guardar contraseña</button>
             </form>
         </div>
     </div>

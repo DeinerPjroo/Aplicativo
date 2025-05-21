@@ -361,20 +361,7 @@ del administrador*/
 /****Aqui comienzo con el resto ( lo que esta fuera del sidebar)*/
 
 
-.Topbard {
-    font-size: 35px;
-    align-items: center;
-    text-align: center;
-    color: #fff;
-    background: #d3892e;
-    border-bottom-right-radius: 10px;
-    margin-left: 17px;
-    ;
-    height: 75px;
-    padding-top: 10px;
-    display: flex;
 
-}
 
 .btn-reportes {
     margin-left: 200px;
@@ -1092,6 +1079,14 @@ del administrador*/
     --border-radius: 12px;
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
     --transition-speed: 0.3s ease;
+    
+        /*Perfil*/
+            --background-light: #f5f7fa;
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #ddd;
+            --success-color: #2ecc71;
+            
 }
 /* Contenedor principal de usuarios */
 .contenedor-usuarios {
@@ -1200,8 +1195,8 @@ del administrador*/
 .Topbard {
     background-color: var(--color-primary);
 
-
-    padding: 20px;
+    padding-top: 10px;
+    padding: 20px auto;
     width: 99%;
     display: flex;
     justify-content: center;
@@ -1210,6 +1205,18 @@ del administrador*/
     border-left: 6px solid var(--color-accent);
     border-right: 6px solid var(--color-coral);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+
+    font-size: 23px;
+
+    color: #fff;
+
+    border-bottom-right-radius: 10px;
+    margin-left: 17px;
+    ;
+    
+    
+    display: flex;
 }
 
 .Topbard-center {
