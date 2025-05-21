@@ -164,6 +164,7 @@ while ($row = $resProgramas->fetch_assoc()) {
             <label>Desde: <input type="date" name="fecha_inicio" value="<?php echo htmlspecialchars($fecha_inicio); ?>"></label>
             <label>Hasta: <input type="date" name="fecha_fin" value="<?php echo htmlspecialchars($fecha_fin); ?>"></label>
             <button type="submit" class="btn-pdf">Filtrar</button>
+            <button type="button" class="btn-pdf" onclick="limpiarFiltros()">Limpiar Filtros</button>
         </form>
         <div class="estadisticas-cards">
             <div class="estadistica-card">
@@ -332,6 +333,13 @@ while ($row = $resProgramas->fetch_assoc()) {
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
+        }
+
+        function limpiarFiltros() {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('fecha_inicio');
+            url.searchParams.delete('fecha_fin');
+            window.location.href = url.toString();
         }
     </script>
 </body>
