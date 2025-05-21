@@ -1071,20 +1071,28 @@ del administrador*/
 
 
 /* Paleta refinada */
+/* Paleta refinada */
 :root {
-    --color-primary: #006064;
+    --color-primary: #006D75;
+    /* Verde azulado mejorado */
     --color-accent: #E0A43C;
+    /* Naranja/dorado para acentos */
     --color-coral: #D87863;
+    /* Coral para acentos secundarios */
     --color-background: #FFFFFF;
-    --color-alternate: #F5F5F5;
+    /* Fondo blanco */
+    --color-alternate: #F0F8F8;
+    /* Verde azulado muy claro para filas alternas */
     --color-agregar: #2E8B57;
-    --color-modificar: #3498DB;
-    --color-eliminar: #E74C3C;
+    /* Verde para botón agregar */
+    --color-modificar: #E8A800;
+    /* Amarillo dorado mejorado */
+    --color-eliminar: #C82333;
+    /* Rojo mejorado menos brillante */
     --border-radius: 12px;
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
     --transition-speed: 0.3s ease;
 }
-
 /* Contenedor principal de usuarios */
 .contenedor-usuarios {
     width: 90%;
@@ -1610,28 +1618,7 @@ del administrador*/
 
 /* Estilos generales refinados */
 
-/* Paleta refinada */
-:root {
-    --color-primary: #006D75;
-    /* Verde azulado mejorado */
-    --color-accent: #E0A43C;
-    /* Naranja/dorado para acentos */
-    --color-coral: #D87863;
-    /* Coral para acentos secundarios */
-    --color-background: #FFFFFF;
-    /* Fondo blanco */
-    --color-alternate: #F0F8F8;
-    /* Verde azulado muy claro para filas alternas */
-    --color-agregar: #2E8B57;
-    /* Verde para botón agregar */
-    --color-modificar: #E8A800;
-    /* Amarillo dorado mejorado */
-    --color-eliminar: #C82333;
-    /* Rojo mejorado menos brillante */
-    --border-radius: 12px;
-    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --transition-speed: 0.3s ease;
-}
+
 
 /* Mensaje sin usuarios */
 .sin-usuarios {
