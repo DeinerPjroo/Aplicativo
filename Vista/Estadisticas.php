@@ -12,51 +12,83 @@ include("../Controlador/control_De_Rol.php");
 checkRole('Administrador');
 
 // Filtros de fecha
-$fecha_inicio = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-01');
-$fecha_fin = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : date('Y-m-d');
+$fecha_inicio = isset($_GET['fecha_inicio']) ? 
+    filter_var($_GET['fecha_inicio'], FILTER_SANITIZE_STRING) : 
+    date('Y-m-01');
+$fecha_fin = isset($_GET['fecha_fin']) ? 
+    filter_var($_GET['fecha_fin'], FILTER_SANITIZE_STRING) : 
+    date('Y-m-d');
+
+// Validar formato de fecha
+if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $fecha_inicio) || 
+    !preg_match("/^\d{4}-\d{2}-\d{2}$/", $fecha_fin)) {
+    die("Formato de fecha inválido");
+}
 
 // Total de reservas
-$totalReservas = $conn->query("SELECT COUNT(*) as total FROM registro WHERE fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin'")->fetch_assoc()['total'];
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM registro WHERE fechaReserva BETWEEN ? AND ?");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$result = $stmt->get_result();
+$totalReservas = $result->fetch_assoc()['total'];
 
 // Reservas por estado
 $estados = [];
-$resEstados = $conn->query("SELECT estado, COUNT(*) as cantidad FROM registro WHERE fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin' GROUP BY estado");
+$stmt = $conn->prepare("SELECT estado, COUNT(*) as cantidad FROM registro 
+                       WHERE fechaReserva BETWEEN ? AND ? GROUP BY estado");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$resEstados = $stmt->get_result();
 while ($row = $resEstados->fetch_assoc()) {
     $estados[$row['estado']] = $row['cantidad'];
 }
 
 // Reservas por recurso
 $recursos = [];
-$resRecursos = $conn->query("SELECT rec.nombreRecurso, COUNT(*) as cantidad FROM registro r JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso WHERE r.fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin' GROUP BY rec.nombreRecurso");
+$stmt = $conn->prepare("SELECT rec.nombreRecurso, COUNT(*) as cantidad FROM registro r JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso 
+                       WHERE r.fechaReserva BETWEEN ? AND ? GROUP BY rec.nombreRecurso");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$resRecursos = $stmt->get_result();
 while ($row = $resRecursos->fetch_assoc()) {
     $recursos[$row['nombreRecurso']] = $row['cantidad'];
 }
 
 // Reservas por día
 $dias = [];
-$resDias = $conn->query("SELECT fechaReserva, COUNT(*) as cantidad FROM registro WHERE fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin' GROUP BY fechaReserva ORDER BY fechaReserva ASC");
+$stmt = $conn->prepare("SELECT fechaReserva, COUNT(*) as cantidad FROM registro WHERE fechaReserva BETWEEN ? AND ? GROUP BY fechaReserva ORDER BY fechaReserva ASC");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$resDias = $stmt->get_result();
 while ($row = $resDias->fetch_assoc()) {
     $dias[$row['fechaReserva']] = $row['cantidad'];
 }
 
 // Reservas por rol
 $roles = [];
-$resRoles = $conn->query("SELECT rol.nombreRol, COUNT(*) as cantidad FROM registro r JOIN usuario u ON r.ID_Usuario = u.ID_Usuario JOIN rol ON u.ID_Rol = rol.ID_Rol WHERE r.fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin' GROUP BY rol.nombreRol");
+$stmt = $conn->prepare("SELECT rol.nombreRol, COUNT(*) as cantidad FROM registro r JOIN usuario u ON r.ID_Usuario = u.ID_Usuario JOIN rol ON u.ID_Rol = rol.ID_Rol 
+                       WHERE r.fechaReserva BETWEEN ? AND ? GROUP BY rol.nombreRol");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$resRoles = $stmt->get_result();
 while ($row = $resRoles->fetch_assoc()) {
     $roles[$row['nombreRol']] = $row['cantidad'];
 }
 
 // Reservas por programa
 $programas = [];
-$resProgramas = $conn->query("
+$stmt = $conn->prepare("
     SELECT COALESCE(p.nombrePrograma, 'Sin programa') AS nombrePrograma, COUNT(*) as cantidad
     FROM registro r
     LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
     LEFT JOIN programa p ON u.ID_Programa = p.ID_Programa
-    WHERE r.fechaReserva BETWEEN '$fecha_inicio' AND '$fecha_fin'
+    WHERE r.fechaReserva BETWEEN ? AND ?
     GROUP BY p.nombrePrograma
     ORDER BY cantidad DESC
 ");
+$stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
+$stmt->execute();
+$resProgramas = $stmt->get_result();
 while ($row = $resProgramas->fetch_assoc()) {
     $programas[$row['nombrePrograma']] = $row['cantidad'];
 }
@@ -164,7 +196,6 @@ while ($row = $resProgramas->fetch_assoc()) {
             <label>Desde: <input type="date" name="fecha_inicio" value="<?php echo htmlspecialchars($fecha_inicio); ?>"></label>
             <label>Hasta: <input type="date" name="fecha_fin" value="<?php echo htmlspecialchars($fecha_fin); ?>"></label>
             <button type="submit" class="btn-pdf">Filtrar</button>
-            <button type="button" class="btn-pdf" onclick="limpiarFiltros()">Limpiar Filtros</button>
         </form>
         <div class="estadisticas-cards">
             <div class="estadistica-card">
@@ -322,25 +353,122 @@ while ($row = $resProgramas->fetch_assoc()) {
         });
 
         // Función para descargar el área de estadísticas como PDF
-        function descargarEstadisticasPDF() {
-            // Selecciona solo el área de estadísticas (puedes ajustar el selector si lo deseas)
-            const element = document.querySelector('.estadisticas-container');
-            const opt = {
-                margin:       0.3,
-                filename:     'Estadisticas_Reservas_<?php echo date("Ymd_His"); ?>.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
+        // Función mejorada para descargar estadísticas en PDF
+async function descargarEstadisticasPDF() {
+    try {
+        // Esperar a que las gráficas se rendericen
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        function limpiarFiltros() {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('fecha_inicio');
-            url.searchParams.delete('fecha_fin');
-            window.location.href = url.toString();
-        }
+        // Obtener los canvas una sola vez
+        const canvases = document.querySelectorAll('canvas');
+        await Promise.all(Array.from(canvases).map(canvas => 
+            new Promise(resolve => {
+                if (canvas.toBlob) {
+                    canvas.toBlob(resolve);
+                } else {
+                    resolve();
+                }
+            })
+        ));
+
+        // Crear contenedor principal para el PDF
+        const contenedor = document.createElement('div');
+        contenedor.style.padding = '20px';
+        contenedor.style.fontFamily = 'Arial, sans-serif';
+
+        // Agregar encabezado
+        const header = document.createElement('div');
+        header.innerHTML = `
+            <h1 style="color: #258797; text-align: center; margin-bottom: 30px;">Informe de Estadísticas de Reservas</h1>
+            <p style="text-align: right; color: #666; font-size: 12px;">
+                Fecha de generación: ${new Date().toLocaleDateString('es-ES', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+            </p>
+        `;
+        contenedor.appendChild(header);
+
+        // Sección de resumen
+        const resumen = document.createElement('div');
+        resumen.style.marginBottom = '30px';
+        resumen.style.pageBreakAfter = 'always';
+        resumen.innerHTML = `
+            <h2 style="color: #d07c2e; border-bottom: 2px solid #d07c2e; padding-bottom: 5px;">Resumen General</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                ${Object.entries(estados).map(([estado, cantidad]) => `
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; text-align: center;">
+                        <h3 style="margin: 0; color: #258797;">${estado}</h3>
+                        <p style="font-size: 24px; font-weight: bold; margin: 10px 0; color: #d07c2e;">${cantidad}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        contenedor.appendChild(resumen);
+
+        // Obtener las imágenes directamente del canvas ya definido
+        const imagenes = Array.from(canvases).map(canvas => {
+            const imagen = new Image();
+            imagen.src = canvas.toDataURL('image/png');
+            imagen.style.maxWidth = '100%';
+            imagen.style.height = 'auto';
+            return imagen;
+        });
+
+        // Crear secciones para las gráficas
+        const titulos = ['Reservas por Estado', 'Reservas por Recurso', 'Reservas por Día', 'Reservas por Rol', 'Reservas por Programa'];
+        imagenes.forEach((imagen, index) => {
+            const seccion = document.createElement('div');
+            seccion.style.marginBottom = '30px';
+            seccion.style.pageBreakInside = 'avoid';
+            seccion.style.textAlign = 'center';
+            
+            const titulo = document.createElement('h3');
+            titulo.textContent = titulos[index];
+            titulo.style.color = '#258797';
+            titulo.style.marginBottom = '15px';
+            
+            seccion.appendChild(titulo);
+            seccion.appendChild(imagen);
+            
+            if (index % 2 === 1) {
+                seccion.style.pageBreakAfter = 'always';
+            }
+            
+            contenedor.appendChild(seccion);
+        });
+
+        // Configuración del PDF
+        const opt = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `Estadisticas_Reservas_${new Date().toISOString().slice(0,10)}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                logging: true,
+                windowWidth: 1920,
+                windowHeight: 1080
+            },
+            jsPDF: { 
+                unit: 'in', 
+                format: 'a4', 
+                orientation: 'portrait'
+            }
+        };
+
+        // Generar el PDF
+        await html2pdf().set(opt).from(contenedor).save();
+
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        alert('Hubo un error al generar el PDF. Por favor intente nuevamente.');
+    }
+}
     </script>
 </body>
 </html>
