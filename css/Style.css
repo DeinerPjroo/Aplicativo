@@ -1030,7 +1030,7 @@ del administrador*/
 }
 
 .modal .btn-cancelar {
-    background-color: #6c757d;
+    background-color: var(--color-eliminar);
     color: white;
     border: none;
     padding: 10px;
@@ -1039,7 +1039,7 @@ del administrador*/
 }
 
 .modal .btn-cancelar:hover {
-    background-color: #5a6268;
+    background-color: #ca4435;
 }
 
 .modal input,
@@ -1365,7 +1365,7 @@ del administrador*/
 }
 
 .modal-content button[type="submit"] {
-    background-color: var(--color-agregar);
+    background-color: var(--color-primary);
     /* Usando la variable para el botón de agregar/enviar */
     color: white;
     border: none;
@@ -1379,7 +1379,7 @@ del administrador*/
 
 
 .modal-content button[type="submit"]:hover {
-    background-color: #218838;
+    background-color: #039297;
 }
 
 /* Mensaje de error */

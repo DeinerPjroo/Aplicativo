@@ -228,21 +228,9 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             /* Asegura que el padding no afecte el ancho total */
         }
 
-        .modal-content button[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px;
-            width: 100%;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
+       
 
-        .modal-content button[type="submit"]:hover {
-            background-color: #218838;
-        }
+      
 
         /* barra de busques estilo / */
         /* hola */
