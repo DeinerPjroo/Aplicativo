@@ -46,13 +46,13 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
      ?>
 <!------------------------------------------------------------------------------------->
 
-     <section class="Encabezado">
+     <section class="Topbard">
          <h1><center>Historial de Reservas</center></h1>
      </section>
 
      <section class="Table">
         <div class="contenedor-reservas">
-            <h2>Historial</h2>
+            
             <table class="tabla-reservas">
                 <thead>
                     <!-- Encabezados de la tabla -->

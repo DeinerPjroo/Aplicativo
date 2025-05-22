@@ -18,7 +18,7 @@ $sql = "SELECT
             u.nombre AS nombreUsuario,
             u.correo AS correoUsuario,
             COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
-            u.fotoPerfil AS fotoPerfil
+            u.telefono AS telefonoUsuario -- Se agrega la columna telefono
         FROM usuario u
         LEFT JOIN programa pr ON u.ID_Programa = pr.ID_Programa -- Relación con programa
         WHERE u.ID_Usuario = ?"; // Filtrar por el usuario logueado
@@ -33,9 +33,9 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     $nombreUsuario = $row['nombreUsuario'];
     $correoUsuario = $row['correoUsuario'];
-    $telefonoUsuario = 'No disponible'; // Valor por defecto ya que no existe la columna
+    $telefonoUsuario = !empty($row['telefonoUsuario']) ? $row['telefonoUsuario'] : ''; // Se elimina el valor predeterminado "No disponible"
     $programa = $row['programa'];
-    $fotoPerfil = !empty($row['fotoPerfil']) && file_exists("../" . $row['fotoPerfil']) ? "../" . $row['fotoPerfil'] : '../Imagen/default.jpg'; // Verifica si la imagen existe
+    $fotoPerfil = '../Imagen/default.jpg'; // Imagen predeterminada definida directamente
 } else {
     $nombreUsuario = 'Usuario no identificado';
     $correoUsuario = 'Correo no disponible';
@@ -245,7 +245,7 @@ if ($row = $result->fetch_assoc()) {
 
             <div class="profile-container">
                 <div class="profile-image">
-                    <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
+                    <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil"> <!-- Se mantiene la referencia a la imagen -->
                     <button type="button" class="btn-agregar" onclick="abrirModal()">Cambiar contraseña</button>
                 </div>
 
@@ -264,12 +264,12 @@ if ($row = $result->fetch_assoc()) {
 
                         <div class="form-group">
                             <label for="correoUsuario">Correo</label>
-                            <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>">
+                            <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>" required pattern="^[^@]+@[^@]+\.[a-zA-Z]{2,}$" title="Por favor, ingrese un correo válido que contenga '@'.">
                         </div>
 
                         <div class="form-group">
                             <label for="telefonoUsuario">Teléfono</label>
-                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
+                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>"> <!-- Se habilita la edición -->
                         </div>
 
                         <button type="submit" class="btn-agregar">Guardar cambios</button>

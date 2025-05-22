@@ -517,12 +517,12 @@ del administrador*/
 
 .contenedor-reservas {
     margin-left: 95px !important;
-    width: 93%;
+    width: 100%;
     margin: 20px auto;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 15px;
 
 }
 
@@ -545,8 +545,8 @@ del administrador*/
 .tabla-reservas td {
     padding-right: 9px;
     padding-left: 9px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
@@ -1143,6 +1143,7 @@ del administrador*/
 
 .tabla-usuarios td {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    
 }
 
 .tabla-usuarios th {
@@ -1150,6 +1151,7 @@ del administrador*/
     /* Usando la variable de color primario */
     color: white;
     font-weight: 600;
+    
 }
 
 /* Botones modernos */

@@ -136,7 +136,7 @@ if (isset($_GET['error'])) {
 
 
     <section class="Main">
-        <section class="Encabezado">
+        <section class="Topbard">
             <h1>
                 <center>Mis Reservas</center>
             </h1>

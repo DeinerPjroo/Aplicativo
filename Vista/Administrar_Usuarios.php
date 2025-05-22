@@ -6,7 +6,7 @@ include("../Controlador/control_De_Rol.php");
 
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
-$query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, p.nombrePrograma AS programa, u.Id_Programa, u.semestre, u.correo, r.nombreRol AS rol, u.id_rol
+$query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, u.telefono, p.nombrePrograma AS programa, u.Id_Programa, u.semestre, u.correo, r.nombreRol AS rol, u.id_rol
              FROM usuario u
              LEFT JOIN programa p ON u.Id_Programa = p.ID_Programa
              LEFT JOIN rol r ON u.id_rol = r.id_rol";
@@ -86,6 +86,7 @@ while ($row = $programasResult->fetch_assoc()) {
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
+                        <th>telefono</th>
                         <th>Programa</th>
                         <th>Semestre</th>
                         <th>Correo</th>
@@ -98,16 +99,18 @@ while ($row = $programasResult->fetch_assoc()) {
                         <tr>
                             <td><?php echo htmlspecialchars($row['codigo_u']); ?></td>
                             <td><?php echo htmlspecialchars($row['nombre']); ?></td>
+                            <td><?php echo htmlspecialchars($row['telefono']); ?></td>
                             <td><?php echo !empty($row['programa']) ? htmlspecialchars($row['programa']) : 'No aplica'; ?></td>
                             <td><?php echo htmlspecialchars($row['semestre'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($row['correo']); ?></td>
                             <td><?php echo htmlspecialchars($row['rol']); ?></td>
-                            <td>
+                            <td style="display: flex;"">
                                 <button class="btn btn-modificar"
                                     onclick="openModificarForm(
                                         <?php echo $row['ID_Usuario']; ?>,
                                         '<?php echo htmlspecialchars($row['codigo_u'], ENT_QUOTES); ?>',
                                         '<?php echo htmlspecialchars($row['nombre'], ENT_QUOTES); ?>',
+                                        '<?php echo htmlspecialchars($row['telefono'], ENT_QUOTES); ?>',
                                         '<?php echo htmlspecialchars($row['correo'], ENT_QUOTES); ?>',
                                         '<?php echo htmlspecialchars($row['Id_Programa'], ENT_QUOTES); ?>',
                                         '<?php echo htmlspecialchars($row['semestre'], ENT_QUOTES); ?>',
@@ -142,6 +145,9 @@ while ($row = $programasResult->fetch_assoc()) {
 
                 <label>Nombre:</label>
                 <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>
+
+                <label>Telefono:</label>
+                <input type="text" name="nombre" id="form-telefono" placeholder="Ingrese telefono..." required>
 
                 <label>Correo:</label>
                 <input type="email" name="correo" id="form-correo" placeholder="Ingrese correo electrónico..." required oninput="limpiarErrorCorreo()" onblur="verificarCorreoExistente(this.value)">
@@ -422,6 +428,7 @@ while ($row = $programasResult->fetch_assoc()) {
             document.getElementById('form-id').value = '';
             document.getElementById('form-codigo_u').value = '';
             document.getElementById('form-nombre').value = '';
+            document.getElementById('form-telefono').value = '';
             document.getElementById('form-correo').value = '';
             document.getElementById('form-contraseña').required = true;
             document.getElementById('form-contraseña').value = '';
@@ -456,6 +463,7 @@ while ($row = $programasResult->fetch_assoc()) {
         document.getElementById('form-id').value = id;
         document.getElementById('form-codigo_u').value = codigo_u;
         document.getElementById('form-nombre').value = nombre;
+        document.getElementById('form-telefono').value = telefono;
         document.getElementById('form-correo').value = correo;
         document.getElementById('form-programa').value = programa;
         document.getElementById('form-semestre').value = semestre;
@@ -532,6 +540,7 @@ while ($row = $programasResult->fetch_assoc()) {
         const esEstudiante = rol === '1';
         const codigo = document.getElementById('form-codigo_u').value.trim();
         const nombre = document.getElementById('form-nombre').value.trim();
+        const telefono = document.getElementById('form-telefono').value.trim();
         const correo = document.getElementById('form-correo').value.trim();
         const semestre = document.getElementById('form-semestre').value.trim();
         const programa = document.getElementById('form-programa').value.trim();
