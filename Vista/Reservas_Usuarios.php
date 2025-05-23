@@ -234,7 +234,11 @@ if (isset($_GET['error'])) {
             <form id="reservaFormUnica" onsubmit="return guardarReservaUnica(event)">
                 <div class="form-group">
                     <label for="id_registro">ID del Registro:</label>
-                    <input type="text" id="id_registro" name="id_registro" value="(Automático)" readonly>
+                    <input type="text" id="id_registro" name="id_registro" value="" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_unico">Fecha de Reserva:</label>
+                    <input type="date" id="fecha_unico" name="fecha" required value="<?php echo date('Y-m-d'); ?>">
                 </div>
                 <div class="form-group">
                     <label for="recurso_unico">Recurso:</label>
@@ -318,14 +322,6 @@ if (isset($_GET['error'])) {
     </div>
 
     <script>
-        function abrirModalReserva() {
-            document.getElementById('modalReservaUnica').style.display = 'block';
-        }
-
-        function cerrarModalReserva(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
         // Mostrar/ocultar campo salón según recurso
         const recursoSelect = document.getElementById('recurso_unico');
         recursoSelect.addEventListener('change', function() {
@@ -471,6 +467,12 @@ if (isset($_GET['error'])) {
         async function guardarReservaUnica(event) {
             event.preventDefault();
             const form = document.getElementById('reservaFormUnica');
+            const fecha = form.fecha.value;
+            const idInput = form.id_registro;
+
+            if (!idInput.value) {
+                idInput.value = generarIdReserva(fecha);
+            }
 
             try {
                 // Validar el formulario
@@ -505,7 +507,109 @@ if (isset($_GET['error'])) {
                         timer: 1500
                     }).then(() => {
                         cerrarModalReserva('modalReservaUnica');
-                        location.reload();
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300); // Espera breve para asegurar el cierre visual del modal
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            }
+        }
+
+        // Generar ID de reserva al abrir el modal y al cambiar la fecha
+        function generarIdReserva(fecha) {
+            if (!fecha) return '';
+            const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+            return fecha.replace(/-/g, '') + '-' + random;
+        }
+
+        function abrirModalReserva() {
+            document.getElementById('modalReservaUnica').style.display = 'block';
+            // Limpiar campos manualmente
+            const form = document.getElementById('reservaFormUnica');
+            form.recurso.value = '';
+            form.horaInicio.value = '';
+            form.horaFin.value = '';
+            form.programa.value = '';
+            form.docente.value = '';
+            form.asignatura.value = '';
+            form.nombre_alumno.value = '<?php echo ($role === 'Estudiante') ? htmlspecialchars($_SESSION['usuario_nombre']) : 'N/A'; ?>';
+            form.salon.value = '';
+            form.semestre.value = '';
+            form.celular.value = '';
+            form.correo.value = '<?php echo htmlspecialchars($_SESSION['usuario_correo']); ?>';
+            // Asignar fecha de hoy y generar el ID
+            const fechaInput = document.getElementById('fecha_unico');
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.value = hoy;
+            document.getElementById('id_registro').value = generarIdReserva(hoy);
+        }
+
+        // Cuando el usuario selecciona una fecha, generar el ID
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.getElementById('fecha_unico');
+            const idInput = document.getElementById('id_registro');
+            if (fechaInput) {
+                fechaInput.addEventListener('change', function() {
+                    idInput.value = generarIdReserva(this.value);
+                });
+            }
+        });
+
+        // Al enviar el formulario, asegúrate de que el ID esté generado
+        async function guardarReservaUnica(event) {
+            event.preventDefault();
+            const form = document.getElementById('reservaFormUnica');
+            const fecha = form.fecha.value;
+            const idInput = form.id_registro;
+
+            if (!idInput.value) {
+                idInput.value = generarIdReserva(fecha);
+            }
+
+            try {
+                // Validar el formulario
+                validarRegistro(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value
+                );
+
+                // Verificar disponibilidad
+                await verificarDisponibilidad(
+                    form.fecha.value,
+                    form.horaInicio.value,
+                    form.horaFin.value,
+                    form.recurso.value
+                );
+
+                // Si pasa todas las validaciones, enviar el formulario
+                const formData = new FormData(form);
+                const response = await fetch('../Controlador/guardar_reserva.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        cerrarModalReserva('modalReservaUnica');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 300); // Espera breve para asegurar el cierre visual del modal
                     });
                 } else {
                     throw new Error(data.message);
@@ -573,8 +677,7 @@ if (isset($_GET['error'])) {
                 throw new Error('La hora de finalización debe ser posterior a la hora de inicio');
             }
 
-            // Validar duración según tipo de usuario
-            const duracionMinutos = (fin - inicio) / (1000 * 60);
+            let duracionMinutos = (fin - inicio) / (1000 * 60);
             if (tipoUsuario === 'Estudiante') {
                 if (duracionMinutos > 180) { // 3 horas máximo
                     throw new Error('Los estudiantes pueden reservar máximo 3 horas');
@@ -584,13 +687,11 @@ if (isset($_GET['error'])) {
                     throw new Error('Los docentes pueden reservar máximo 6 horas');
                 }
             }
-
             // Verificar disponibilidad
             const disponibilidad = await verificarDisponibilidad(fecha, horaInicio, horaFin, recurso);
             if (!disponibilidad) {
                 throw new Error('El recurso no está disponible en ese horario');
             }
-
             return true;
         }
 
@@ -619,7 +720,9 @@ if (isset($_GET['error'])) {
             });
         });
 
-        // ...rest of existing code...
+        function cerrarModalReserva(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
     </script>
 </body>
 
