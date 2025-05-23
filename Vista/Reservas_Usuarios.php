@@ -720,6 +720,79 @@ if (isset($_GET['error'])) {
             });
         });
 
+        // Validación en tiempo real con SweetAlert2 para fecha y horas
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.getElementById('fecha_unico');
+            const horaInicioInput = document.getElementById('horaInicio_unico');
+            const horaFinInput = document.getElementById('horaFin_unico');
+
+            // Validar solo la fecha
+            fechaInput.addEventListener('change', function() {
+                const fecha = fechaInput.value;
+                const hoy = new Date();
+                const fechaSeleccionada = new Date(fecha + 'T00:00');
+                if (fecha && fechaSeleccionada.setHours(0, 0, 0, 0) < hoy.setHours(0, 0, 0, 0)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validación',
+                        text: 'No puedes seleccionar una fecha pasada',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    fechaInput.value = '';
+                }
+            });
+
+            // Validar hora de inicio apenas se seleccione
+            horaInicioInput.addEventListener('change', function() {
+                const fecha = fechaInput.value;
+                const horaInicio = horaInicioInput.value;
+                if (!fecha || !horaInicio) return;
+
+                const ahora = new Date();
+                const hoyStr = ahora.toISOString().split('T')[0];
+                if (fecha === hoyStr) {
+                    // Hora de inicio debe ser al menos 10 minutos después de la actual
+                    const [h, m] = horaInicio.split(':').map(Number);
+                    const fechaHoraInicio = new Date(`${fecha}T${horaInicio}`);
+                    const ahoraConMargen = new Date(ahora.getTime() + 10 * 60000);
+                    if (fechaHoraInicio <= ahoraConMargen) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validación',
+                            text: 'Solo puedes apartar con al menos 10 minutos de anticipación',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        horaInicioInput.value = '';
+                    }
+                }
+            });
+
+            // Validar fecha + horas solo si la fecha es válida y ambas horas están llenas
+            function validarHoras() {
+                const fecha = fechaInput.value;
+                const horaInicio = horaInicioInput.value;
+                const horaFin = horaFinInput.value;
+                if (!fecha || !horaInicio || !horaFin) return;
+                try {
+                    validarRegistro(fecha, horaInicio, horaFin);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validación',
+                        text: error.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    // Puedes limpiar el campo que causó el error si lo deseas
+                }
+            }
+
+            horaInicioInput.addEventListener('change', validarHoras);
+            horaFinInput.addEventListener('change', validarHoras);
+        });
+
         function cerrarModalReserva(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
