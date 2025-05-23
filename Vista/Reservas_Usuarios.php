@@ -226,139 +226,92 @@ if (isset($_GET['error'])) {
         </div>
     </section>
 
-    <!-- Modal para reserva de estudiante -->
-    <div id="modalReservaEstudiante" class="modal">
+    <!-- Modal único para reserva -->
+    <div id="modalReservaUnica" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModalReserva('modalReservaEstudiante')">&times;</span>
-            <h2>Nueva Reserva - Estudiante</h2>
-            <form id="reservaFormEstudiante" onsubmit="return guardarReservaEstudiante(event)">
+            <span class="close" onclick="cerrarModalReserva('modalReservaUnica')">&times;</span>
+            <h2>Nueva Reserva</h2>
+            <form id="reservaFormUnica" onsubmit="return guardarReservaUnica(event)">
                 <div class="form-group">
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha_estudiante" name="fecha" min="<?php echo date('Y-m-d'); ?>" required>
+                    <label for="id_registro">ID del Registro:</label>
+                    <input type="text" id="id_registro" name="id_registro" value="(Automático)" readonly>
                 </div>
-
                 <div class="form-group">
-                    <label for="horaInicio">Hora de Inicio:</label>
-                    <input type="time" id="horaInicio_estudiante" name="horaInicio" min="06:00" max="21:30" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="horaFin">Hora de Finalización:</label>
-                    <input type="time" id="horaFin_estudiante" name="horaFin" min="06:30" max="22:00" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="tipo">Recurso:</label>
-                    <select id="tipo_estudiante" name="recurso" required>
+                    <label for="recurso_unico">Recurso:</label>
+                    <select id="recurso_unico" name="recurso" required>
                         <option value="">Seleccione un recurso</option>
                         <?php
                         $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
                         while ($recurso = $recursos->fetch_assoc()):
                         ?>
-                            <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
+                            <option value="<?= $recurso['ID_Recurso'] ?>" data-nombre="<?= $recurso['nombreRecurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label for="programa_estudiante">Programa/Dependencia:</label>
-                    <select id="programa_estudiante" name="Programa" required>
+                    <label for="horaInicio_unico">Hora de Inicio:</label>
+                    <input type="time" id="horaInicio_unico" name="horaInicio" min="06:00" max="21:30" required>
+                </div>
+                <div class="form-group">
+                    <label for="horaFin_unico">Hora Final:</label>
+                    <input type="time" id="horaFin_unico" name="horaFin" min="06:30" max="22:00" required>
+                </div>
+                <div class="form-group">
+                    <label for="programa_unico">Programa/Dependencia:</label>
+                    <select id="programa_unico" name="programa" required>
                         <option value="">Seleccione un Programa/Dependencia</option>
                         <?php
-                        $programas = $conn->query("SELECT Id_Programa, nombrePrograma FROM Programa");
+                        $programas = $conn->query("SELECT ID_Programa, nombrePrograma FROM programa");
                         while ($programa = $programas->fetch_assoc()):
                         ?>
-                            <option value="<?= $programa['Id_Programa'] ?>"><?= $programa['nombrePrograma'] ?></option>
+                            <option value="<?= $programa['ID_Programa'] ?>"><?= $programa['nombrePrograma'] ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label for="docente_estudiante">Docente/Administrativo:</label>
-                    <select id="docente_estudiante" name="docente" required>
+                    <label for="docente_unico">Docente:</label>
+                    <select id="docente_unico" name="docente" required>
                         <option value="">Seleccione un Docente</option>
-                    
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label for="semestre_estudiante">Semestre:</label>
-                    <select id="semestre_estudiante" name="semestre" required>
+                    <label for="asignatura_unico">Asignatura:</label>
+                    <select id="asignatura_unico" name="asignatura" required>
+                        <option value="">Seleccione una Asignatura</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nombre_alumno_unico">Nombre del Alumno:</label>
+                    <input type="text" id="nombre_alumno_unico" name="nombre_alumno" value="<?php echo ($role === 'Estudiante') ? htmlspecialchars($_SESSION['usuario_nombre']) : 'N/A'; ?>" readonly>
+                </div>
+                <div class="form-group" id="grupo_salon_unico" style="display:none;">
+                    <label for="salon_unico">Salón:</label>
+                    <input type="text" id="salon_unico" name="salon">
+                </div>
+                <div class="form-group">
+                    <label for="semestre_unico">Semestre:</label>
+                    <select id="semestre_unico" name="semestre" required>
                         <option value="">Seleccione el semestre</option>
-                        <?php for ($i = 1; $i <= 10; $i++): ?>
-                            <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php
+                        $romanos = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+                        for ($i = 1; $i <= 10; $i++):
+                        ?>
+                            <option value="<?= $romanos[$i-1] ?>"><?= $romanos[$i-1] ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
-
-                <div id="mensajeErrorEstudiante" class="error-mensaje" style="display: none;"></div>
-
+                <div class="form-group">
+                    <label for="celular_unico">Celular:</label>
+                    <input type="text" id="celular_unico" name="celular" required>
+                </div>
+                <div class="form-group">
+                    <label for="correo_unico">Correo:</label>
+                    <input type="email" id="correo_unico" name="correo" value="<?php echo htmlspecialchars($_SESSION['usuario_correo']); ?>" readonly>
+                </div>
+                <div id="mensajeErrorUnico" class="error-mensaje" style="display: none;"></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-confirmar">Reservar</button>
-                    <button type="button" onclick="cerrarModalReserva('modalReservaEstudiante')" class="btn-cancelar">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para reserva de docente -->
-    <div id="modalReservaDocente" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarModalReserva('modalReservaDocente')">&times;</span>
-            <h2>Nueva Reserva - Docente</h2>
-            <form id="reservaFormDocente" onsubmit="return guardarReservaDocente(event)">
-                <div class="form-group">
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha_docente" name="fecha" min="<?php echo date('Y-m-d'); ?>" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="horaInicio">Hora de Inicio:</label>
-                    <input type="time" id="horaInicio_docente" name="horaInicio" min="06:00" max="21:30" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="horaFin">Hora Final:</label>
-                    <input type="time" id="horaFin_docente" name="horaFin" min="06:30" max="22:00" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="tipo">Recurso:</label>
-                    <select id="tipo_docente" name="recurso" required>
-                        <option value="">Seleccione un recurso</option>
-                        <?php
-                        $recursos->data_seek(0);
-                        while ($recurso = $recursos->fetch_assoc()):
-                        ?>
-                            <option value="<?= $recurso['ID_Recurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="asignatura_docente">Asignatura:</label>
-                    <select id="asignatura_docente" name="docente_asignatura" required>
-                        <option value="">Seleccione una asignatura</option>
-                        <?php
-                        $asignaturas = $conn->prepare("SELECT da.ID_DocenteAsignatura, a.nombreAsignatura 
-                            FROM docente_asignatura da
-                            JOIN asignatura a ON da.ID_Asignatura = a.ID_Asignatura
-                            WHERE da.ID_Usuario = ?");
-                        $asignaturas->bind_param("i", $_SESSION['usuario_id']);
-                        $asignaturas->execute();
-                        $result = $asignaturas->get_result();
-                        while ($asig = $result->fetch_assoc()):
-                        ?>
-                            <option value="<?= $asig['ID_DocenteAsignatura'] ?>"><?= $asig['nombreAsignatura'] ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-
-                <div id="mensajeErrorDocente" class="error-mensaje" style="display: none;"></div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-confirmar">Reservar</button>
-                    <button type="button" onclick="cerrarModalReserva('modalReservaDocente')" class="btn-cancelar">Cancelar</button>
+                    <button type="button" onclick="cerrarModalReserva('modalReservaUnica')" class="btn-cancelar">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -366,43 +319,59 @@ if (isset($_GET['error'])) {
 
     <script>
         function abrirModalReserva() {
-            const role = '<?php echo $role; ?>';
-            if (role === 'Estudiante') {
-                document.getElementById('modalReservaEstudiante').style.display = 'block';
-            } else if (role === 'Docente') {
-                document.getElementById('modalReservaDocente').style.display = 'block';
-            }
+            document.getElementById('modalReservaUnica').style.display = 'block';
         }
 
         function cerrarModalReserva(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // Agregar el resto del código JavaScript existente aquí
-        // ...existing code...
+        // Mostrar/ocultar campo salón según recurso
+        const recursoSelect = document.getElementById('recurso_unico');
+        recursoSelect.addEventListener('change', function() {
+            const selected = recursoSelect.options[recursoSelect.selectedIndex];
+            const nombre = selected.getAttribute('data-nombre');
+            document.getElementById('grupo_salon_unico').style.display = (nombre && nombre.toLowerCase().includes('videobeam')) ? 'block' : 'none';
+        });
 
-        // Cargar docentes para estudiantes
-        document.getElementById('programa_estudiante').addEventListener('change', function() {
+        // Cargar docentes según programa
+        const programaSelect = document.getElementById('programa_unico');
+        const docenteSelect = document.getElementById('docente_unico');
+        programaSelect.addEventListener('change', function() {
             const programaId = this.value;
-            const docenteSelect = document.getElementById('docente_estudiante');
+            docenteSelect.innerHTML = '<option value="">Cargando...</option>';
+            fetch('../Controlador/obtener_docentes.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'id_programa=' + encodeURIComponent(programaId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
+                data.forEach(docente => {
+                    docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                });
+            });
+        });
 
-            if (programaId) {
-                fetch('../Controlador/obtener_docentes.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: 'id_programa=' + encodeURIComponent(programaId)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
-                        data.forEach(docente => {
-                            docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
+        // Cargar asignaturas según docente
+        const asignaturaSelect = document.getElementById('asignatura_unico');
+        docenteSelect.addEventListener('change', function() {
+            const docenteId = this.value;
+            const programaId = programaSelect.value;
+            asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
+            fetch('../Controlador/obtener_asignaturas.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+                data.forEach(asig => {
+                    asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
+                });
+            });
         });
 
         // Función común de validación para todos los formularios
@@ -499,9 +468,9 @@ if (isset($_GET['error'])) {
 
 
         // Actualizar la función guardarReservaEstudiante
-        async function guardarReservaEstudiante(event) {
+        async function guardarReservaUnica(event) {
             event.preventDefault();
-            const form = document.getElementById('reservaFormEstudiante');
+            const form = document.getElementById('reservaFormUnica');
 
             try {
                 // Validar el formulario
@@ -535,59 +504,7 @@ if (isset($_GET['error'])) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        cerrarModalReserva('modalReservaEstudiante');
-                        location.reload();
-                    });
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            }
-        }
-
-        // Actualizar la función guardarReservaDocente
-        async function guardarReservaDocente(event) {
-            event.preventDefault();
-            const form = document.getElementById('reservaFormDocente');
-
-            try {
-                // Validar el formulario
-                validarRegistro(
-                    form.fecha.value,
-                    form.horaInicio.value,
-                    form.horaFin.value
-                );
-
-                // Verificar disponibilidad
-                await verificarDisponibilidad(
-                    form.fecha.value,
-                    form.horaInicio.value,
-                    form.horaFin.value,
-                    form.recurso.value
-                );
-
-                // Si pasa todas las validaciones, enviar el formulario
-                const formData = new FormData(form);
-                const response = await fetch('../Controlador/guardar_reserva.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        cerrarModalReserva('modalReservaDocente');
+                        cerrarModalReserva('modalReservaUnica');
                         location.reload();
                     });
                 } else {
