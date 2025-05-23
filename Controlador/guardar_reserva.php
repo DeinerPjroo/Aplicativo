@@ -29,6 +29,7 @@ $id_recurso = $_POST['recurso'];
 $id_docente_asignatura = $_POST['docente'] ?? null; // Puede venir vacío si no es docente
 $semestre = $_POST['semestre'] ?? null; // Semestre seleccionado
 $id_programa = $_POST['Programa'] ?? null; // Programa seleccionado
+$salon = $_POST['salon'] ?? null; // Salon seleccionado
 
 // Validar campos obligatorios
 if (!$id_registro || !$id_usuario || !$fecha || !$horaInicio || !$horaFin || !$id_recurso) {
@@ -63,10 +64,10 @@ if ($stmt->num_rows > 0) {
 $stmt->close();
 
 // Insertar la reserva
-$sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura, semestre) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, ID_DocenteAsignatura, semestre, salon) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("siisssis", $id_registro, $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre);
+$stmt->bind_param("siisssiss", $id_registro, $id_usuario, $id_recurso, $fecha, $horaInicio, $horaFin, $id_docente_asignatura, $semestre, $salon);
 
 if ($stmt->execute()) {
     echo json_encode(['status' => 'success', 'message' => '✅ Reserva realizada con éxito']);

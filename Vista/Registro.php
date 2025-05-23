@@ -538,11 +538,12 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 <thead>
                     <!-- Encabezados de la tabla -->
                     <tr>
-                        <th>ID Registro</th> <!-- Nueva columna para el ID del registro -->
+                        <th>ID Registro</th>
                         <th>Recurso</th>
                         <th>Fecha</th>
                         <th>Hora Inicio</th>
                         <th>Hora Fin</th>
+                        <th>Salón</th> <!-- Nuevo campo Salón -->
                         <th>Código U</th>
                         <th>Nombre Usuario</th>
                         <th>Correo</th>
@@ -563,11 +564,12 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                         r.fechaReserva,
                         r.horaInicio,
                         r.horaFin,
+                        r.salon, -- Añadido campo salón
                         rc.nombreRecurso,
                         u.nombre AS nombreUsuario,
                         u.correo AS correoUsuario,
-                        u.Codigo_U, -- Nuevo campo
-                        u.ID_Rol,   -- Necesario para mostrar 'No aplica'
+                        u.Codigo_U,
+                        u.ID_Rol,
                         CASE 
                             WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
                             ELSE COALESCE(doc.nombre, 'Sin docente')
@@ -605,7 +607,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             if ($fechaActual !== $fechaAnterior) {
                                 // Mostrar encabezado de día
                                 echo "<tr class='separador-dia' data-registro-id='" . $row['ID_Registro'] . "'>
-                <td colspan='14' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
                     📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
                 </td>
               </tr>";
@@ -621,37 +623,38 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
                             // Ahora tu fila normal de datos
                             echo "<tr class='$clases' data-registro-id='" . $row['ID_Registro'] . "'>
-            <td>" . htmlspecialchars($row['ID_Registro']) . "</td> <!-- Mostrar el ID del registro -->
-            <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
-            <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
-            <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
-            <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
-            <td>" . htmlspecialchars($row['Codigo_U']) . "</td>
-            <td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
-            <td>" . htmlspecialchars($row['correoUsuario']) . "</td>
-            <td>" . htmlspecialchars($row['nombreDocente']) . "</td>
-            <td>" . htmlspecialchars($row['asignatura']) . "</td>
-            <td>" . htmlspecialchars($row['programa']) . "</td>
-            <td>" . htmlspecialchars($row['semestre']) . "</td>
-            <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
-            <td>
-                <div class=\"menu-acciones\">
-                    <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
-                        <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
-                    </button>
-                    <div class=\"menu-desplegable\">
-                        <a href=\"#\" onclick='mostrarModal({
-                            \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
-                            \"fechaReserva\": \"" . date('Y-m-d', strtotime($row['fechaReserva'])) . "\",
-                            \"horaInicio\": \"" . date('H:i', strtotime($row['horaInicio'])) . "\",
-                            \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
-                            \"estado\": \"" . $row['estado'] . "\"
-                        }); return false;' class=\"menu-opcion\">Modificar</a>
-                        <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar(" . $row['ID_Registro'] . ")\" class=\"menu-opcion\">Eliminar</a>
-                    </div>
-                </div>
-            </td>
-        </tr>";
+<td>" . htmlspecialchars($row['ID_Registro']) . "</td>
+<td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
+<td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
+<td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
+<td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
+<td>" . htmlspecialchars($row['salon']) . "</td>
+<td>" . htmlspecialchars($row['Codigo_U']) . "</td>
+<td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
+<td>" . htmlspecialchars($row['correoUsuario']) . "</td>
+<td>" . htmlspecialchars($row['nombreDocente']) . "</td>
+<td>" . htmlspecialchars($row['asignatura']) . "</td>
+<td>" . htmlspecialchars($row['programa']) . "</td>
+<td>" . htmlspecialchars($row['semestre']) . "</td>
+<td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
+<td>
+    <div class=\"menu-acciones\">
+        <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
+            <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
+        </button>
+        <div class=\"menu-desplegable\">
+            <a href=\"#\" onclick='mostrarModal({
+                \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
+                \"fechaReserva\": \"" . date('Y-m-d', strtotime($row['fechaReserva'])) . "\",
+                \"horaInicio\": \"" . date('H:i', strtotime($row['horaInicio'])) . "\",
+                \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
+                \"estado\": \"" . $row['estado'] . "\"
+            }); return false;' class=\"menu-opcion\">Modificar</a>
+            <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion\">Eliminar</a>
+        </div>
+    </div>
+</td>
+</tr>";
                         }
                     } else {
                         echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";

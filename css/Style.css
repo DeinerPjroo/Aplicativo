@@ -639,7 +639,7 @@ del administrador*/
 
 
 .btn-confirmar {
-    background-color: var(--color-acc);
+    background-color: var(--color-accent);
     /* Usando la variable para botón confirmar */
     color: white;
     border: none;
