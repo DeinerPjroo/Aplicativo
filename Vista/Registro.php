@@ -605,12 +605,12 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             $esHoy = ($fechaActual === $fechaHoy); // Verificar si es el día actual
 
                             if ($fechaActual !== $fechaAnterior) {
-                                // Mostrar encabezado de día
-                                echo "<tr class='separador-dia' data-registro-id='" . $row['ID_Registro'] . "'>
-                <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
-                    📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
-                </td>
-              </tr>";
+                                // Mostrar encabezado de día SIN data-registro-id
+                                echo "<tr class='separador-dia'>
+        <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+            📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+        </td>
+      </tr>";
                                 $fechaAnterior = $fechaActual;
                             }
 
@@ -956,18 +956,18 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
                 const formData = new FormData(document.getElementById('formModificar'));
 
-                fetch('../Controlador/Modificar_Registro.php', {
+                fetch('../Controlador/ControladorRegistro.php?accion=modificar', {
                         method: 'POST',
                         body: formData
                     })
-                    .then(response => response.text())
+                    .then(response => response.json())
                     .then(result => {
-                        if (result === 'success') {
+                        if (result.status === 'success') {
                             alert('Registro actualizado correctamente');
                             cerrarModal();
                             location.reload();
                         } else {
-                            throw new Error(result);
+                            throw new Error(result.message);
                         }
                     })
                     .catch(error => {
@@ -1019,7 +1019,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     })
                     .then(data => {
                         if (data.disponible) {
-                            return fetch('../Controlador/Agregar_Registro.php', {
+                            return fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
                                 method: 'POST',
                                 body: formData
                             });
@@ -1208,7 +1208,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             btnConfirm.onclick = function() {
                 modalConfirm.style.display = 'none';
 
-                fetch(`../Controlador/Eliminar_Reserva.php?id=${id}`, {
+                fetch(`../Controlador/ControladorRegistro.php?accion=eliminar&id=${id}`, {
                         method: 'GET'
                     })
                     .then(response => response.json())
