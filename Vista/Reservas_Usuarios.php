@@ -337,7 +337,7 @@ if (isset($_GET['error'])) {
         programaSelect.addEventListener('change', function() {
             const programaId = this.value;
             docenteSelect.innerHTML = '<option value="">Cargando...</option>';
-            fetch('../Controlador/obtener_docentes.php', {
+            fetch('../Controlador/ControladorObtener.php?tipo=docentes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -347,19 +347,19 @@ if (isset($_GET['error'])) {
                 .then(response => response.json())
                 .then(data => {
                     docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
-                    data.forEach(docente => {
+                    data.data.forEach(docente => {
                         docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
                     });
                 });
         });
 
-        // Cargar asignaturas según docente
+        // Cambiado a ControladorObtener.php para asignaturas
         const asignaturaSelect = document.getElementById('asignatura_unico');
         docenteSelect.addEventListener('change', function() {
             const docenteId = this.value;
             const programaId = programaSelect.value;
             asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
-            fetch('../Controlador/obtener_asignaturas.php', {
+            fetch('../Controlador/ControladorObtener.php?tipo=asignaturas', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -369,7 +369,7 @@ if (isset($_GET['error'])) {
                 .then(response => response.json())
                 .then(data => {
                     asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
-                    data.forEach(asig => {
+                    data.data.forEach(asig => {
                         asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
                     });
                 });
@@ -435,12 +435,12 @@ if (isset($_GET['error'])) {
         async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
             const formData = new FormData();
             formData.append("fecha", fecha);
-            formData.append("horaInicio", horaInicio);
-            formData.append("horaFin", horaFin);
+            formData.append("hora_inicio", horaInicio); // CAMBIO: debe ser hora_inicio
+            formData.append("hora_fin", horaFin);      // CAMBIO: debe ser hora_fin
             formData.append("recurso", recurso);
 
             try {
-                const response = await fetch("../Controlador/Obtener_Recursos.php", {
+                const response = await fetch("../Controlador/Verificar_Disponibilidad.php", {
                     method: "POST",
                     body: formData
                 });
@@ -454,7 +454,7 @@ if (isset($_GET['error'])) {
                 if (typeof responseBody === "object") {
                     console.log("Respuesta del servidor:", responseBody); // Depuración
                     if (!responseBody.disponible) {
-                        throw new Error(responseBody.mensaje || 'El recurso no está disponible en ese horario');
+                        throw new Error(responseBody.mensaje || responseBody.error || 'El recurso no está disponible en ese horario');
                     }
                     return true;
                 } else {

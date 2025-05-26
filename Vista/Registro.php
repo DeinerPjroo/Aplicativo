@@ -1049,12 +1049,12 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
             // Validar el rol del usuario
             if (rol === '2') { // Docente
-                fetch(`../Controlador/Obtener_Asignaturas.php?id_usuario=${idUsuario}`)
+                fetch(`../Controlador/ControladorObtener.php?tipo=asignaturas&id_usuario=${idUsuario}`)
                     .then(res => res.json())
                     .then(data => {
                         const listaAsignaturas = document.getElementById('listaAsignaturas');
                         listaAsignaturas.innerHTML = '';
-                        data.forEach(asig => {
+                        data.data.forEach(asig => {
                             listaAsignaturas.innerHTML += `<div>${asig.nombreAsignatura}</div>`;
                         });
                         document.getElementById('campoAsignaturas').style.display = 'block';
@@ -1080,14 +1080,14 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             }
 
             // Realizar la solicitud para obtener los docentes asociados al programa
-            fetch(`../Controlador/obtener_docentes.php?id_programa=${idPrograma}`)
+            fetch(`../Controlador/ControladorObtener.php?tipo=docentes&id_programa=${idPrograma}`)
                 .then(res => res.json())
                 .then(data => {
                     const docenteSelect = document.getElementById('docente_agregar');
                     docenteSelect.innerHTML = '<option value="">Seleccione un docente</option>';
 
                     // Iterar sobre los datos recibidos y agregarlos al select
-                    data.forEach(doc => {
+                    data.data.forEach(doc => {
                         const option = document.createElement('option');
                         option.value = doc.ID_Usuario;
                         option.textContent = doc.nombre;
@@ -1095,7 +1095,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     });
 
                     // Mostrar el campo de docentes si hay datos
-                    if (data.length > 0) {
+                    if (data.data.length > 0) {
                         document.getElementById('campoDocente').style.display = 'block';
                     } else {
                         alert('No hay docentes disponibles para este programa.');
