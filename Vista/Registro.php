@@ -981,7 +981,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
                 const formData = new FormData(document.getElementById('formAgregar'));
 
-                fetch('../Controlador/Verificar_Disponibilidad.php', {
+                fetch('../Controlador/ControladorVerificar.php?tipo=disponibilidad', {
                         method: 'POST',
                         body: formData
                     })

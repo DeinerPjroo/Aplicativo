@@ -194,6 +194,36 @@ if ($row = $result->fetch_assoc()) {
                 margin-bottom: 20px;
             }
         }
+
+        .alerta-modal {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: #fff;
+            color: #222;
+            border-radius: 8px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+            padding: 18px 32px;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 1.1rem;
+            min-width: 220px;
+            text-align: center;
+        }
+        .alerta-modal.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1);
+        }
+        .alerta-modal.success {
+            border-left: 6px solid #4caf50;
+        }
+        .alerta-modal.error {
+            border-left: 6px solid #e53935;
+        }
     </style>
 </head>
 
@@ -209,40 +239,6 @@ if ($row = $result->fetch_assoc()) {
                 <h1>Perfil de Usuario</h1>
             </div>
 
-            <?php
-            // Mostrar mensajes de éxito o error para actualización de datos
-            if (isset($_SESSION['success_message'])) {
-                echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message']) . '</div>';
-                unset($_SESSION['success_message']); // Limpiar mensaje después de mostrar
-            }
-
-            if (isset($_SESSION['error_message'])) {
-                echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message']) . '</div>';
-                unset($_SESSION['error_message']);
-            }
-
-            // Mostrar errores de validación de datos
-            if (isset($_SESSION['errores']) && !empty($_SESSION['errores'])) {
-                echo '<div class="alert alert-error"><ul style="margin: 0; padding-left: 20px;">';
-                foreach ($_SESSION['errores'] as $error) {
-                    echo '<li>' . htmlspecialchars($error) . '</li>';
-                }
-                echo '</ul></div>';
-                unset($_SESSION['errores']);
-            }
-
-            // Mostrar mensajes de éxito o error para actualización de contraseña
-            if (isset($_SESSION['success_message_password'])) {
-                echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success_message_password']) . '</div>';
-                unset($_SESSION['success_message_password']);
-            }
-
-            if (isset($_SESSION['error_message_password'])) {
-                echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error_message_password']) . '</div>';
-                unset($_SESSION['error_message_password']);
-            }
-            ?>
-
             <div class="profile-container">
                 <div class="profile-image">
                     <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil"> <!-- Se mantiene la referencia a la imagen -->
@@ -250,7 +246,8 @@ if ($row = $result->fetch_assoc()) {
                 </div>
 
                 <div class="profile-details">
-                    <form action="../Controlador/actualizar_usuario.php" method="POST">
+                    <form id="formActualizarPerfil" action="../Controlador/ControladorPerfil.php" method="POST">
+                        <input type="hidden" name="accion" value="actualizar_datos">
                         <div class="form-group">
                             <label for="nombreUsuario">Nombre</label>
                             <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
@@ -269,7 +266,7 @@ if ($row = $result->fetch_assoc()) {
 
                         <div class="form-group">
                             <label for="telefonoUsuario">Teléfono</label>
-                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>"> <!-- Se habilita la edición -->
+                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
                         </div>
 
                         <button type="submit" class="btn-agregar">Guardar cambios</button>
@@ -284,7 +281,8 @@ if ($row = $result->fetch_assoc()) {
         <div class="modal-content">
             <span class="close-modal" onclick="cerrarModal()">&times;</span>
             <h2>Cambiar Contraseña</h2>
-            <form action="../Controlador/actualizar_contraseña.php" method="POST">
+            <form id="formActualizarContrasena" action="../Controlador/ControladorPerfil.php" method="POST">
+                <input type="hidden" name="accion" value="actualizar_contraseña">
                 <div class="form-group">
                     <label for="passwordActual">Contraseña actual</label>
                     <input type="password" name="passwordActual" id="passwordActual" required>
@@ -321,6 +319,71 @@ if ($row = $result->fetch_assoc()) {
                 cerrarModal();
             }
         };
+
+        function mostrarAlerta(mensaje, tipo = 'success') {
+            const alerta = document.createElement('div');
+            alerta.className = 'alerta-modal ' + tipo;
+            alerta.innerHTML = `<div class="alerta-contenido">${mensaje}</div>`;
+            document.body.appendChild(alerta);
+            setTimeout(() => {
+                alerta.classList.add('visible');
+            }, 10);
+            setTimeout(() => {
+                alerta.classList.remove('visible');
+                setTimeout(() => alerta.remove(), 300);
+            }, 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Interceptar el submit del formulario de perfil
+            const formPerfil = document.getElementById('formActualizarPerfil');
+            if (formPerfil) {
+                formPerfil.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(formPerfil);
+                    fetch(formPerfil.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            mostrarAlerta(data.message, 'success');
+                        } else if (data.errores) {
+                            mostrarAlerta(data.errores.join('<br>'), 'error');
+                        } else {
+                            mostrarAlerta(data.message || 'Error al actualizar', 'error');
+                        }
+                    })
+                    .catch(() => mostrarAlerta('Error de conexión', 'error'));
+                });
+            }
+            // Interceptar el submit del formulario de contraseña
+            const formPass = document.getElementById('formActualizarContrasena');
+            if (formPass) {
+                formPass.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(formPass);
+                    fetch(formPass.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(function(data) {
+                        if (data.status === 'success') {
+                            mostrarAlerta(data.message, 'success');
+                            cerrarModal();
+                            formPass.reset();
+                        } else if (data.errores) {
+                            mostrarAlerta(data.errores.join('<br>'), 'error');
+                        } else {
+                            mostrarAlerta(data.message || 'Error al actualizar', 'error');
+                        }
+                    })
+                    .catch(() => mostrarAlerta('Error de conexión', 'error'));
+                });
+            }
+        });
     </script>
 </body>
 

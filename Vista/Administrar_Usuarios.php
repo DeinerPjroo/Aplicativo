@@ -298,7 +298,7 @@ while ($row = $programasResult->fetch_assoc()) {
         }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../Controlador/Verificar_Codigo.php', true);
+        xhr.open('POST', '../Controlador/ControladorVerificar.php?tipo=codigo', true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
         xhr.onload = function() {
@@ -359,7 +359,7 @@ while ($row = $programasResult->fetch_assoc()) {
         }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../Controlador/verificar_correo.php', true);
+        xhr.open('POST', '../Controlador/ControladorVerificar.php?tipo=correo', true);
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
         xhr.onload = function() {

@@ -4,6 +4,8 @@ session_start();
 include("../database/conection.php");
 include("control_De_Rol.php");
 
+// OBSOLETO: Este archivo ha sido reemplazado por ControladorPerfil.php para la actualización de datos de usuario y contraseña.
+
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION['usuario_id'])) {
     // Si no está logueado, redirigir al login

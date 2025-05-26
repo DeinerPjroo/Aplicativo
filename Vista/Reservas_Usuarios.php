@@ -440,7 +440,7 @@ if (isset($_GET['error'])) {
             formData.append("recurso", recurso);
 
             try {
-                const response = await fetch("../Controlador/Verificar_Disponibilidad.php", {
+                const response = await fetch("../Controlador/ControladorVerificar.php?tipo=disponibilidad", {
                     method: "POST",
                     body: formData
                 });
