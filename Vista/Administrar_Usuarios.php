@@ -424,7 +424,7 @@ while ($row = $programasResult->fetch_assoc()) {
 
         if (action === 'agregar') {
             title.textContent = 'Agregar Usuario';
-            form.setAttribute('data-action', '../Controlador/Agregar_Usuario.php');
+            form.setAttribute('data-action', '../Controlador/ControladorUsuario.php?accion=agregar');
             document.getElementById('form-id').value = '';
             document.getElementById('form-codigo_u').value = '';
             document.getElementById('form-nombre').value = '';
@@ -458,7 +458,7 @@ while ($row = $programasResult->fetch_assoc()) {
         const passwordLabel = passwordField.previousElementSibling;
 
         title.textContent = 'Modificar Usuario';
-        form.setAttribute('data-action', '../Controlador/Modificar_Usuario.php');
+        form.setAttribute('data-action', '../Controlador/ControladorUsuario.php?accion=modificar');
 
         document.getElementById('form-id').value = id;
         document.getElementById('form-codigo_u').value = codigo_u;
@@ -502,7 +502,7 @@ while ($row = $programasResult->fetch_assoc()) {
 
             // Realizar la eliminación mediante AJAX
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '../Controlador/Eliminar_Usuario.php', true);
+            xhr.open('POST', '../Controlador/ControladorUsuario.php?accion=eliminar', true);
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
             xhr.onload = function() {
