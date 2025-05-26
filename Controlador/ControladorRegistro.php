@@ -3,6 +3,8 @@
 header('Content-Type: application/json');
 date_default_timezone_set('America/Bogota');
 
+
+
 session_start();
 include_once("../database/conection.php");
 include_once("control_De_Rol.php");
@@ -10,27 +12,43 @@ include_once("control_De_Rol.php");
 $accion = $_REQUEST['accion'] ?? '';
 
 switch ($accion) {
+
     case 'agregar':
-        // Lógica de Agregar_Registro.php
+        // Lógica de Agregar_Registro.php con ID personalizado
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception('Método no permitido');
             }
-            $usuario = $_POST['usuario'];
-            $recurso = $_POST['recurso'];
-            $fecha = $_POST['fecha'];
-            $horaInicio = $_POST['hora_inicio'];
-            $horaFin = $_POST['hora_fin'];
+            file_put_contents(__DIR__.'/debug_reserva.txt', json_encode($_POST));
+            $id_registro = $_POST['id_registro'] ?? null;
+            $usuario = $_POST['usuario'] ?? $_POST['id_usuario'] ?? null;
+            $recurso = $_POST['recurso'] ?? null;
+            $fecha = $_POST['fecha'] ?? null;
+            $horaInicio = $_POST['hora_inicio'] ?? $_POST['horaInicio'] ?? null;
+            $horaFin = $_POST['hora_fin'] ?? $_POST['horaFin'] ?? null;
             $estado = 'Confirmada';
-            if (!$usuario || !$recurso || !$fecha || !$horaInicio || !$horaFin) {
-                throw new Exception('Todos los campos son obligatorios');
-            }
+            if (!$id_registro) { throw new Exception('Falta id_registro'); }
+            if (!$usuario) { throw new Exception('Falta usuario'); }
+            if (!$recurso) { throw new Exception('Falta recurso'); }
+            if (!$fecha) { throw new Exception('Falta fecha'); }
+            if (!$horaInicio) { throw new Exception('Falta horaInicio'); }
+            if (!$horaFin) { throw new Exception('Falta horaFin'); }
             $fechaHoraInicio = new DateTime("$fecha $horaInicio");
             $ahora = new DateTime();
             $ahora->modify('+10 minutes');
             if ($fechaHoraInicio < $ahora) {
                 throw new Exception('Solo puedes reservar con al menos 10 minutos de anticipación');
             }
+            // Validar que el ID no exista
+            $stmt = $conn->prepare("SELECT 1 FROM registro WHERE ID_Registro = ?");
+            $stmt->bind_param("s", $id_registro);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                throw new Exception('El ID de la reserva ya existe, por favor intente de nuevo.');
+            }
+            $stmt->close();
+            // Validar traslape de horario
             $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' AND (horaInicio < ? AND horaFin > ? )";
             $stmt = $conn->prepare($sqlVerificar);
             $stmt->bind_param("isss", $recurso, $fecha, $horaFin, $horaInicio);
@@ -40,9 +58,10 @@ switch ($accion) {
             if ($row['conteo'] > 0) {
                 throw new Exception('El recurso no está disponible en ese horario');
             }
-            $sql = "INSERT INTO registro (ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado) VALUES (?, ?, ?, ?, ?, ?)";
+            // Insertar con el ID personalizado
+            $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("iissss", $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado);
+            $stmt->bind_param("siissss", $id_registro, $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado);
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Registro agregado correctamente']);
             } else {
@@ -220,4 +239,3 @@ switch ($accion) {
         break;
 }
 $conn->close();
-?>

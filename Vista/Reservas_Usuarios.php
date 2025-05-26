@@ -232,6 +232,7 @@ if (isset($_GET['error'])) {
             <span class="close" onclick="cerrarModalReserva('modalReservaUnica')">&times;</span>
             <h2>Nueva Reserva</h2>
             <form id="reservaFormUnica" onsubmit="return guardarReservaUnica(event)">
+                <input type="hidden" name="usuario" value="<?php echo $_SESSION['usuario_id']; ?>">
                 <div class="form-group">
                     <label for="id_registro">ID del Registro:</label>
                     <input type="text" id="id_registro" name="id_registro" value="" readonly>
@@ -297,10 +298,10 @@ if (isset($_GET['error'])) {
                     <select id="semestre_unico" name="semestre" required>
                         <option value="">Seleccione el semestre</option>
                         <?php
-                        $romanos = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+                        $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
                         for ($i = 1; $i <= 10; $i++):
                         ?>
-                            <option value="<?= $romanos[$i-1] ?>"><?= $romanos[$i-1] ?></option>
+                            <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
@@ -337,17 +338,19 @@ if (isset($_GET['error'])) {
             const programaId = this.value;
             docenteSelect.innerHTML = '<option value="">Cargando...</option>';
             fetch('../Controlador/obtener_docentes.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'id_programa=' + encodeURIComponent(programaId)
-            })
-            .then(response => response.json())
-            .then(data => {
-                docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
-                data.forEach(docente => {
-                    docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'id_programa=' + encodeURIComponent(programaId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
+                    data.forEach(docente => {
+                        docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                    });
                 });
-            });
         });
 
         // Cargar asignaturas según docente
@@ -357,17 +360,19 @@ if (isset($_GET['error'])) {
             const programaId = programaSelect.value;
             asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
             fetch('../Controlador/obtener_asignaturas.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
-            })
-            .then(response => response.json())
-            .then(data => {
-                asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
-                data.forEach(asig => {
-                    asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+                    data.forEach(asig => {
+                        asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
+                    });
                 });
-            });
         });
 
         // Función común de validación para todos los formularios
@@ -492,7 +497,7 @@ if (isset($_GET['error'])) {
 
                 // Si pasa todas las validaciones, enviar el formulario
                 const formData = new FormData(form);
-                const response = await fetch('../Controlador/guardar_reserva.php', {
+                const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
                     method: 'POST',
                     body: formData
                 });
@@ -592,7 +597,7 @@ if (isset($_GET['error'])) {
 
                 // Si pasa todas las validaciones, enviar el formulario
                 const formData = new FormData(form);
-                const response = await fetch('../Controlador/guardar_reserva.php', {
+                const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
                     method: 'POST',
                     body: formData
                 });
