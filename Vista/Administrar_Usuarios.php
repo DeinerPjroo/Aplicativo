@@ -147,7 +147,7 @@ while ($row = $programasResult->fetch_assoc()) {
                 <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>
 
                 <label>Telefono:</label>
-                <input type="text" name="nombre" id="form-telefono" placeholder="Ingrese telefono..." required>
+                <input type="text" name="telefono" id="form-telefono" placeholder="Ingrese telefono..." required>
 
                 <label>Correo:</label>
                 <input type="email" name="correo" id="form-correo" placeholder="Ingrese correo electrónico..." required oninput="limpiarErrorCorreo()" onblur="verificarCorreoExistente(this.value)">
@@ -450,7 +450,7 @@ while ($row = $programasResult->fetch_assoc()) {
 
 
     // Función modificada para abrir el formulario de modificación
-    function openModificarForm(id, codigo_u, nombre, correo, programa, semestre, id_rol) {
+    function openModificarForm(id, codigo_u, nombre, telefono, correo, programa, semestre, id_rol) {
         const modal = document.getElementById('formModal');
         const title = document.getElementById('modalTitle');
         const form = document.getElementById('usuarioForm');

@@ -18,6 +18,7 @@ switch ($accion) {
         $codigo_u = $_POST['codigo_u'];
         $nombre = $_POST['nombre'];
         $correo = $_POST['correo'];
+        $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : '';
         $id_rol = $_POST['id_rol'];
         $contraseña = isset($_POST['contraseña']) ? $_POST['contraseña'] : '';
         $es_estudiante = ($id_rol == '1');
@@ -63,9 +64,9 @@ switch ($accion) {
                 break;
             }
             $contraseña_hash = password_hash($contraseña, PASSWORD_DEFAULT);
-            $insertQuery = "INSERT INTO usuario (codigo_u, nombre, correo, contraseña, id_rol, Id_Programa, semestre) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $insertQuery = "INSERT INTO usuario (codigo_u, nombre, correo, telefono, contraseña, id_rol, Id_Programa, semestre) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($insertQuery);
-            $stmt->bind_param("ssssiis", $codigo_u, $nombre, $correo, $contraseña_hash, $id_rol, $id_programa, $semestre);
+            $stmt->bind_param("sssssiis", $codigo_u, $nombre, $correo, $telefono, $contraseña_hash, $id_rol, $id_programa, $semestre);
             if ($stmt->execute()) {
                 $response['status'] = 'success';
                 $response['message'] = 'Usuario agregado correctamente';
@@ -91,6 +92,7 @@ switch ($accion) {
         $codigo_u = isset($_POST['codigo_u']) ? $_POST['codigo_u'] : '';
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : '';
         $correo = isset($_POST['correo']) ? $_POST['correo'] : '';
+        $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : '';
         $id_rol = isset($_POST['id_rol']) ? $_POST['id_rol'] : '';
         $contraseña = isset($_POST['contraseña']) ? $_POST['contraseña'] : '';
         $es_estudiante = ($id_rol == '1');
@@ -137,13 +139,13 @@ switch ($accion) {
             }
             if (!empty($contraseña)) {
                 $contraseña_hash = password_hash($contraseña, PASSWORD_DEFAULT);
-                $updateQuery = "UPDATE usuario SET codigo_u = ?, nombre = ?, correo = ?, contraseña = ?, id_rol = ?, Id_Programa = ?, semestre = ? WHERE ID_Usuario = ?";
+                $updateQuery = "UPDATE usuario SET codigo_u = ?, nombre = ?, correo = ?, telefono = ?, contraseña = ?, id_rol = ?, Id_Programa = ?, semestre = ? WHERE ID_Usuario = ?";
                 $stmt = $conn->prepare($updateQuery);
-                $stmt->bind_param("ssssiisi", $codigo_u, $nombre, $correo, $contraseña_hash, $id_rol, $id_programa, $semestre, $id_usuario);
+                $stmt->bind_param("sssssiisi", $codigo_u, $nombre, $correo, $telefono, $contraseña_hash, $id_rol, $id_programa, $semestre, $id_usuario);
             } else {
-                $updateQuery = "UPDATE usuario SET codigo_u = ?, nombre = ?, correo = ?, id_rol = ?, Id_Programa = ?, semestre = ? WHERE ID_Usuario = ?";
+                $updateQuery = "UPDATE usuario SET codigo_u = ?, nombre = ?, correo = ?, telefono = ?, id_rol = ?, Id_Programa = ?, semestre = ? WHERE ID_Usuario = ?";
                 $stmt = $conn->prepare($updateQuery);
-                $stmt->bind_param("sssiisi", $codigo_u, $nombre, $correo, $id_rol, $id_programa, $semestre, $id_usuario);
+                $stmt->bind_param("ssssiiis", $codigo_u, $nombre, $correo, $telefono, $id_rol, $id_programa, $semestre, $id_usuario);
             }
             if ($stmt->execute()) {
                 $response['status'] = 'success';
