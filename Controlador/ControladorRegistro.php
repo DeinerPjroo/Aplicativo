@@ -167,10 +167,10 @@ switch ($accion) {
         // Lógica de Eliminar_Reserva.php
         checkRole(['Administrador', 'Docente']);
         if (isset($_GET['id'])) {
-            $id_reserva = intval($_GET['id']);
+            $id_reserva = $_GET['id'];
             $conn->query("SET FOREIGN_KEY_CHECKS=0");
             $stmt = $conn->prepare("DELETE FROM registro WHERE ID_Registro = ?");
-            $stmt->bind_param("i", $id_reserva);
+            $stmt->bind_param("s", $id_reserva); // Cambiado a 's' para ID alfanumérico
             if ($stmt->execute() && $stmt->affected_rows > 0) {
                 echo json_encode(['success' => true]);
             } else {

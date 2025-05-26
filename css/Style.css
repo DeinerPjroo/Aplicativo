@@ -528,7 +528,7 @@ del administrador*/
 }
 
 .contenedor-reservas h2 {
-    
+
     color: #333;
     margin-bottom: 15px;
     text-align: center;
@@ -887,18 +887,7 @@ del administrador*/
 }
 
 /* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    /* Cambiado de auto a hidden para evitar el scroll externo */
-    background-color: rgba(0, 0, 0, 0.5);
-}
+
 
 .modal-content {
     background-color: #fefefe;
@@ -920,40 +909,6 @@ del administrador*/
     color: #333;
     margin-bottom: 15px;
     text-align: center;
-}
-
-
-
-/* Estilos para la barra de desplazamiento */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: #d07c2e;
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: #b9651f;
-}
-
-
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    position: sticky;
-    top: 0;
-    right: 0;
 }
 
 .close-modal:hover {
@@ -1082,15 +1037,16 @@ del administrador*/
     --border-radius: 12px;
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
     --transition-speed: 0.3s ease;
-    
-        /*Perfil*/
-            --background-light: #f5f7fa;
-            --text-dark: #333;
-            --text-light: #666;
-            --border-color: #ddd;
-            --success-color: #2ecc71;
-            
+
+    /*Perfil*/
+    --background-light: #f5f7fa;
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #ddd;
+    --success-color: #2ecc71;
+
 }
+
 /* Contenedor principal de usuarios */
 .contenedor-usuarios {
     width: 90%;
@@ -1146,7 +1102,7 @@ del administrador*/
 
 .tabla-usuarios td {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    
+
 }
 
 .tabla-usuarios th {
@@ -1154,7 +1110,7 @@ del administrador*/
     /* Usando la variable de color primario */
     color: white;
     font-weight: 600;
-    
+
 }
 
 /* Botones modernos */
@@ -1219,8 +1175,8 @@ del administrador*/
     border-bottom-right-radius: 10px;
     margin-left: 17px;
     ;
-    
-    
+
+
     display: flex;
 }
 
@@ -1260,7 +1216,6 @@ del administrador*/
     font-style: italic;
 }
 
-/* Modal estilos refinados */
 .modal {
     display: none;
     position: fixed;
@@ -1270,24 +1225,11 @@ del administrador*/
     width: 100%;
     height: 100%;
     overflow: hidden;
+    /* Cambiado de auto a hidden para evitar el scroll externo */
     background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 30px;
-    border: none;
-    width: 450px;
-    max-width: 90%;
-    border-radius: 16px;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    animation: modalFadeIn 0.4s;
-}
+
 
 @keyframes modalFadeIn {
     from {

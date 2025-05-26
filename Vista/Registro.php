@@ -148,35 +148,9 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             opacity: 0.9;
         }
 
-        /* Estilos del modal mejorados */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            /* Cambiado de auto a hidden para evitar el scroll externo */
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+      
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 400px;
-            max-width: 90%;
-            border-radius: 10px;
-            max-height: 80vh;
-            /* Altura máxima del 80% de la ventana */
-            overflow-y: auto;
-            /* Añadir scroll vertical solo cuando sea necesario */
-            position: relative;
-            /* Para posicionamiento de elementos internos */
-        }
+        
 
         /* Estilos para la barra de desplazamiento */
         .modal-content::-webkit-scrollbar {
