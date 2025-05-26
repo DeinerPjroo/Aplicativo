@@ -21,7 +21,6 @@ if (!empty($search)) {
 } else {
     $result = $conn->query($query);
 }
-// ...existing code...
 
 // Obtener los programas desde la base de datos
 $programasQuery = "SELECT ID_Programa, nombrePrograma FROM programa";
@@ -80,55 +79,64 @@ while ($row = $programasResult->fetch_assoc()) {
             <p>No se encontraron usuarios con ese criterio de búsqueda</p>
         </div>
 
-        <?php if ($result->num_rows > 0) : ?>
-            <table id="tablaUsuario" class="tabla-usuarios">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>telefono</th>
-                        <th>Programa</th>
-                        <th>Semestre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = $result->fetch_assoc()) : ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($row['codigo_u']); ?></td>
-                            <td><?php echo htmlspecialchars($row['nombre']); ?></td>
-                            <td><?php echo htmlspecialchars($row['telefono']); ?></td>
-                            <td><?php echo !empty($row['programa']) ? htmlspecialchars($row['programa']) : 'No aplica'; ?></td>
-                            <td><?php echo htmlspecialchars($row['semestre'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($row['correo']); ?></td>
-                            <td><?php echo htmlspecialchars($row['rol']); ?></td>
-                            <td style="display: flex;"">
-                                <button class="btn btn-modificar"
-                                    onclick="openModificarForm(
-                                        <?php echo $row['ID_Usuario']; ?>,
-                                        '<?php echo htmlspecialchars($row['codigo_u'], ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars($row['nombre'], ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars($row['telefono'], ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars($row['correo'], ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars($row['Id_Programa'], ENT_QUOTES); ?>',
-                                        '<?php echo htmlspecialchars($row['semestre'], ENT_QUOTES); ?>',
-                                        <?php echo $row['id_rol']; ?> /* Cambiamos la variable a id_rol para pasar el número */
-                                    )">
-                                    Modificar
-                                </button>
-                                <button class="btn btn-eliminar" onclick="eliminarUsuario(<?php echo $row['ID_Usuario']; ?>)">Eliminar</button>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else : ?>
-            <div class="sin-usuarios">
-                <p>No hay usuarios registrados en este momento</p>
-            </div>
-        <?php endif; ?>
+        <!-- Tabla de usuarios dinámica -->
+        <table id="tablaUsuario" class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>telefono</th>
+                    <th>Programa</th>
+                    <th>Semestre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyUsuarios"></tbody>
+        </table>
+        <script>
+        function cargarUsuarios() {
+            fetch('../Controlador/ControladorUsuario.php?accion=listar')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('tbodyUsuarios');
+                    tbody.innerHTML = '';
+                    if (data.status === 'success') {
+                        data.data.forEach(row => {
+                            tbody.innerHTML += `
+                            <tr>
+                                <td>${row.codigo_u}</td>
+                                <td>${row.nombre}</td>
+                                <td>${row.telefono ?? ''}</td>
+                                <td>${row.programa ? row.programa : 'No aplica'}</td>
+                                <td>${row.semestre ?? 'N/A'}</td>
+                                <td>${row.correo}</td>
+                                <td>${row.rol}</td>
+                                <td style="display: flex;">
+                                    <button class=\"btn btn-modificar\" onclick=\"openModificarForm(
+                                        ${row.ID_Usuario},
+                                        '${row.codigo_u.replace(/'/g, "\\'")}',
+                                        '${row.nombre.replace(/'/g, "\\'")}',
+                                        '${(row.telefono ?? '').replace(/'/g, "\\'")}',
+                                        '${row.correo.replace(/'/g, "\\'")}',
+                                        '${row.Id_Programa ?? ''}',
+                                        '${row.semestre ?? ''}',
+                                        ${row.id_rol}
+                                    )\">Modificar</button>
+                                    <button class=\"btn btn-eliminar\" onclick=\"eliminarUsuario(${row.ID_Usuario})\">Eliminar</button>
+                                </td>
+                            </tr>`;
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="8">No se pudieron cargar los usuarios.</td></tr>';
+                    }
+                    filtrarTabla(); // Para aplicar el filtro si hay texto en búsqueda
+                });
+        }
+        document.addEventListener('DOMContentLoaded', cargarUsuarios);
+        </script>
+        <!-- Renderizado PHP de la tabla de usuarios eliminado: ahora todo es dinámico por AJAX -->
     </div>
 
 
@@ -218,24 +226,6 @@ while ($row = $programasResult->fetch_assoc()) {
 </html>
 
 <script>
-    // recargar la tabla y no la pagina completa
-    function recargarTablaUsuarios() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', '../Controlador/Tabla_Usuarios.php', true); // Debes crear este archivo PHP
-        xhr.onload = function() {
-            if (this.status === 200) {
-                document.querySelector('#tablaUsuario tbody').innerHTML = this.responseText;
-            } else {
-                showToast('No se pudo actualizar la tabla de usuarios', 'error');
-            }
-        };
-        xhr.send();
-    }
-
-
-
-
-
     // Toast notification functions
     function showToast(message, type = 'info') {
         const toastContainer = document.getElementById('toastContainer');
@@ -512,7 +502,7 @@ while ($row = $programasResult->fetch_assoc()) {
                         if (response.status === 'success') {
                             showToast(response.message, 'success');
                             setTimeout(() => {
-                                recargarTablaUsuarios();
+                                cargarUsuarios();
                             }, 500);
                         } else {
                             showToast(response.message || 'Error al eliminar usuario', 'error');
@@ -616,7 +606,7 @@ while ($row = $programasResult->fetch_assoc()) {
                         showToast(response.message, 'success');
                         closeModal();
                         setTimeout(() => {
-                            recargarTablaUsuarios();
+                            cargarUsuarios();
                         }, 500);
                     } else {
                         showToast(response.message || 'Hubo un error en la operación', 'error');

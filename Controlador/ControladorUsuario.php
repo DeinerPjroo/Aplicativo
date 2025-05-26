@@ -191,6 +191,26 @@ switch ($accion) {
         }
         echo json_encode($response);
         break;
+    case 'listar':
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+        $query = "SELECT u.ID_Usuario, u.codigo_u, u.nombre, u.telefono, p.nombrePrograma AS programa, u.Id_Programa, u.semestre, u.correo, r.nombreRol AS rol, u.id_rol
+                 FROM usuario u
+                 LEFT JOIN programa p ON u.Id_Programa = p.ID_Programa
+                 LEFT JOIN rol r ON u.id_rol = r.id_rol";
+        $result = $conn->query($query);
+        if (!$result) {
+            echo json_encode(['status' => 'error', 'message' => 'Error en la consulta: ' . $conn->error]);
+            break;
+        }
+        $usuarios = [];
+        while ($row = $result->fetch_assoc()) {
+            $usuarios[] = $row;
+        }
+        $response = ['status' => 'success', 'data' => $usuarios];
+        echo json_encode($response);
+        break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
         break;
