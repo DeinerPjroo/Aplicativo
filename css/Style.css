@@ -3,6 +3,18 @@
 
 /*****************************************************************************************************/
 /*LOGIN*/
+
+/*Paleta de colores*/
+.paleta {
+    color: #c74635;
+    color: #E2604f;
+    color: #f1a036;
+    color: #d3892e;
+    color: #2db0b2;
+    color: #269696;
+}
+
+
 .Panel {
 
     background-color: rgba(255, 255, 255, 0.575);
@@ -106,42 +118,43 @@ del administrador*/
 }
 
 .busqueda-container {
-            background-color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            width: 600px;
-            max-width: 90%;
-        }
+    background-color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    width: 600px;
+    max-width: 90%;
+}
 
 
-        .busqueda-container input[type="text"] {
-            border: none;
-            outline: none;
-            font-size: 14px;
-            flex: 1;
-            padding: 8px;
-        }
+.busqueda-container input[type="text"] {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    flex: 1;
+    padding: 8px;
+}
 
 .busqueda-container button {
-            background-color: #d07c2e;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            margin-left: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-.busqueda-container button:hover {
-            background-color: #b9651f;
-        }
+    background-color: #d07c2e;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-left: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-        #resultado {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 18px;
-        }
+.busqueda-container button:hover {
+    background-color: #b9651f;
+}
+
+#resultado {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 18px;
+}
 
 
 
@@ -643,26 +656,9 @@ del administrador*/
     font-weight: bold;
 }
 
-.btn-eliminar {
-    text-align: center;
-    align-items: center;
-    background: red;
-    border-radius: 4px;
-    color: white;
-    padding: 3px 8px;
-    color: white;
-    font-weight: 500;
-    display: inline-block;
-}
 
-.btn-modificar {
-    background: var(--color-modificar);
-    border-radius: 4px;
-    color: white;
-    padding: 3px 8px;
-    font-weight: 500;
-    display: inline-block;
-}
+
+
 
 .sin-reservas {
     text-align: center;
@@ -790,15 +786,7 @@ del administrador*/
     display: block;
 }
 
-/*Paleta de colores*/
-.paleta {
-    color: #c74635;
-    color: #E2604f;
-    color: #f1a036;
-    color: #d3892e;
-    color: #2db0b2;
-    color: #269696;
-}
+
 
 /* Fondo general */
 .fondo {
@@ -955,9 +943,7 @@ del administrador*/
     color: red;
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
+
 
 .form-actions {
     display: flex;
@@ -1003,12 +989,7 @@ del administrador*/
     margin-bottom: 15px;
 }
 
-.modal .form-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
+
 
 .modal .form-actions button {
     min-width: 120px;
@@ -1167,11 +1148,7 @@ del administrador*/
     /* Usando la variable para botón modificar */
     color: #333;
     /* Mejor contraste para texto en fondo amarillo */
-
-
-   
     border-radius: 4px;
-    
     padding: 3px 8px;
     font-weight: 500;
     display: inline-block;
@@ -1181,6 +1158,13 @@ del administrador*/
     background-color: var(--color-eliminar);
     /* Usando la variable para botón eliminar */
     color: white;
+     text-align: center;
+    align-items: center;
+    border-radius: 4px;
+    color: white;
+    padding: 3px 8px;
+    font-weight: 500;
+    display: inline-block;
 }
 
 
@@ -1212,17 +1196,10 @@ del administrador*/
     border-left: 6px solid var(--color-accent);
     border-right: 6px solid var(--color-coral);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-
     font-size: 23px;
-
     color: #fff;
-
     border-bottom-right-radius: 10px;
-    margin-left: 17px;
-    ;
-
-
+    margin-left: 17px ;
     display: flex;
 }
 
@@ -1440,29 +1417,29 @@ del administrador*/
     /* Usando la variable para información */
 }
 
- @keyframes slide-in {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
 
-        @keyframes fade-out {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
+@keyframes fade-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
 
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
 
 .toast-close {
     background: none;
