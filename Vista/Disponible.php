@@ -34,7 +34,7 @@ checkRole('Administrador');
      <?php include("../Vista/Sidebar.php"); ?>
 <!------------------------------------------------------------------------------------->
 <section class="Encabezado">
-    <h1><center>Revisar Disponibilidad</center></h1>
+    <h1><center>Revisar Disponibilidad ( MARIAAA TE TOCA)</center></h1>
      </section>
      <section class="Table">
         <Table></Table>
