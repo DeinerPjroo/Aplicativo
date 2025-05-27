@@ -802,6 +802,7 @@ if (isset($_GET['error'])) {
             document.getElementById(modalId).style.display = 'none';
         }
     </script>
+    <script src="../js/reservas_usuarios.js"></script>
 </body>
 
 </html>
