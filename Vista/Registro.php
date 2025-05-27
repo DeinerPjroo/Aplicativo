@@ -73,7 +73,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -100,24 +100,24 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         <div class="btn-reportes">
 
 
-            <button 
-    title="Generar reportes de hoy" 
-    id="generarReporte" 
-    class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>" 
-    <?php if ($filtrosActivos) echo 'disabled'; ?>>
-    <span class="material-symbols-outlined">
-        <img src="../Imagen/Iconos/Today.svg" alt="" />
-    </span>
-</button>
+            <button
+                title="Generar reportes de hoy"
+                id="generarReporte"
+                class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>"
+                <?php if ($filtrosActivos) echo 'disabled'; ?>>
+                <span class="material-symbols-outlined">
+                    <img src="../Imagen/Iconos/Today.svg" alt="" />
+                </span>
+            </button>
 
             <button title="Generar reportes de mañana" id="generarReporteSiguiente"
-    class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>"
-    <?php if ($filtrosActivos) echo 'disabled'; ?>>
-    
-    <span class="material-symbols-outlined">
-        <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
-    </span>
-</button>
+                class="btn-reporte <?php if ($filtrosActivos) echo 'disabled'; ?>"
+                <?php if ($filtrosActivos) echo 'disabled'; ?>>
+
+                <span class="material-symbols-outlined">
+                    <img src="../Imagen/Iconos/Tomorrow.svg" alt="" />
+                </span>
+            </button>
 
             <!-- El de la vista actual no se modifica -->
             <!-- Nuevo botón para reporte de la vista actual -->
