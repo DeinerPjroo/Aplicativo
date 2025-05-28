@@ -16,6 +16,16 @@ checkRole('Administrador');
 
 setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252');
 
+// --- SECCIÓN OPCIONAL: ACTUALIZACIÓN AUTOMÁTICA DE ESTADO DE RESERVAS ---
+// Esta sección actualiza automáticamente a 'Completada' las reservas 'Confirmada' cuya fecha y hora de fin ya pasaron.
+// Actualmente NO es necesaria porque solo se usan los estados 'Confirmada' y 'Cancelada'.
+// Si en el futuro deseas volver a usar el estado 'Completada', solo descomenta el siguiente bloque:
+/*
+$ahora = date('Y-m-d H:i:s');
+$conn->query("UPDATE registro SET estado = 'Completada' WHERE estado = 'Confirmada' AND CONCAT(fechaReserva, ' ', horaFin) < '$ahora'");
+*/
+// --- FIN SECCIÓN OPCIONAL ---
+
 // Obtener recursos para el filtro
 $recursosResult = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
 
@@ -574,7 +584,6 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         <select id="estado" name="estado">
                             <option value="Confirmada">Confirmada</option>
                             <option value="Cancelada">Cancelada</option>
-                            <option value="Completada">Completada</option>
                         </select>
                     </div>
                 </div>
