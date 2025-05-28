@@ -727,32 +727,106 @@
     font-size: 30px;
 }
 
+/* Nueva tabla de reservas con mejoras visuales y dinámicas */
 .tabla-reservas {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-top: 18px;
+    font-size: 15px;
+    animation: fadeInUp 0.7s;
 }
 
-.tabla-reservas th,
-.tabla-reservas td {
-    padding-right: 9px;
-    padding-left: 9px;
-    padding-top: 10px;
-    padding-bottom: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.tabla-reservas th, .tabla-reservas td {
+    padding: 14px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .tabla-reservas th {
-    background-color: #027b80;
-    color: white;
+    background: var(--color-primary);
+    color: #fff;
     font-weight: 600;
-    width: 93%;
-    line-height: 25px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    letter-spacing: 0.5px;
+}
+
+.tabla-reservas tr {
+    transition: background 0.2s;
 }
 
 .tabla-reservas tr:hover {
-    background-color: #f5f5f5;
+    background: #f5f7fa;
+}
+
+.tabla-reservas tr:nth-child(even) {
+    background: #f8fafb;
+}
+
+.tabla-reservas tr.separador-dia td {
+    background: #e0e0e0 !important;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.08em;
+    border-bottom: none;
+}
+
+.tabla-reservas td {
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+/* Badge para estado */
+.tabla-reservas .status-confirmada {
+    background: #2ecc71;
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-size: 0.98em;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(46,204,113,0.08);
+    letter-spacing: 0.5px;
+}
+.tabla-reservas .status-cancelada {
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-size: 0.98em;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(231,76,60,0.08);
+    letter-spacing: 0.5px;
+}
+
+/* Animación de aparición */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .tabla-reservas th, .tabla-reservas td {
+        padding: 8px 4px;
+        font-size: 13px;
+    }
+}
+@media (max-width: 600px) {
+    .tabla-reservas th, .tabla-reservas td {
+        padding: 6px 2px;
+        font-size: 11px;
+    }
+    .tabla-reservas {
+        font-size: 11px;
+    }
 }
 
 /* ===== TABLA DE USUARIOS ===== */
@@ -1186,10 +1260,18 @@
 }
 
 .registro-hoy {
-    background-color: #e0a43cd3;
+    background-color: #e0a43cd3 !important;
 }
 
 .registro-hoy:hover {
+    background-color: #dd9032 !important;
+}
+
+.registro-hoy.registro-cancelado, .registro-cancelado.registro-hoy {
+    background-color: #e0a43cd3 !important;
+}
+
+.registro-hoy.registro-cancelado:hover, .registro-cancelado.registro-hoy:hover {
     background-color: #dd9032 !important;
 }
 
