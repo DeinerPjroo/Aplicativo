@@ -25,17 +25,21 @@ if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $fecha_inicio) ||
     die("Formato de fecha inválido");
 }
 
-// Total de reservas
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM registro WHERE fechaReserva BETWEEN ? AND ?");
+// Total de reservas (solo estados válidos: Confirmada y Cancelada)
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM registro 
+                       WHERE fechaReserva BETWEEN ? AND ? 
+                       AND estado IN ('Confirmada', 'Cancelada')");
 $stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
 $stmt->execute();
 $result = $stmt->get_result();
 $totalReservas = $result->fetch_assoc()['total'];
 
-// Reservas por estado
+// Reservas por estado (solo estados válidos: Confirmada y Cancelada)
 $estados = [];
 $stmt = $conn->prepare("SELECT estado, COUNT(*) as cantidad FROM registro 
-                       WHERE fechaReserva BETWEEN ? AND ? GROUP BY estado");
+                       WHERE fechaReserva BETWEEN ? AND ? 
+                       AND estado IN ('Confirmada', 'Cancelada') 
+                       GROUP BY estado");
 $stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
 $stmt->execute();
 $resEstados = $stmt->get_result();
@@ -43,10 +47,12 @@ while ($row = $resEstados->fetch_assoc()) {
     $estados[$row['estado']] = $row['cantidad'];
 }
 
-// Reservas por recurso
+// Reservas por recurso (solo estados válidos)
 $recursos = [];
 $stmt = $conn->prepare("SELECT rec.nombreRecurso, COUNT(*) as cantidad FROM registro r JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso 
-                       WHERE r.fechaReserva BETWEEN ? AND ? GROUP BY rec.nombreRecurso");
+                       WHERE r.fechaReserva BETWEEN ? AND ? 
+                       AND r.estado IN ('Confirmada', 'Cancelada') 
+                       GROUP BY rec.nombreRecurso");
 $stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
 $stmt->execute();
 $resRecursos = $stmt->get_result();
@@ -54,9 +60,12 @@ while ($row = $resRecursos->fetch_assoc()) {
     $recursos[$row['nombreRecurso']] = $row['cantidad'];
 }
 
-// Reservas por día
+// Reservas por día (solo estados válidos)
 $dias = [];
-$stmt = $conn->prepare("SELECT fechaReserva, COUNT(*) as cantidad FROM registro WHERE fechaReserva BETWEEN ? AND ? GROUP BY fechaReserva ORDER BY fechaReserva ASC");
+$stmt = $conn->prepare("SELECT fechaReserva, COUNT(*) as cantidad FROM registro 
+                       WHERE fechaReserva BETWEEN ? AND ? 
+                       AND estado IN ('Confirmada', 'Cancelada') 
+                       GROUP BY fechaReserva ORDER BY fechaReserva ASC");
 $stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
 $stmt->execute();
 $resDias = $stmt->get_result();
@@ -64,10 +73,12 @@ while ($row = $resDias->fetch_assoc()) {
     $dias[$row['fechaReserva']] = $row['cantidad'];
 }
 
-// Reservas por rol
+// Reservas por rol (solo estados válidos)
 $roles = [];
 $stmt = $conn->prepare("SELECT rol.nombreRol, COUNT(*) as cantidad FROM registro r JOIN usuario u ON r.ID_Usuario = u.ID_Usuario JOIN rol ON u.ID_Rol = rol.ID_Rol 
-                       WHERE r.fechaReserva BETWEEN ? AND ? GROUP BY rol.nombreRol");
+                       WHERE r.fechaReserva BETWEEN ? AND ? 
+                       AND r.estado IN ('Confirmada', 'Cancelada') 
+                       GROUP BY rol.nombreRol");
 $stmt->bind_param("ss", $fecha_inicio, $fecha_fin);
 $stmt->execute();
 $resRoles = $stmt->get_result();
@@ -75,7 +86,7 @@ while ($row = $resRoles->fetch_assoc()) {
     $roles[$row['nombreRol']] = $row['cantidad'];
 }
 
-// Reservas por programa
+// Reservas por programa (solo estados válidos)
 $programas = [];
 $stmt = $conn->prepare("
     SELECT COALESCE(p.nombrePrograma, 'Sin programa') AS nombrePrograma, COUNT(*) as cantidad
@@ -83,6 +94,7 @@ $stmt = $conn->prepare("
     LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
     LEFT JOIN programa p ON u.ID_Programa = p.ID_Programa
     WHERE r.fechaReserva BETWEEN ? AND ?
+    AND r.estado IN ('Confirmada', 'Cancelada')
     GROUP BY p.nombrePrograma
     ORDER BY cantidad DESC
 ");
