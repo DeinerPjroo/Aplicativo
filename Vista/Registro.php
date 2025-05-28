@@ -212,36 +212,40 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     // Consulta SQL para obtener los registros de reservas con sus relaciones.
 
                     $sql = "SELECT 
-                        r.ID_Registro,
-                        r.fechaReserva,
-                        r.horaInicio,
-                        r.horaFin,
-                        r.salon, -- Añadido campo salón
-                        rc.nombreRecurso,
-                        u.nombre AS nombreUsuario,
-                        u.correo AS correoUsuario,
-                        u.Codigo_U,
-                        u.ID_Rol,
-                        CASE 
-                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
-                            ELSE COALESCE(doc.nombre, 'Sin docente')
-                        END AS nombreDocente,
-                        COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
-                        COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
-                        CASE 
-                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(r.semestre, 'Sin semestre')
-                            ELSE 'No aplica'
-                        END AS semestre,
-                        r.estado
-                    FROM registro r
-                    LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
-                    LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
-                    LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
-                    LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
-                    LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
-                    LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
-                    WHERE 1=1 $filtroSQL
-                    ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
+    r.ID_Registro,
+    r.fechaReserva,
+    r.horaInicio,
+    r.horaFin,
+    r.salon,
+    r.ID_Recurso,
+    rc.nombreRecurso,
+    u.nombre AS nombreUsuario,
+    u.correo AS correoUsuario,
+    u.Codigo_U,
+    u.ID_Rol,
+    CASE 
+        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
+        ELSE COALESCE(doc.nombre, 'Sin docente')
+    END AS nombreDocente,
+    doc.ID_Usuario AS id_docente,
+    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+    asig.ID_Asignatura,
+    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
+    pr.ID_Programa,
+    CASE 
+        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(r.semestre, 'Sin semestre')
+        ELSE 'No aplica'
+    END AS semestre,
+    r.estado
+FROM registro r
+LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
+LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
+LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
+LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
+WHERE 1=1 $filtroSQL
+ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
 
                     // Ejecuta la consulta y obtiene los resultados.
                     $result = $conn->query($sql);
@@ -295,13 +299,25 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
         </button>
         <div class=\"menu-desplegable\">
-            <a href=\"#\" onclick='mostrarModal({
-                \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
-                \"fechaReserva\": \"" . date('Y-m-d', strtotime($row['fechaReserva'])) . "\",
-                \"horaInicio\": \"" . date('H:i', strtotime($row['horaInicio'])) . "\",
-                \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
-                \"estado\": \"" . $row['estado'] . "\"
-            }); return false;' class=\"menu-opcion\">Modificar</a>
+            <a href=\"#\" 
+                onclick='mostrarModal({
+                    \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
+                    \"fechaReserva\": \"" . date('Y-m-d', strtotime($row['fechaReserva'])) . "\",
+                    \"horaInicio\": \"" . date('H:i', strtotime($row['horaInicio'])) . "\",
+                    \"horaFin\": \"" . date('H:i', strtotime($row['horaFin'])) . "\",
+                    \"estado\": \"" . $row['estado'] . "\",
+                    \"correo\": \"" . addslashes($row['correoUsuario']) . "\",
+                    \"id_recurso\": \"" . addslashes($row['ID_Recurso']) . "\",
+                    \"recurso\": \"" . addslashes($row['nombreRecurso']) . "\",
+                    \"id_programa\": \"" . addslashes($row['ID_Programa']) . "\",
+                    \"programa\": \"" . addslashes($row['programa']) . "\",
+                    \"id_docente\": \"" . addslashes($row['id_docente']) . "\",
+                    \"docente\": \"" . addslashes($row['nombreDocente']) . "\",
+                    \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",
+                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
+                    \"salon\": \"" . addslashes($row['salon']) . "\",
+                    \"semestre\": \"" . addslashes($row['semestre']) . "\",
+                }); return false;' class=\"menu-opcion\">Modificar</a>
             <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion\">Eliminar</a>
         </div>
     </div>
@@ -657,76 +673,127 @@ $(document).ready(function() {
     });
 
     // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
-    function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
-        var docenteSelect = $('#docente_modificar');
-        docenteSelect.html('<option value="">Cargando...</option>');
-        $('#asignatura_modificar').html('<option value="">Seleccione una Asignatura</option>');
-        if(programaId) {
-            $.ajax({
-                url: '../Controlador/ControladorObtener.php?tipo=docentes',
-                method: 'POST',
-                data: { id_programa: programaId },
-                dataType: 'json',
-                success: function(data) {
-                    docenteSelect.html('<option value="">Seleccione un Docente</option>');
-                    if (data.data) {
-                        data.data.forEach(function(docente) {
-                            var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
-                            docenteSelect.append('<option value="'+docente.ID_Usuario+'" '+selected+'>'+docente.nombre+'</option>');
-                        });
-                    }
+});
+
+// --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
+function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
+    var docenteSelect = $('#docente_modificar');
+    docenteSelect.html('<option value="">Cargando...</option>');
+    $('#asignatura_modificar').html('<option value="">Seleccione una Asignatura</option>');
+    if(programaId) {
+        $.ajax({
+            url: '../Controlador/ControladorObtener.php?tipo=docentes',
+            method: 'POST',
+            data: { id_programa: programaId },
+            dataType: 'json',
+            success: function(data) {
+                docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                if (data.data) {
+                    data.data.forEach(function(docente) {
+                        var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
+                        docenteSelect.append('<option value="'+docente.ID_Usuario+'" '+selected+'>'+docente.nombre+'</option>');
+                    });
                 }
-            });
-        } else {
-            docenteSelect.html('<option value="">Seleccione un Docente</option>');
-        }
+            }
+        });
+    } else {
+        docenteSelect.html('<option value="">Seleccione un Docente</option>');
     }
-    function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
-        var asignaturaSelect = $('#asignatura_modificar');
-        asignaturaSelect.html('<option value="">Cargando...</option>');
-        if(docenteId && programaId) {
-            $.ajax({
-                url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
-                method: 'POST',
-                data: { id_docente: docenteId, id_programa: programaId },
-                dataType: 'json',
-                success: function(data) {
-                    asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-                    if (data.data) {
-                        data.data.forEach(function(asig) {
-                            var selected = asignaturaIdSeleccionada == asig.ID_Asignatura ? 'selected' : '';
-                            asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'" '+selected+'>'+asig.nombreAsignatura+'</option>');
-                        });
-                    }
+}
+function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
+    var asignaturaSelect = $('#asignatura_modificar');
+    asignaturaSelect.html('<option value="">Cargando...</option>');
+    if(docenteId && programaId) {
+        $.ajax({
+            url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+            method: 'POST',
+            data: { id_docente: docenteId, id_programa: programaId },
+            dataType: 'json',
+            success: function(data) {
+                asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                if (data.data) {
+                    data.data.forEach(function(asig) {
+                        var selected = asignaturaIdSeleccionada == asig.ID_Asignatura ? 'selected' : '';
+                        asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'" '+selected+'>'+asig.nombreAsignatura+'</option>');
+                    });
                 }
-            });
-        } else {
-            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-        }
+            }
+        });
+    } else {
+        asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
     }
-    // Mostrar/ocultar campo salón según recurso seleccionado
-    $('#recurso_modificar').on('change', function() {
-        var selected = $(this).find('option:selected');
-        var nombre = selected.data('nombre');
-        if (nombre && nombre.toLowerCase().includes('videobeam')) {
+}
+// --- FIN MODIFICAR ---
+
+// Función para mostrar el modal de modificar y rellenar los campos
+function mostrarModal(data) {
+    $('#modalModificar').show();
+    $('#registro_id').val(data.ID_Registro || '');
+    $('#correo_modificar').val(data.correo || '');
+    $('#fecha_modificar').val(data.fechaReserva || '');
+    $('#hora_inicio_modificar').val(data.horaInicio || '');
+    $('#hora_fin_modificar').val(data.horaFin || '');
+    $('#estado').val(data.estado || 'Confirmada');
+    $('#salon_modificar').val(data.salon || '');
+    $('#semestre_modificar').val(data.semestre || '');
+    $('#celular_modificar').val(data.celular || '');
+
+    if (data.id_recurso) {
+        $('#recurso_modificar').val(data.id_recurso);
+    }
+    if (data.id_programa) {
+        $('#programa_modificar').val(data.id_programa);
+    }
+
+    // Para depuración
+    console.log('ID Programa:', data.id_programa);
+    console.log('ID Docente:', data.id_docente);
+    console.log('ID Asignatura:', data.id_asignatura);
+
+    cargarDocentesModificar(data.id_programa, data.id_docente);
+
+    var docenteInterval = setInterval(function() {
+        var docenteSel = $('#docente_modificar');
+        if (docenteSel.find('option[value="' + data.id_docente + '"]').length > 0) {
+            clearInterval(docenteInterval);
+            docenteSel.val(data.id_docente);
+
+            cargarAsignaturasModificar(data.id_docente, data.id_programa, data.id_asignatura);
+
+            var asignaturaInterval = setInterval(function() {
+                var asigSel = $('#asignatura_modificar');
+                if (asigSel.find('option[value="' + data.id_asignatura + '"]').length > 0) {
+                    clearInterval(asignaturaInterval);
+                    asigSel.val(data.id_asignatura);
+                }
+            }, 100);
+        }
+    }, 100);
+
+    setTimeout(function() {
+        var recursoNombre = $('#recurso_modificar option:selected').data('nombre') || '';
+        if (recursoNombre.toLowerCase().includes('videobeam')) {
             $('#grupo_salon_modificar').show();
         } else {
             $('#grupo_salon_modificar').hide();
-            $('#salon_modificar').val('');
         }
-    });
-    // Cargar docentes según programa seleccionado
-    $('#programa_modificar').on('change', function() {
-        var programaId = $(this).val();
-        cargarDocentesModificar(programaId);
-    });
-    // Cargar asignaturas según docente y programa
-    $('#docente_modificar').on('change', function() {
-        var docenteId = $(this).val();
-        var programaId = $('#programa_modificar').val();
-        cargarAsignaturasModificar(docenteId, programaId);
-    });
-    // --- FIN MODIFICAR ---
+    }, 200);
+}
+
+// Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
+$('#programa_modificar').on('change', function() {
+    var programaId = $(this).val();
+    // Limpiar selección de docente y asignatura
+    $('#docente_modificar').val('');
+    $('#asignatura_modificar').val('');
+    cargarDocentesModificar(programaId, '');
+});
+// Al cambiar el docente en el modal de modificar, actualizar asignaturas
+$('#docente_modificar').on('change', function() {
+    var docenteId = $(this).val();
+    var programaId = $('#programa_modificar').val();
+    $('#asignatura_modificar').val('');
+    cargarAsignaturasModificar(docenteId, programaId, '');
 });
 </script>
 </body>

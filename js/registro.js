@@ -109,6 +109,49 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Manejador para el formulario de modificar reserva (modal admin)
+    const formModificar = document.getElementById('formModificarRegistro');
+    if (formModificar) {
+        formModificar.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const fecha = formModificar.fecha.value;
+            const horaInicio = formModificar.horaInicio.value;
+            const horaFin = formModificar.horaFin.value;
+            if (!validarRegistro(fecha, horaInicio, horaFin)) return;
+            const formData = new FormData(formModificar);
+            let data;
+            try {
+                const response = await fetch('../Controlador/ControladorRegistro.php?accion=modificar', {
+                    method: 'POST',
+                    body: formData
+                });
+                data = await response.json();
+            } catch (error) {
+                showToast('Error de conexión al guardar', 'error');
+                return;
+            }
+            if (data && data.status === 'success') {
+                showToast(data.message || 'Registro modificado correctamente', 'success');
+                cerrarModal();
+                const id = formModificar.registro_id.value;
+                const fila = document.querySelector(`tr[data-registro-id='${id}']`);
+                if (fila) {
+                    try {
+                        fila.querySelector('.td-fecha').textContent = fecha;
+                        fila.querySelector('.td-hora-inicio').textContent = horaInicio;
+                        fila.querySelector('.td-hora-fin').textContent = horaFin;
+                        fila.querySelector('.td-salon').textContent = formModificar.salon.value;
+                        fila.querySelector('.td-semestre').textContent = formModificar.semestre.value;
+                    } catch (e) {
+                        // Si alguna celda no existe, no mostrar error al usuario
+                    }
+                }
+            } else {
+                showToast((data && data.message) || 'Error al modificar la reserva', 'error');
+            }
+        });
+    }
 });
 
 /**

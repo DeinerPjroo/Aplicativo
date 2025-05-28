@@ -95,9 +95,25 @@ switch ($accion) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['registro_id'];
             $fecha = $_POST['fecha'];
-            $hora_inicio = $_POST['hora_inicio'];
-            $hora_fin = $_POST['hora_fin'];
+            $hora_inicio = $_POST['hora_inicio'] ?? $_POST['horaInicio'] ?? null;
+            $hora_fin = $_POST['hora_fin'] ?? $_POST['horaFin'] ?? null;
             $estado = $_POST['estado'];
+            $programa = $_POST['programa'] ?? null;
+            $docente = $_POST['docente'] ?? null;
+            $asignatura = $_POST['asignatura'] ?? null;
+            $semestre = $_POST['semestre'] ?? null;
+            $salon = $_POST['salon'] ?? null;
+            $id_docente_asignatura = null;
+            if ($docente && $asignatura) {
+                $stmtDA = $conn->prepare("SELECT ID_DocenteAsignatura FROM docente_asignatura WHERE ID_Usuario = ? AND ID_Asignatura = ? LIMIT 1");
+                $stmtDA->bind_param("ii", $docente, $asignatura);
+                $stmtDA->execute();
+                $resDA = $stmtDA->get_result();
+                if ($rowDA = $resDA->fetch_assoc()) {
+                    $id_docente_asignatura = $rowDA['ID_DocenteAsignatura'];
+                }
+                $stmtDA->close();
+            }
             if (!$fecha || !$hora_inicio || !$hora_fin || !$id) {
                 echo json_encode(['status' => 'error', 'message' => 'Faltan datos']);
                 exit;
@@ -111,7 +127,7 @@ switch ($accion) {
             }
             $sqlRecurso = "SELECT ID_Recurso FROM registro WHERE ID_Registro = ?";
             $stmtRecurso = $conn->prepare($sqlRecurso);
-            $stmtRecurso->bind_param("i", $id);
+            $stmtRecurso->bind_param("s", $id);
             $stmtRecurso->execute();
             $resultRecurso = $stmtRecurso->get_result();
             $rowRecurso = $resultRecurso->fetch_assoc();
@@ -130,9 +146,10 @@ switch ($accion) {
                 echo json_encode(['status' => 'error', 'message' => 'El recurso no está disponible en ese horario']);
                 exit;
             }
-            $sqlUpdate = "UPDATE registro SET fechaReserva = ?, horaInicio = ?, horaFin = ?, estado = ? WHERE ID_Registro = ?";
+            // Actualizar todos los campos relevantes
+            $sqlUpdate = "UPDATE registro SET fechaReserva = ?, horaInicio = ?, horaFin = ?, estado = ?, semestre = ?, salon = ?, ID_DocenteAsignatura = ? WHERE ID_Registro = ?";
             $stmtUpdate = $conn->prepare($sqlUpdate);
-            $stmtUpdate->bind_param("ssssi", $fecha, $hora_inicio, $hora_fin, $estado, $id);
+            $stmtUpdate->bind_param("ssssssis", $fecha, $hora_inicio, $hora_fin, $estado, $semestre, $salon, $id_docente_asignatura, $id);
             if ($stmtUpdate->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Registro actualizado correctamente']);
             } else {
