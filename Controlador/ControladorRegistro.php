@@ -27,6 +27,22 @@ switch ($accion) {
             $horaInicio = $_POST['hora_inicio'] ?? $_POST['horaInicio'] ?? null;
             $horaFin = $_POST['hora_fin'] ?? $_POST['horaFin'] ?? null;
             $estado = 'Confirmada';
+            // NUEVO: obtener docente y asignatura
+            $docente = $_POST['docente'] ?? null;
+            $asignatura = $_POST['asignatura'] ?? null;
+            $id_docente_asignatura = null;
+            if ($docente && $asignatura) {
+                // Buscar el ID_DocenteAsignatura correspondiente
+                $stmtDA = $conn->prepare("SELECT ID_DocenteAsignatura FROM docente_asignatura WHERE ID_Usuario = ? AND ID_Asignatura = ? LIMIT 1");
+                $stmtDA->bind_param("ii", $docente, $asignatura);
+                $stmtDA->execute();
+                $resDA = $stmtDA->get_result();
+                if ($rowDA = $resDA->fetch_assoc()) {
+                    $id_docente_asignatura = $rowDA['ID_DocenteAsignatura'];
+                }
+                $stmtDA->close();
+            }
+            // ...validaciones existentes...
             if (!$id_registro) { throw new Exception('Falta id_registro'); }
             if (!$usuario) { throw new Exception('Falta usuario'); }
             if (!$recurso) { throw new Exception('Falta recurso'); }
@@ -58,10 +74,10 @@ switch ($accion) {
             if ($row['conteo'] > 0) {
                 throw new Exception('El recurso no está disponible en ese horario');
             }
-            // Insertar con el ID personalizado
-            $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // Insertar con el ID personalizado y el ID_DocenteAsignatura si existe
+            $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado, ID_DocenteAsignatura) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("siissss", $id_registro, $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado);
+            $stmt->bind_param("siissssi", $id_registro, $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado, $id_docente_asignatura);
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Registro agregado correctamente']);
             } else {

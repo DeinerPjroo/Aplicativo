@@ -32,9 +32,16 @@ $fechaActual = date("Y-m-d");
 
 // Consulta para obtener reservas del usuario actual (pendientes y confirmadas)
 $sql = "SELECT r.ID_Registro, r.fechaReserva, r.horaInicio, r.horaFin, 
-               rec.nombreRecurso, r.estado, r.creado_en
+               rec.nombreRecurso, r.estado, r.creado_en,
+               COALESCE(doc.nombre, 'Sin docente') AS nombreDocente,
+               COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+               COALESCE(pr.nombrePrograma, 'Sin programa') AS programa
         FROM registro r
         JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso
+        LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+        LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
+        LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
+        LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
         WHERE r.ID_Usuario = ? 
         AND r.fechaReserva >= ? 
         AND r.estado = 'Confirmada'
@@ -117,12 +124,15 @@ if (isset($_GET['error'])) {
                     <thead>
                         <tr>
                             <th>Recurso</th>
-                            <th>Fecha</th>
-                            <th>Hora Inicio</th>
-                            <th>Hora Fin</th>
-                            <th>Estado</th>
-                            <th>Fecha de Solicitud</th>
-                            <th>Acciones</th>
+<th>Fecha</th>
+<th>Hora Inicio</th>
+<th>Hora Fin</th>
+<th>Programa</th>
+<th>Docente</th>
+<th>Asignatura</th>
+<th>Estado</th>
+<th>Fecha de Solicitud</th>
+<th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,40 +140,42 @@ if (isset($_GET['error'])) {
                         $fechaAnterior = null;
                         while ($row = $resultado->fetch_assoc()) :
                             $fechaActual = $row['fechaReserva'];
-
                             if ($fechaActual !== $fechaAnterior) :
                                 echo "<tr class='separador-dia'>
-                                    <td colspan='7' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
-                                        📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
-                                    </td>
-                                </tr>";
+            <td colspan='10' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+            </td>
+        </tr>";
                                 $fechaAnterior = $fechaActual;
                             endif;
                         ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($row['nombreRecurso']); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($row['fechaReserva'])); ?></td>
-                                <td><?php echo date('h:i A', strtotime($row['horaInicio'])); ?></td>
-                                <td><?php echo date('h:i A', strtotime($row['horaFin'])); ?></td>
-                                <td>
-                                    <span class="status-<?php echo strtolower($row['estado']); ?>">
-                                        <?php echo $row['estado']; ?>
-                                    </span>
-                                </td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($row['creado_en'])); ?></td>
-                                <td>
-                                    <?php if ($row['estado'] === 'Confirmada'): ?>
-                                        <form method="post" action="../Controlador/Cancelar_Reserva.php" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
-                                            <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
-                                            <button type="submit" name="cancelar" class="btn-cancelar">
-                                                Cancelar
-                                            </button>
-                                        </form>
-                                    <?php else: ?>
-                                        <span>—</span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
+    <td><?php echo htmlspecialchars($row['nombreRecurso']); ?></td>
+    <td><?php echo date('d/m/Y', strtotime($row['fechaReserva'])); ?></td>
+    <td><?php echo date('h:i A', strtotime($row['horaInicio'])); ?></td>
+    <td><?php echo date('h:i A', strtotime($row['horaFin'])); ?></td>
+    <td><?php echo htmlspecialchars($row['programa']); ?></td>
+    <td><?php echo htmlspecialchars($row['nombreDocente']); ?></td>
+    <td><?php echo htmlspecialchars($row['asignatura']); ?></td>
+    <td>
+        <span class="status-<?php echo strtolower($row['estado']); ?>">
+            <?php echo $row['estado']; ?>
+        </span>
+    </td>
+    <td><?php echo date('d/m/Y H:i', strtotime($row['creado_en'])); ?></td>
+    <td>
+        <?php if ($row['estado'] === 'Confirmada'): ?>
+            <form method="post" action="../Controlador/Cancelar_Reserva.php" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
+                <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
+                <button type="submit" name="cancelar" class="btn-cancelar">
+                    Cancelar
+                </button>
+            </form>
+        <?php else: ?>
+            <span>—</span>
+        <?php endif; ?>
+    </td>
+</tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
