@@ -335,7 +335,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
                     // Obtener usuarios para el modal de agregar antes de cerrar la conexión
                     $usuarios = $conn->query("
-                        SELECT u.ID_Usuario, u.nombre, u.ID_Rol, r.nombreRol 
+                        SELECT u.ID_Usuario, u.nombre, u.ID_Rol, u.codigo_u, u.correo, r.nombreRol 
                         FROM usuario u 
                         INNER JOIN rol r ON u.ID_Rol = r.ID_Rol
                         ORDER BY r.nombreRol, u.nombre
@@ -361,14 +361,13 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             <span class="close" onclick="cerrarModalAgregar()">&times;</span>
             <h2>Agregar Registro</h2>
             <form id="formAgregarRegistro">
-                <!-- Ejemplo de campos, personaliza según tu modelo -->
                 <div class="form-group">
                     <label for="usuario_agregar">Usuario</label>
                     <select id="usuario_agregar" name="usuario">
                         <option value="">Seleccione un usuario</option>
                         <?php foreach ($usuariosData as $u): ?>
-                            <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>">
-                                <?= htmlspecialchars($u['nombre']) ?> (<?= htmlspecialchars($u['ID_Rol']) ?>)
+                            <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
+                                <?= htmlspecialchars($u['nombre']) ?> (Código: <?= htmlspecialchars($u['codigo_u']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -378,6 +377,17 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     <input type="date" id="fecha_agregar" name="fecha" required>
                 </div>
                 <div class="form-group">
+                    <label for="recurso_agregar">Recurso</label>
+                    <select id="recurso_agregar" name="recurso" required>
+                        <option value="">Seleccione un recurso</option>
+                        <?php foreach ($recursosData as $r): ?>
+                            <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
+                                <?= htmlspecialchars($r['nombreRecurso']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="hora_inicio_agregar">Hora Inicio</label>
                     <input type="time" id="hora_inicio_agregar" name="horaInicio" required>
                 </div>
@@ -385,7 +395,53 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                     <label for="hora_fin_agregar">Hora Fin</label>
                     <input type="time" id="hora_fin_agregar" name="horaFin" required>
                 </div>
-                <!-- Agrega más campos según tu necesidad -->
+                <div class="form-group">
+                    <label for="programa_agregar">Programa/Dependencia</label>
+                    <select id="programa_agregar" name="programa">
+                        <option value="">Seleccione un programa</option>
+                        <?php foreach ($programasData as $p): ?>
+                            <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="docente_agregar">Docente</label>
+                    <select id="docente_agregar" name="docente">
+                        <option value="">Seleccione un Docente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="asignatura_agregar">Asignatura</label>
+                    <select id="asignatura_agregar" name="asignatura">
+                        <option value="">Seleccione una Asignatura</option>
+                    </select>
+                </div>
+                <div class="form-group" id="grupo_salon_agregar" style="display:none;">
+                    <label for="salon_agregar">Salón</label>
+                    <input type="text" id="salon_agregar" name="salon">
+                </div>
+                <div class="form-group">
+                    <label for="semestre_agregar">Semestre</label>
+                    <select id="semestre_agregar" name="semestre">
+                        <option value="">Seleccione el semestre</option>
+                        <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+                        for ($i = 1; $i <= 10; $i++): ?>
+                            <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="celular_agregar">Celular</label>
+                    <input type="text" id="celular_agregar" name="celular">
+                </div>
+                <div class="form-group">
+                    <label for="correo_agregar">Correo</label>
+                    <input type="email" id="correo_agregar" name="correo" readonly>
+                </div>
+                <div class="form-group" id="grupo_nombre_estudiante" style="display:none;">
+                    <label for="nombre_estudiante_agregar">Nombre del Estudiante</label>
+                    <input type="text" id="nombre_estudiante_agregar" name="nombre_estudiante" readonly>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-confirmar">Guardar</button>
                     <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
@@ -446,6 +502,77 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     <!-- Fin Modal Eliminar -->
 
     <script src="../js/registro.js"></script>
+    <script>
+$(document).ready(function() {
+    // Al cambiar el usuario, poner el correo correspondiente en el campo correo y mostrar nombre estudiante si aplica
+    $('#usuario_agregar').on('change', function() {
+        var selected = $(this).find('option:selected');
+        var correo = selected.data('correo') || '';
+        var rol = selected.data('rol');
+        var nombre = selected.text().split(' (')[0];
+        $('#correo_agregar').val(correo);
+        if (rol == 1) { // 1 = Estudiante
+            $('#grupo_nombre_estudiante').show();
+            $('#nombre_estudiante_agregar').val(nombre);
+        } else {
+            $('#grupo_nombre_estudiante').hide();
+            $('#nombre_estudiante_agregar').val('');
+        }
+    });
+
+    // Cargar docentes según programa seleccionado
+    $('#programa_agregar').on('change', function() {
+        var programaId = $(this).val();
+        var docenteSelect = $('#docente_agregar');
+        docenteSelect.html('<option value="">Cargando...</option>');
+        $('#asignatura_agregar').html('<option value="">Seleccione una Asignatura</option>');
+        if(programaId) {
+            $.ajax({
+                url: '../Controlador/ControladorObtener.php?tipo=docentes',
+                method: 'POST',
+                data: { id_programa: programaId },
+                dataType: 'json',
+                success: function(data) {
+                    docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                    if (data.data) {
+                        data.data.forEach(function(docente) {
+                            docenteSelect.append('<option value="'+docente.ID_Usuario+'">'+docente.nombre+'</option>');
+                        });
+                    }
+                }
+            });
+        } else {
+            docenteSelect.html('<option value="">Seleccione un Docente</option>');
+        }
+    });
+
+    // Cargar asignaturas según docente y programa
+    $('#docente_agregar').on('change', function() {
+        var docenteId = $(this).val();
+        var programaId = $('#programa_agregar').val();
+        var asignaturaSelect = $('#asignatura_agregar');
+        asignaturaSelect.html('<option value="">Cargando...</option>');
+        if(docenteId && programaId) {
+            $.ajax({
+                url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+                method: 'POST',
+                data: { id_docente: docenteId, id_programa: programaId },
+                dataType: 'json',
+                success: function(data) {
+                    asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                    if (data.data) {
+                        data.data.forEach(function(asig) {
+                            asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'">'+asig.nombreAsignatura+'</option>');
+                        });
+                    }
+                }
+            });
+        } else {
+            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+        }
+    });
+});
+</script>
 </body>
 
 </html>
