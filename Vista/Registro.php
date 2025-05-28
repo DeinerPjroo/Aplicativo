@@ -229,7 +229,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                         COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
                         COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
                         CASE 
-                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(u.semestre, 'Sin semestre')
+                            WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(r.semestre, 'Sin semestre')
                             ELSE 'No aplica'
                         END AS semestre,
                         r.estado
@@ -360,93 +360,105 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         <div class="modal-content">
             <span class="close" onclick="cerrarModalAgregar()">&times;</span>
             <h2>Agregar Registro</h2>
-            <form id="formAgregarRegistro">
-                <div class="form-group">
-                    <label for="usuario_agregar">Usuario</label>
-                    <select id="usuario_agregar" name="usuario">
-                        <option value="">Seleccione un usuario</option>
-                        <?php foreach ($usuariosData as $u): ?>
-                            <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
-                                <?= htmlspecialchars($u['nombre']) ?> (Código: <?= htmlspecialchars($u['codigo_u']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_agregar">Fecha</label>
-                    <input type="date" id="fecha_agregar" name="fecha" required>
-                </div>
-                <div class="form-group">
-                    <label for="recurso_agregar">Recurso</label>
-                    <select id="recurso_agregar" name="recurso" required>
-                        <option value="">Seleccione un recurso</option>
-                        <?php foreach ($recursosData as $r): ?>
-                            <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
-                                <?= htmlspecialchars($r['nombreRecurso']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="hora_inicio_agregar">Hora Inicio</label>
-                    <input type="time" id="hora_inicio_agregar" name="horaInicio" required>
-                </div>
-                <div class="form-group">
-                    <label for="hora_fin_agregar">Hora Fin</label>
-                    <input type="time" id="hora_fin_agregar" name="horaFin" required>
-                </div>
-                <div class="form-group">
-                    <label for="programa_agregar">Programa/Dependencia</label>
-                    <select id="programa_agregar" name="programa">
-                        <option value="">Seleccione un programa</option>
-                        <?php foreach ($programasData as $p): ?>
-                            <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="docente_agregar">Docente</label>
-                    <select id="docente_agregar" name="docente">
-                        <option value="">Seleccione un Docente</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="asignatura_agregar">Asignatura</label>
-                    <select id="asignatura_agregar" name="asignatura">
-                        <option value="">Seleccione una Asignatura</option>
-                    </select>
-                </div>
-                <div class="form-group" id="grupo_salon_agregar" style="display:none;">
-                    <label for="salon_agregar">Salón</label>
-                    <input type="text" id="salon_agregar" name="salon">
-                </div>
-                <div class="form-group">
-                    <label for="semestre_agregar">Semestre</label>
-                    <select id="semestre_agregar" name="semestre">
-                        <option value="">Seleccione el semestre</option>
-                        <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-                        for ($i = 1; $i <= 10; $i++): ?>
-                            <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
-                        <?php endfor; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="celular_agregar">Celular</label>
-                    <input type="text" id="celular_agregar" name="celular">
-                </div>
-                <div class="form-group">
-                    <label for="correo_agregar">Correo</label>
-                    <input type="email" id="correo_agregar" name="correo" readonly>
-                </div>
-                <div class="form-group" id="grupo_nombre_estudiante" style="display:none;">
-                    <label for="nombre_estudiante_agregar">Nombre del Estudiante</label>
-                    <input type="text" id="nombre_estudiante_agregar" name="nombre_estudiante" readonly>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-confirmar">Guardar</button>
-                    <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
-                </div>
-            </form>
+            <form id="formAgregarRegistro" class="form-dinamico">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="usuario_agregar">Usuario</label>
+            <select id="usuario_agregar" name="usuario" class="input-dinamico">
+                <option value="">Seleccione un usuario</option>
+                <?php foreach ($usuariosData as $u): ?>
+                    <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
+                        <?= htmlspecialchars($u['nombre']) ?> (Código: <?= htmlspecialchars($u['codigo_u']) ?>)
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="correo_agregar">Correo</label>
+            <input type="email" id="correo_agregar" name="correo" class="input-dinamico" readonly>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="fecha_agregar">Fecha</label>
+            <input type="date" id="fecha_agregar" name="fecha" class="input-dinamico" required>
+        </div>
+        <div class="form-group">
+            <label for="recurso_agregar">Recurso</label>
+            <select id="recurso_agregar" name="recurso" class="input-dinamico" required>
+                <option value="">Seleccione un recurso</option>
+                <?php foreach ($recursosData as $r): ?>
+                    <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
+                        <?= htmlspecialchars($r['nombreRecurso']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="hora_inicio_agregar">Hora Inicio</label>
+            <input type="time" id="hora_inicio_agregar" name="horaInicio" class="input-dinamico" required>
+        </div>
+        <div class="form-group">
+            <label for="hora_fin_agregar">Hora Fin</label>
+            <input type="time" id="hora_fin_agregar" name="horaFin" class="input-dinamico" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="programa_agregar">Programa/Dependencia</label>
+            <select id="programa_agregar" name="programa" class="input-dinamico">
+                <option value="">Seleccione un programa</option>
+                <?php foreach ($programasData as $p): ?>
+                    <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="docente_agregar">Docente</label>
+            <select id="docente_agregar" name="docente" class="input-dinamico">
+                <option value="">Seleccione un Docente</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="asignatura_agregar">Asignatura</label>
+            <select id="asignatura_agregar" name="asignatura" class="input-dinamico">
+                <option value="">Seleccione una Asignatura</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group" id="grupo_salon_agregar" style="display:none;">
+            <label for="salon_agregar">Salón</label>
+            <input type="text" id="salon_agregar" name="salon" class="input-dinamico">
+        </div>
+        <div class="form-group">
+            <label for="semestre_agregar">Semestre</label>
+            <select id="semestre_agregar" name="semestre" class="input-dinamico">
+                <option value="">Seleccione el semestre</option>
+                <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+                for ($i = 1; $i <= 10; $i++): ?>
+                    <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
+                <?php endfor; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="celular_agregar">Celular</label>
+            <input type="text" id="celular_agregar" name="celular" class="input-dinamico">
+        </div>
+    </div>
+    <div class="form-row" id="grupo_nombre_estudiante" style="display:none;">
+        <div class="form-group">
+            <label for="nombre_estudiante_agregar">Nombre del Estudiante</label>
+            <input type="text" id="nombre_estudiante_agregar" name="nombre_estudiante" class="input-dinamico" readonly>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn-confirmar">Guardar</button>
+        <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
+    </div>
+</form>
         </div>
     </div>
     <!-- Fin Modal Agregar -->
@@ -456,27 +468,99 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         <div class="modal-content">
             <span class="close" onclick="cerrarModal()">&times;</span>
             <h2>Modificar Registro</h2>
-            <form id="formModificarRegistro">
+            <form id="formModificarRegistro" class="form-dinamico">
                 <input type="hidden" id="registro_id" name="registro_id">
-                <div class="form-group">
-                    <label for="fecha">Fecha</label>
-                    <input type="date" id="fecha" name="fecha" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="correo_modificar">Correo</label>
+                        <input type="email" id="correo_modificar" name="correo" class="input-dinamico" readonly>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="hora_inicio">Hora Inicio</label>
-                    <input type="time" id="hora_inicio" name="horaInicio" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_modificar">Fecha</label>
+                        <input type="date" id="fecha_modificar" name="fecha" class="input-dinamico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recurso_modificar">Recurso</label>
+                        <select id="recurso_modificar" name="recurso" class="input-dinamico" required>
+                            <option value="">Seleccione un recurso</option>
+                            <?php foreach ($recursosData as $r): ?>
+                                <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
+                                    <?= htmlspecialchars($r['nombreRecurso']) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="hora_fin">Hora Fin</label>
-                    <input type="time" id="hora_fin" name="horaFin" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hora_inicio_modificar">Hora Inicio</label>
+                        <input type="time" id="hora_inicio_modificar" name="horaInicio" class="input-dinamico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hora_fin_modificar">Hora Fin</label>
+                        <input type="time" id="hora_fin_modificar" name="horaFin" class="input-dinamico" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="estado">Estado</label>
-                    <select id="estado" name="estado">
-                        <option value="Confirmada">Confirmada</option>
-                        <option value="Cancelada">Cancelada</option>
-                        <option value="Completada">Completada</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="programa_modificar">Programa/Dependencia</label>
+                        <select id="programa_modificar" name="programa" class="input-dinamico">
+                            <option value="">Seleccione un programa</option>
+                            <?php foreach ($programasData as $p): ?>
+                                <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="docente_modificar">Docente</label>
+                        <select id="docente_modificar" name="docente" class="input-dinamico">
+                            <option value="">Seleccione un Docente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignatura_modificar">Asignatura</label>
+                        <select id="asignatura_modificar" name="asignatura" class="input-dinamico">
+                            <option value="">Seleccione una Asignatura</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" id="grupo_salon_modificar" style="display:none;">
+                        <label for="salon_modificar">Salón</label>
+                        <input type="text" id="salon_modificar" name="salon" class="input-dinamico">
+                    </div>
+                    <div class="form-group">
+                        <label for="semestre_modificar">Semestre</label>
+                        <select id="semestre_modificar" name="semestre" class="input-dinamico">
+                            <option value="">Seleccione el semestre</option>
+                            <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+                            for ($i = 1; $i <= 10; $i++): ?>
+                                <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="celular_modificar">Celular</label>
+                        <input type="text" id="celular_modificar" name="celular" class="input-dinamico">
+                    </div>
+                </div>
+                <div class="form-row" id="grupo_nombre_estudiante_modificar" style="display:none;">
+                    <div class="form-group">
+                        <label for="nombre_estudiante_modificar">Nombre del Estudiante</label>
+                        <input type="text" id="nombre_estudiante_modificar" name="nombre_estudiante" class="input-dinamico" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="Confirmada">Confirmada</option>
+                            <option value="Cancelada">Cancelada</option>
+                            <option value="Completada">Completada</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-confirmar">Guardar Cambios</button>
@@ -571,6 +655,78 @@ $(document).ready(function() {
             asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
         }
     });
+
+    // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
+    function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
+        var docenteSelect = $('#docente_modificar');
+        docenteSelect.html('<option value="">Cargando...</option>');
+        $('#asignatura_modificar').html('<option value="">Seleccione una Asignatura</option>');
+        if(programaId) {
+            $.ajax({
+                url: '../Controlador/ControladorObtener.php?tipo=docentes',
+                method: 'POST',
+                data: { id_programa: programaId },
+                dataType: 'json',
+                success: function(data) {
+                    docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                    if (data.data) {
+                        data.data.forEach(function(docente) {
+                            var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
+                            docenteSelect.append('<option value="'+docente.ID_Usuario+'" '+selected+'>'+docente.nombre+'</option>');
+                        });
+                    }
+                }
+            });
+        } else {
+            docenteSelect.html('<option value="">Seleccione un Docente</option>');
+        }
+    }
+    function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
+        var asignaturaSelect = $('#asignatura_modificar');
+        asignaturaSelect.html('<option value="">Cargando...</option>');
+        if(docenteId && programaId) {
+            $.ajax({
+                url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+                method: 'POST',
+                data: { id_docente: docenteId, id_programa: programaId },
+                dataType: 'json',
+                success: function(data) {
+                    asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                    if (data.data) {
+                        data.data.forEach(function(asig) {
+                            var selected = asignaturaIdSeleccionada == asig.ID_Asignatura ? 'selected' : '';
+                            asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'" '+selected+'>'+asig.nombreAsignatura+'</option>');
+                        });
+                    }
+                }
+            });
+        } else {
+            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+        }
+    }
+    // Mostrar/ocultar campo salón según recurso seleccionado
+    $('#recurso_modificar').on('change', function() {
+        var selected = $(this).find('option:selected');
+        var nombre = selected.data('nombre');
+        if (nombre && nombre.toLowerCase().includes('videobeam')) {
+            $('#grupo_salon_modificar').show();
+        } else {
+            $('#grupo_salon_modificar').hide();
+            $('#salon_modificar').val('');
+        }
+    });
+    // Cargar docentes según programa seleccionado
+    $('#programa_modificar').on('change', function() {
+        var programaId = $(this).val();
+        cargarDocentesModificar(programaId);
+    });
+    // Cargar asignaturas según docente y programa
+    $('#docente_modificar').on('change', function() {
+        var docenteId = $(this).val();
+        var programaId = $('#programa_modificar').val();
+        cargarAsignaturasModificar(docenteId, programaId);
+    });
+    // --- FIN MODIFICAR ---
 });
 </script>
 </body>

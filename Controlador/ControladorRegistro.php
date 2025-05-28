@@ -30,6 +30,8 @@ switch ($accion) {
             // NUEVO: obtener docente y asignatura
             $docente = $_POST['docente'] ?? null;
             $asignatura = $_POST['asignatura'] ?? null;
+            $semestre = $_POST['semestre'] ?? null; // <-- Agregado correctamente
+            $salon = $_POST['salon'] ?? null; // <-- Agregado correctamente
             $id_docente_asignatura = null;
             if ($docente && $asignatura) {
                 // Buscar el ID_DocenteAsignatura correspondiente
@@ -74,10 +76,10 @@ switch ($accion) {
             if ($row['conteo'] > 0) {
                 throw new Exception('El recurso no está disponible en ese horario');
             }
-            // Insertar con el ID personalizado y el ID_DocenteAsignatura si existe
-            $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado, ID_DocenteAsignatura) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            // Insertar con todos los campos relevantes
+            $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado, ID_DocenteAsignatura, semestre, salon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("siissssi", $id_registro, $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado, $id_docente_asignatura);
+            $stmt->bind_param("siissssiss", $id_registro, $usuario, $recurso, $fecha, $horaInicio, $horaFin, $estado, $id_docente_asignatura, $semestre, $salon);
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Registro agregado correctamente']);
             } else {

@@ -72,6 +72,43 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("generarReporte")?.addEventListener("click", () => {/* lógica */});
     document.getElementById("generarReporteSiguiente")?.addEventListener("click", () => {/* lógica */});
     document.getElementById("generarReporteVista")?.addEventListener("click", () => {/* lógica */});
+
+    // Manejador para el formulario de agregar reserva (modal admin)
+    const formAgregar = document.getElementById('formAgregarRegistro');
+    if (formAgregar) {
+        formAgregar.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            // Obtener valores
+            const fecha = formAgregar.fecha.value;
+            const horaInicio = formAgregar.horaInicio.value;
+            const horaFin = formAgregar.horaFin.value;
+            if (!validarRegistro(fecha, horaInicio, horaFin)) return;
+            // Enviar por AJAX
+            const formData = new FormData(formAgregar);
+            // Generar un id_registro si no existe
+            if (!formData.get('id_registro')) {
+                const hoy = fecha || new Date().toISOString().split('T')[0];
+                const random = Math.random().toString(36).substr(2, 4).toUpperCase();
+                formData.append('id_registro', hoy.replace(/-/g, '') + '-' + random);
+            }
+            try {
+                const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showToast(data.message || 'Reserva agregada correctamente', 'success');
+                    cerrarModalAgregar();
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    showToast(data.message || 'Error al agregar la reserva', 'error');
+                }
+            } catch (error) {
+                showToast('Error de conexión al guardar', 'error');
+            }
+        });
+    }
 });
 
 /**
@@ -85,12 +122,54 @@ function toggleMenu(button) {
 
 // Funciones para modales de modificar/agregar/eliminar
 function mostrarModal(registro) {
-    document.getElementById('registro_id').value = registro.ID_Registro;
-    document.getElementById('fecha').value = registro.fechaReserva;
-    document.getElementById('hora_inicio').value = registro.horaInicio;
-    document.getElementById('hora_fin').value = registro.horaFin;
-    document.getElementById('estado').value = registro.estado;
+    // Abrir el modal
     document.getElementById('modalModificar').style.display = 'block';
+    // Rellenar campos básicos
+    document.getElementById('registro_id').value = registro.ID_Registro;
+    document.getElementById('fecha_modificar').value = registro.fechaReserva;
+    document.getElementById('hora_inicio_modificar').value = registro.horaInicio;
+    document.getElementById('hora_fin_modificar').value = registro.horaFin;
+    document.getElementById('estado').value = registro.estado;
+    // Rellenar campos adicionales si están presentes en el objeto registro
+    if (registro.correoUsuario) {
+        document.getElementById('correo_modificar').value = registro.correoUsuario;
+    }
+    if (registro.recurso) {
+        document.getElementById('recurso_modificar').value = registro.recurso;
+        // Disparar el evento para mostrar/ocultar salón
+        $('#recurso_modificar').trigger('change');
+    }
+    if (registro.salon !== undefined) {
+        document.getElementById('salon_modificar').value = registro.salon;
+    }
+    if (registro.programa) {
+        document.getElementById('programa_modificar').value = registro.programa;
+        $('#programa_modificar').trigger('change');
+    }
+    if (registro.docente) {
+        setTimeout(function() {
+            document.getElementById('docente_modificar').value = registro.docente;
+            $('#docente_modificar').trigger('change');
+        }, 200);
+    }
+    if (registro.asignatura) {
+        setTimeout(function() {
+            document.getElementById('asignatura_modificar').value = registro.asignatura;
+        }, 400);
+    }
+    if (registro.semestre) {
+        document.getElementById('semestre_modificar').value = registro.semestre;
+    }
+    if (registro.celular) {
+        document.getElementById('celular_modificar').value = registro.celular;
+    }
+    if (registro.nombre_estudiante) {
+        document.getElementById('grupo_nombre_estudiante_modificar').style.display = 'block';
+        document.getElementById('nombre_estudiante_modificar').value = registro.nombre_estudiante;
+    } else {
+        document.getElementById('grupo_nombre_estudiante_modificar').style.display = 'none';
+        document.getElementById('nombre_estudiante_modificar').value = '';
+    }
 }
 function cerrarModal() {
     document.getElementById('modalModificar').style.display = 'none';
