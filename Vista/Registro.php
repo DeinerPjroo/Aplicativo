@@ -196,32 +196,33 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
 
             </form>
-            <table class="tabla-reservas">
-                <thead>
-                    <!-- Encabezados de la tabla -->
-                    <tr>
-                        <th>ID Registro</th>
-                        <th>Recurso</th>
-                        <th>Fecha</th>
-                        <th>Hora Inicio</th>
-                        <th>Hora Fin</th>
-                        <th>Salón</th> <!-- Nuevo campo Salón -->
-                        <th>Código U</th>
-                        <th>Nombre Usuario</th>
-                        <th>Correo</th>
-                        <th>Nombre Docente</th>
-                        <th>Asignatura</th>
-                        <th>Programa</th>
-                        <th>Semestre</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Consulta SQL para obtener los registros de reservas con sus relaciones.
+            <div class="tabla-scroll">
+                <table class="tabla-reservas">
+                    <thead>
+                        <!-- Encabezados de la tabla -->
+                        <tr>
+                            <th>ID Registro</th>
+                            <th>Recurso</th>
+                            <th>Fecha</th>
+                            <th>Hora Inicio</th>
+                            <th>Hora Fin</th>
+                            <th>Salón</th> <!-- Nuevo campo Salón -->
+                            <th>Código U</th>
+                            <th>Nombre Usuario</th>
+                            <th>Correo</th>
+                            <th>Nombre Docente</th>
+                            <th>Asignatura</th>
+                            <th>Programa</th>
+                            <th>Semestre</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Consulta SQL para obtener los registros de reservas con sus relaciones.
 
-                    $sql = "SELECT 
+                        $sql = "SELECT 
     r.ID_Registro,
     r.fechaReserva,
     r.horaInicio,
@@ -257,38 +258,38 @@ LEFT JOIN programa pr ON asig.ID_Programa = pr.ID_Programa
 WHERE 1=1 $filtroSQL
 ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recientes primero
 
-                    // Ejecuta la consulta y obtiene los resultados.
-                    $result = $conn->query($sql);
-                    $fechaHoy = date("Y-m-d"); // Obtener la fecha actual
+                        // Ejecuta la consulta y obtiene los resultados.
+                        $result = $conn->query($sql);
+                        $fechaHoy = date("Y-m-d"); // Obtener la fecha actual
 
-                    // Verifica si hay registros disponibles.
-                    if ($result->num_rows > 0) {
-                        // Itera sobre los resultados y los muestra en la tabla.
-                        $fechaAnterior = null;
+                        // Verifica si hay registros disponibles.
+                        if ($result->num_rows > 0) {
+                            // Itera sobre los resultados y los muestra en la tabla.
+                            $fechaAnterior = null;
 
-                        while ($row = $result->fetch_assoc()) {
-                            $fechaActual = $row['fechaReserva'];
-                            $esHoy = ($fechaActual === $fechaHoy); // Verificar si es el día actual
+                            while ($row = $result->fetch_assoc()) {
+                                $fechaActual = $row['fechaReserva'];
+                                $esHoy = ($fechaActual === $fechaHoy); // Verificar si es el día actual
 
-                            if ($fechaActual !== $fechaAnterior) {
-                                // Mostrar encabezado de día SIN data-registro-id
-                                echo "<tr class='separador-dia'>
+                                if ($fechaActual !== $fechaAnterior) {
+                                    // Mostrar encabezado de día SIN data-registro-id
+                                    echo "<tr class='separador-dia'>
         <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
             📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
         </td>
       </tr>";
-                                $fechaAnterior = $fechaActual;
-                            }
+                                    $fechaAnterior = $fechaActual;
+                                }
 
-                            // Agregar clase especial para registros del día actual y cancelados
-                            $claseHoy = $esHoy ? "registro-hoy" : "";
-                            $claseCancelado = $row['estado'] === 'Cancelada' ? "registro-cancelado" : "";
+                                // Agregar clase especial para registros del día actual y cancelados
+                                $claseHoy = $esHoy ? "registro-hoy" : "";
+                                $claseCancelado = $row['estado'] === 'Cancelada' ? "registro-cancelado" : "";
 
-                            // Combinar las clases
-                            $clases = trim("$claseHoy $claseCancelado");
+                                // Combinar las clases
+                                $clases = trim("$claseHoy $claseCancelado");
 
-                            // Ahora tu fila normal de datos
-                            echo "<tr class='$clases' data-registro-id='" . $row['ID_Registro'] . "'>
+                                // Ahora tu fila normal de datos
+                                echo "<tr class='$clases' data-registro-id='" . $row['ID_Registro'] . "'>
 <td>" . htmlspecialchars($row['ID_Registro']) . "</td>
 <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
 <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
@@ -333,51 +334,52 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
     </div>
 </td>
 </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";
-                    }
 
-                    // Obtener usuarios, programas y recursos
-                    $usuarios = $conn->query("SELECT ID_Usuario, nombre, ID_Rol FROM usuario");
-                    $usuariosData = [];
-                    while ($u = $usuarios->fetch_assoc()) {
-                        $usuariosData[] = $u;
-                    }
+                        // Obtener usuarios, programas y recursos
+                        $usuarios = $conn->query("SELECT ID_Usuario, nombre, ID_Rol FROM usuario");
+                        $usuariosData = [];
+                        while ($u = $usuarios->fetch_assoc()) {
+                            $usuariosData[] = $u;
+                        }
 
-                    // Obtener programas para estudiantes
-                    $programas = $conn->query("SELECT ID_Programa, nombrePrograma FROM programa");
-                    $programasData = [];
-                    while ($p = $programas->fetch_assoc()) {
-                        $programasData[] = $p;
-                    }
+                        // Obtener programas para estudiantes
+                        $programas = $conn->query("SELECT ID_Programa, nombrePrograma FROM programa");
+                        $programasData = [];
+                        while ($p = $programas->fetch_assoc()) {
+                            $programasData[] = $p;
+                        }
 
-                    // Obtener recursos para el modal
-                    $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
-                    $recursosData = [];
-                    while ($r = $recursos->fetch_assoc()) {
-                        $recursosData[] = $r;
-                    }
+                        // Obtener recursos para el modal
+                        $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                        $recursosData = [];
+                        while ($r = $recursos->fetch_assoc()) {
+                            $recursosData[] = $r;
+                        }
 
-                    // Obtener usuarios para el modal de agregar antes de cerrar la conexión
-                    $usuarios = $conn->query("
-                        SELECT u.ID_Usuario, u.nombre, u.ID_Rol, u.codigo_u, u.correo, r.nombreRol 
-                        FROM usuario u 
-                        INNER JOIN rol r ON u.ID_Rol = r.ID_Rol
-                        ORDER BY r.nombreRol, u.nombre
-                    ");
+                        // Obtener usuarios para el modal de agregar antes de cerrar la conexión
+                        $usuarios = $conn->query("
+                            SELECT u.ID_Usuario, u.nombre, u.ID_Rol, u.codigo_u, u.correo, r.nombreRol 
+                            FROM usuario u 
+                            INNER JOIN rol r ON u.ID_Rol = r.ID_Rol
+                            ORDER BY r.nombreRol, u.nombre
+                        ");
 
-                    echo "<!-- Debug roles: -->";
-                    $usuariosData = [];
-                    while ($u = $usuarios->fetch_assoc()) {
-                        echo "<!-- {$u['nombre']} - Rol: {$u['nombreRol']} (ID: {$u['ID_Rol']}) -->";
-                        $usuariosData[] = $u;
-                    }
+                        echo "<!-- Debug roles: -->";
+                        $usuariosData = [];
+                        while ($u = $usuarios->fetch_assoc()) {
+                            echo "<!-- {$u['nombre']} - Rol: {$u['nombreRol']} (ID: {$u['ID_Rol']}) -->";
+                            $usuariosData[] = $u;
+                        }
 
-                    $conn->close();
-                    ?>
-                </tbody>
-            </table>
+                        $conn->close();
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
@@ -387,104 +389,104 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             <span class="close" onclick="cerrarModalAgregar()">&times;</span>
             <h2>Agregar Registro</h2>
             <form id="formAgregarRegistro" class="form-dinamico">
-    <div class="form-row">
-        <div class="form-group">
-            <label for="usuario_agregar">Usuario</label>
-            <select id="usuario_agregar" name="usuario" class="input-dinamico">
-                <option value="">Seleccione un usuario</option>
-                <?php foreach ($usuariosData as $u): ?>
-                    <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
-                        <?= htmlspecialchars($u['nombre']) ?> (Código: <?= htmlspecialchars($u['codigo_u']) ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="correo_agregar">Correo</label>
-            <input type="email" id="correo_agregar" name="correo" class="input-dinamico" readonly>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="fecha_agregar">Fecha</label>
-            <input type="date" id="fecha_agregar" name="fecha" class="input-dinamico" required>
-        </div>
-        <div class="form-group">
-            <label for="recurso_agregar">Recurso</label>
-            <select id="recurso_agregar" name="recurso" class="input-dinamico" required>
-                <option value="">Seleccione un recurso</option>
-                <?php foreach ($recursosData as $r): ?>
-                    <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
-                        <?= htmlspecialchars($r['nombreRecurso']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="hora_inicio_agregar">Hora Inicio</label>
-            <input type="time" id="hora_inicio_agregar" name="horaInicio" class="input-dinamico" required>
-        </div>
-        <div class="form-group">
-            <label for="hora_fin_agregar">Hora Fin</label>
-            <input type="time" id="hora_fin_agregar" name="horaFin" class="input-dinamico" required>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="programa_agregar">Programa/Dependencia</label>
-            <select id="programa_agregar" name="programa" class="input-dinamico">
-                <option value="">Seleccione un programa</option>
-                <?php foreach ($programasData as $p): ?>
-                    <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="docente_agregar">Docente</label>
-            <select id="docente_agregar" name="docente" class="input-dinamico">
-                <option value="">Seleccione un Docente</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="asignatura_agregar">Asignatura</label>
-            <select id="asignatura_agregar" name="asignatura" class="input-dinamico">
-                <option value="">Seleccione una Asignatura</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group" id="grupo_salon_agregar" style="display:none;">
-            <label for="salon_agregar">Salón</label>
-            <input type="text" id="salon_agregar" name="salon" class="input-dinamico">
-        </div>
-        <div class="form-group">
-            <label for="semestre_agregar">Semestre</label>
-            <select id="semestre_agregar" name="semestre" class="input-dinamico">
-                <option value="">Seleccione el semestre</option>
-                <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-                for ($i = 1; $i <= 10; $i++): ?>
-                    <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
-                <?php endfor; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="celular_agregar">Celular</label>
-            <input type="text" id="celular_agregar" name="celular" class="input-dinamico">
-        </div>
-    </div>
-    <div class="form-row" id="grupo_nombre_estudiante" style="display:none;">
-        <div class="form-group">
-            <label for="nombre_estudiante_agregar">Nombre del Estudiante</label>
-            <input type="text" id="nombre_estudiante_agregar" name="nombre_estudiante" class="input-dinamico" readonly>
-        </div>
-    </div>
-    <div class="form-actions">
-        <button type="submit" class="btn-confirmar">Guardar</button>
-        <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
-    </div>
-</form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="usuario_agregar">Usuario</label>
+                        <select id="usuario_agregar" name="usuario" class="input-dinamico">
+                            <option value="">Seleccione un usuario</option>
+                            <?php foreach ($usuariosData as $u): ?>
+                                <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
+                                    <?= htmlspecialchars($u['nombre']) ?> (Código: <?= htmlspecialchars($u['codigo_u']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo_agregar">Correo</label>
+                        <input type="email" id="correo_agregar" name="correo" class="input-dinamico" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_agregar">Fecha</label>
+                        <input type="date" id="fecha_agregar" name="fecha" class="input-dinamico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recurso_agregar">Recurso</label>
+                        <select id="recurso_agregar" name="recurso" class="input-dinamico" required>
+                            <option value="">Seleccione un recurso</option>
+                            <?php foreach ($recursosData as $r): ?>
+                                <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
+                                    <?= htmlspecialchars($r['nombreRecurso']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hora_inicio_agregar">Hora Inicio</label>
+                        <input type="time" id="hora_inicio_agregar" name="horaInicio" class="input-dinamico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hora_fin_agregar">Hora Fin</label>
+                        <input type="time" id="hora_fin_agregar" name="horaFin" class="input-dinamico" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="programa_agregar">Programa/Dependencia</label>
+                        <select id="programa_agregar" name="programa" class="input-dinamico">
+                            <option value="">Seleccione un programa</option>
+                            <?php foreach ($programasData as $p): ?>
+                                <option value="<?= $p['ID_Programa'] ?>"><?= htmlspecialchars($p['nombrePrograma']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="docente_agregar">Docente</label>
+                        <select id="docente_agregar" name="docente" class="input-dinamico">
+                            <option value="">Seleccione un Docente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignatura_agregar">Asignatura</label>
+                        <select id="asignatura_agregar" name="asignatura" class="input-dinamico">
+                            <option value="">Seleccione una Asignatura</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" id="grupo_salon_agregar" style="display:none;">
+                        <label for="salon_agregar">Salón</label>
+                        <input type="text" id="salon_agregar" name="salon" class="input-dinamico">
+                    </div>
+                    <div class="form-group">
+                        <label for="semestre_agregar">Semestre</label>
+                        <select id="semestre_agregar" name="semestre" class="input-dinamico">
+                            <option value="">Seleccione el semestre</option>
+                            <?php $romanos = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+                            for ($i = 1; $i <= 10; $i++): ?>
+                                <option value="<?= $romanos[$i - 1] ?>"><?= $romanos[$i - 1] ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="celular_agregar">Celular</label>
+                        <input type="text" id="celular_agregar" name="celular" class="input-dinamico">
+                    </div>
+                </div>
+                <div class="form-row" id="grupo_nombre_estudiante" style="display:none;">
+                    <div class="form-group">
+                        <label for="nombre_estudiante_agregar">Nombre del Estudiante</label>
+                        <input type="text" id="nombre_estudiante_agregar" name="nombre_estudiante" class="input-dinamico" readonly>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-confirmar">Guardar</button>
+                    <button type="button" onclick="cerrarModalAgregar()" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
     <!-- Fin Modal Agregar -->
@@ -514,7 +516,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                             <?php foreach ($recursosData as $r): ?>
                                 <option value="<?= $r['ID_Recurso'] ?>" data-nombre="<?= htmlspecialchars($r['nombreRecurso']) ?>">
                                     <?= htmlspecialchars($r['nombreRecurso']) ?>
-                            </option>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -612,199 +614,210 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
 
     <script src="../js/registro.js"></script>
     <script>
-$(document).ready(function() {
-    // Al cambiar el usuario, poner el correo correspondiente en el campo correo y mostrar nombre estudiante si aplica
-    $('#usuario_agregar').on('change', function() {
-        var selected = $(this).find('option:selected');
-        var correo = selected.data('correo') || '';
-        var rol = selected.data('rol');
-        var nombre = selected.text().split(' (')[0];
-        $('#correo_agregar').val(correo);
-        if (rol == 1) { // 1 = Estudiante
-            $('#grupo_nombre_estudiante').show();
-            $('#nombre_estudiante_agregar').val(nombre);
-        } else {
-            $('#grupo_nombre_estudiante').hide();
-            $('#nombre_estudiante_agregar').val('');
-        }
-    });
+        $(document).ready(function() {
+            // Al cambiar el usuario, poner el correo correspondiente en el campo correo y mostrar nombre estudiante si aplica
+            $('#usuario_agregar').on('change', function() {
+                var selected = $(this).find('option:selected');
+                var correo = selected.data('correo') || '';
+                var rol = selected.data('rol');
+                var nombre = selected.text().split(' (')[0];
+                $('#correo_agregar').val(correo);
+                if (rol == 1) { // 1 = Estudiante
+                    $('#grupo_nombre_estudiante').show();
+                    $('#nombre_estudiante_agregar').val(nombre);
+                } else {
+                    $('#grupo_nombre_estudiante').hide();
+                    $('#nombre_estudiante_agregar').val('');
+                }
+            });
 
-    // Cargar docentes según programa seleccionado
-    $('#programa_agregar').on('change', function() {
-        var programaId = $(this).val();
-        var docenteSelect = $('#docente_agregar');
-        docenteSelect.html('<option value="">Cargando...</option>');
-        $('#asignatura_agregar').html('<option value="">Seleccione una Asignatura</option>');
-        if(programaId) {
-            $.ajax({
-                url: '../Controlador/ControladorObtener.php?tipo=docentes',
-                method: 'POST',
-                data: { id_programa: programaId },
-                dataType: 'json',
-                success: function(data) {
+            // Cargar docentes según programa seleccionado
+            $('#programa_agregar').on('change', function() {
+                var programaId = $(this).val();
+                var docenteSelect = $('#docente_agregar');
+                docenteSelect.html('<option value="">Cargando...</option>');
+                $('#asignatura_agregar').html('<option value="">Seleccione una Asignatura</option>');
+                if (programaId) {
+                    $.ajax({
+                        url: '../Controlador/ControladorObtener.php?tipo=docentes',
+                        method: 'POST',
+                        data: {
+                            id_programa: programaId
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                            if (data.data) {
+                                data.data.forEach(function(docente) {
+                                    docenteSelect.append('<option value="' + docente.ID_Usuario + '">' + docente.nombre + '</option>');
+                                });
+                            }
+                        }
+                    });
+                } else {
                     docenteSelect.html('<option value="">Seleccione un Docente</option>');
-                    if (data.data) {
-                        data.data.forEach(function(docente) {
-                            docenteSelect.append('<option value="'+docente.ID_Usuario+'">'+docente.nombre+'</option>');
-                        });
-                    }
                 }
             });
-        } else {
-            docenteSelect.html('<option value="">Seleccione un Docente</option>');
-        }
-    });
 
-    // Cargar asignaturas según docente y programa
-    $('#docente_agregar').on('change', function() {
-        var docenteId = $(this).val();
-        var programaId = $('#programa_agregar').val();
-        var asignaturaSelect = $('#asignatura_agregar');
-        asignaturaSelect.html('<option value="">Cargando...</option>');
-        if(docenteId && programaId) {
-            $.ajax({
-                url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
-                method: 'POST',
-                data: { id_docente: docenteId, id_programa: programaId },
-                dataType: 'json',
-                success: function(data) {
+            // Cargar asignaturas según docente y programa
+            $('#docente_agregar').on('change', function() {
+                var docenteId = $(this).val();
+                var programaId = $('#programa_agregar').val();
+                var asignaturaSelect = $('#asignatura_agregar');
+                asignaturaSelect.html('<option value="">Cargando...</option>');
+                if (docenteId && programaId) {
+                    $.ajax({
+                        url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+                        method: 'POST',
+                        data: {
+                            id_docente: docenteId,
+                            id_programa: programaId
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                            if (data.data) {
+                                data.data.forEach(function(asig) {
+                                    asignaturaSelect.append('<option value="' + asig.ID_Asignatura + '">' + asig.nombreAsignatura + '</option>');
+                                });
+                            }
+                        }
+                    });
+                } else {
                     asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-                    if (data.data) {
-                        data.data.forEach(function(asig) {
-                            asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'">'+asig.nombreAsignatura+'</option>');
-                        });
-                    }
                 }
             });
-        } else {
-            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-        }
-    });
 
-    // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
-});
+            // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
+        });
 
-// --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
-function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
-    var docenteSelect = $('#docente_modificar');
-    docenteSelect.html('<option value="">Cargando...</option>');
-    $('#asignatura_modificar').html('<option value="">Seleccione una Asignatura</option>');
-    if(programaId) {
-        $.ajax({
-            url: '../Controlador/ControladorObtener.php?tipo=docentes',
-            method: 'POST',
-            data: { id_programa: programaId },
-            dataType: 'json',
-            success: function(data) {
+        // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
+        function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
+            var docenteSelect = $('#docente_modificar');
+            docenteSelect.html('<option value="">Cargando...</option>');
+            $('#asignatura_modificar').html('<option value="">Seleccione una Asignatura</option>');
+            if (programaId) {
+                $.ajax({
+                    url: '../Controlador/ControladorObtener.php?tipo=docentes',
+                    method: 'POST',
+                    data: {
+                        id_programa: programaId
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                        if (data.data) {
+                            data.data.forEach(function(docente) {
+                                var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
+                                docenteSelect.append('<option value="' + docente.ID_Usuario + '" ' + selected + '>' + docente.nombre + '</option>');
+                            });
+                        }
+                    }
+                });
+            } else {
                 docenteSelect.html('<option value="">Seleccione un Docente</option>');
-                if (data.data) {
-                    data.data.forEach(function(docente) {
-                        var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
-                        docenteSelect.append('<option value="'+docente.ID_Usuario+'" '+selected+'>'+docente.nombre+'</option>');
-                    });
-                }
             }
-        });
-    } else {
-        docenteSelect.html('<option value="">Seleccione un Docente</option>');
-    }
-}
-function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
-    var asignaturaSelect = $('#asignatura_modificar');
-    asignaturaSelect.html('<option value="">Cargando...</option>');
-    if(docenteId && programaId) {
-        $.ajax({
-            url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
-            method: 'POST',
-            data: { id_docente: docenteId, id_programa: programaId },
-            dataType: 'json',
-            success: function(data) {
+        }
+
+        function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
+            var asignaturaSelect = $('#asignatura_modificar');
+            asignaturaSelect.html('<option value="">Cargando...</option>');
+            if (docenteId && programaId) {
+                $.ajax({
+                    url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+                    method: 'POST',
+                    data: {
+                        id_docente: docenteId,
+                        id_programa: programaId
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                        if (data.data) {
+                            data.data.forEach(function(asig) {
+                                var selected = asignaturaIdSeleccionada == asig.ID_Asignatura ? 'selected' : '';
+                                asignaturaSelect.append('<option value="' + asig.ID_Asignatura + '" ' + selected + '>' + asig.nombreAsignatura + '</option>');
+                            });
+                        }
+                    }
+                });
+            } else {
                 asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-                if (data.data) {
-                    data.data.forEach(function(asig) {
-                        var selected = asignaturaIdSeleccionada == asig.ID_Asignatura ? 'selected' : '';
-                        asignaturaSelect.append('<option value="'+asig.ID_Asignatura+'" '+selected+'>'+asig.nombreAsignatura+'</option>');
-                    });
-                }
             }
-        });
-    } else {
-        asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-    }
-}
-// --- FIN MODIFICAR ---
+        }
+        // --- FIN MODIFICAR ---
 
-// Función para mostrar el modal de modificar y rellenar los campos
-function mostrarModal(data) {
-    $('#modalModificar').show();
-    $('#registro_id').val(data.ID_Registro || '');
-    $('#correo_modificar').val(data.correo || '');
-    $('#fecha_modificar').val(data.fechaReserva || '');
-    $('#hora_inicio_modificar').val(data.horaInicio || '');
-    $('#hora_fin_modificar').val(data.horaFin || '');
-    $('#estado').val(data.estado || 'Confirmada');
-    $('#salon_modificar').val(data.salon || '');
-    $('#semestre_modificar').val(data.semestre || '');
-    $('#celular_modificar').val(data.celular || '');
+        // Función para mostrar el modal de modificar y rellenar los campos
+        function mostrarModal(data) {
+            $('#modalModificar').show();
+            $('#registro_id').val(data.ID_Registro || '');
+            $('#correo_modificar').val(data.correo || '');
+            $('#fecha_modificar').val(data.fechaReserva || '');
+            $('#hora_inicio_modificar').val(data.horaInicio || '');
+            $('#hora_fin_modificar').val(data.horaFin || '');
+            $('#estado').val(data.estado || 'Confirmada');
+            $('#salon_modificar').val(data.salon || '');
+            $('#semestre_modificar').val(data.semestre || '');
+            $('#celular_modificar').val(data.celular || '');
 
-    if (data.id_recurso) {
-        $('#recurso_modificar').val(data.id_recurso);
-    }
-    if (data.id_programa) {
-        $('#programa_modificar').val(data.id_programa);
-    }
+            if (data.id_recurso) {
+                $('#recurso_modificar').val(data.id_recurso);
+            }
+            if (data.id_programa) {
+                $('#programa_modificar').val(data.id_programa);
+            }
 
-    // Para depuración
-    console.log('ID Programa:', data.id_programa);
-    console.log('ID Docente:', data.id_docente);
-    console.log('ID Asignatura:', data.id_asignatura);
+            // Para depuración
+            console.log('ID Programa:', data.id_programa);
+            console.log('ID Docente:', data.id_docente);
+            console.log('ID Asignatura:', data.id_asignatura);
 
-    cargarDocentesModificar(data.id_programa, data.id_docente);
+            cargarDocentesModificar(data.id_programa, data.id_docente);
 
-    var docenteInterval = setInterval(function() {
-        var docenteSel = $('#docente_modificar');
-        if (docenteSel.find('option[value="' + data.id_docente + '"]').length > 0) {
-            clearInterval(docenteInterval);
-            docenteSel.val(data.id_docente);
+            var docenteInterval = setInterval(function() {
+                var docenteSel = $('#docente_modificar');
+                if (docenteSel.find('option[value="' + data.id_docente + '"]').length > 0) {
+                    clearInterval(docenteInterval);
+                    docenteSel.val(data.id_docente);
 
-            cargarAsignaturasModificar(data.id_docente, data.id_programa, data.id_asignatura);
+                    cargarAsignaturasModificar(data.id_docente, data.id_programa, data.id_asignatura);
 
-            var asignaturaInterval = setInterval(function() {
-                var asigSel = $('#asignatura_modificar');
-                if (asigSel.find('option[value="' + data.id_asignatura + '"]').length > 0) {
-                    clearInterval(asignaturaInterval);
-                    asigSel.val(data.id_asignatura);
+                    var asignaturaInterval = setInterval(function() {
+                        var asigSel = $('#asignatura_modificar');
+                        if (asigSel.find('option[value="' + data.id_asignatura + '"]').length > 0) {
+                            clearInterval(asignaturaInterval);
+                            asigSel.val(data.id_asignatura);
+                        }
+                    }, 100);
                 }
             }, 100);
-        }
-    }, 100);
 
-    setTimeout(function() {
-        var recursoNombre = $('#recurso_modificar option:selected').data('nombre') || '';
-        if (recursoNombre.toLowerCase().includes('videobeam')) {
-            $('#grupo_salon_modificar').show();
-        } else {
-            $('#grupo_salon_modificar').hide();
+            setTimeout(function() {
+                var recursoNombre = $('#recurso_modificar option:selected').data('nombre') || '';
+                if (recursoNombre.toLowerCase().includes('videobeam')) {
+                    $('#grupo_salon_modificar').show();
+                } else {
+                    $('#grupo_salon_modificar').hide();
+                }
+            }, 200);
         }
-    }, 200);
-}
 
-// Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
-$('#programa_modificar').on('change', function() {
-    var programaId = $(this).val();
-    // Limpiar selección de docente y asignatura
-    $('#docente_modificar').val('');
-    $('#asignatura_modificar').val('');
-    cargarDocentesModificar(programaId, '');
-});
-// Al cambiar el docente en el modal de modificar, actualizar asignaturas
-$('#docente_modificar').on('change', function() {
-    var docenteId = $(this).val();
-    var programaId = $('#programa_modificar').val();
-    $('#asignatura_modificar').val('');
-    cargarAsignaturasModificar(docenteId, programaId, '');
-});
-</script>
+        // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
+        $('#programa_modificar').on('change', function() {
+            var programaId = $(this).val();
+            // Limpiar selección de docente y asignatura
+            $('#docente_modificar').val('');
+            $('#asignatura_modificar').val('');
+            cargarDocentesModificar(programaId, '');
+        });
+        // Al cambiar el docente en el modal de modificar, actualizar asignaturas
+        $('#docente_modificar').on('change', function() {
+            var docenteId = $(this).val();
+            var programaId = $('#programa_modificar').val();
+            $('#asignatura_modificar').val('');
+            cargarAsignaturasModificar(docenteId, programaId, '');
+        });
+    </script>
 </body>
 
 </html>

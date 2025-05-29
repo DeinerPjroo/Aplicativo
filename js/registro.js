@@ -68,10 +68,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (input) {
         input.addEventListener("keyup", filtrarTablaReservas);
     }
-    // Botones de reporte (debes implementar la lógica de generación de reportes)
-    document.getElementById("generarReporte")?.addEventListener("click", () => {/* lógica */});
-    document.getElementById("generarReporteSiguiente")?.addEventListener("click", () => {/* lógica */});
-    document.getElementById("generarReporteVista")?.addEventListener("click", () => {/* lógica */});
+    // Botones de reporte (descarga TXT)
+    document.getElementById("generarReporte")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        exportarRegistrosTXT('hoy');
+    });
+    document.getElementById("generarReporteSiguiente")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        exportarRegistrosTXT('manana');
+    });
+    document.getElementById("generarReporteVista")?.addEventListener("click", function(e) {
+        e.preventDefault();
+        exportarRegistrosTXT();
+    });
 
     // Manejador para el formulario de agregar reserva (modal admin)
     const formAgregar = document.getElementById('formAgregarRegistro');
@@ -353,3 +362,66 @@ function closeToast(toast) {
         toast.remove();
     }, 300);
 }
+
+// --- EXPORTAR TABLA A TXT (FORMATO ORGANIZADO) ---
+function exportarRegistrosTXT(filtroFecha = null) {
+    const filas = document.querySelectorAll('.tabla-reservas tbody tr');
+    let txt = '';
+    const hoy = new Date();
+    const hoyStr = hoy.toISOString().slice(0,10);
+    const manana = new Date(hoy.getTime() + 24*60*60*1000);
+    const mananaStr = manana.toISOString().slice(0,10);
+    // Encabezado
+    txt += '===============================\n';
+    txt += '   REPORTE DE RECURSOS - ' + (filtroFecha === 'hoy' ? hoyStr.split('-').reverse().join('/') : filtroFecha === 'manana' ? mananaStr.split('-').reverse().join('/') : hoyStr.split('-').reverse().join('/')) + '\n';
+    txt += '===============================\n\n';
+    let hayDatos = false;
+    filas.forEach(fila => {
+        if (fila.classList.contains('separador-dia') || fila.style.display === 'none') return;
+        const celdas = fila.querySelectorAll('td');
+        if (celdas.length < 15) return;
+        // Fecha está en la columna 2 (formato dd/mm/yyyy)
+        let fecha = celdas[2].textContent.trim();
+        let fechaISO = '';
+        if (/\d{2}\/\d{2}\/\d{4}/.test(fecha)) {
+            const [d,m,y] = fecha.split('/');
+            fechaISO = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+        }
+        if (filtroFecha === 'hoy' && fechaISO !== hoyStr) return;
+        if (filtroFecha === 'manana' && fechaISO !== mananaStr) return;
+        hayDatos = true;
+        txt += '----------------------------------------\n';
+        txt += `Recurso: ${celdas[1].textContent.trim()}\n`;
+        txt += `Fecha: ${celdas[2].textContent.trim()}\n`;
+        txt += `Inicio: ${celdas[3].textContent.trim()}\n`;
+        txt += `Fin: ${celdas[4].textContent.trim()}\n`;
+        txt += `Salón: ${celdas[5].textContent.trim()}\n`;
+        txt += `Usuario: ${celdas[7].textContent.trim()}\n`;
+        txt += `Código U: ${celdas[6].textContent.trim()}\n`;
+        txt += `Correo: ${celdas[8].textContent.trim()}\n`;
+        txt += `Docente: ${celdas[9].textContent.trim()}\n`;
+        txt += `Asignatura: ${celdas[10].textContent.trim()}\n`;
+        txt += `Programa: ${celdas[11].textContent.trim()}\n`;
+        txt += `Semestre: ${celdas[12].textContent.trim()}\n`;
+        txt += `Estado: ${celdas[13].textContent.trim()}\n`;
+        txt += '----------------------------------------\n\n';
+    });
+    if (!hayDatos) {
+        showToast('No hay registros para exportar', 'info');
+        return;
+    }
+    txt += `===============================\nFin del reporte - Generado: ${new Date().toLocaleString('es-CO')}\n===============================\n`;
+    const blob = new Blob([txt], {type: 'text/plain'});
+    const a = document.createElement('a');
+    let nombre = 'reporte_registros';
+    if (filtroFecha === 'hoy') nombre += '_hoy';
+    if (filtroFecha === 'manana') nombre += '_manana';
+    if (!filtroFecha) nombre += '_vista';
+    nombre += '_' + hoyStr + '.txt';
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+// --- FIN EXPORTAR TABLA A TXT ---

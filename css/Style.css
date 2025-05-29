@@ -761,19 +761,18 @@
     transition: background 0.2s;
 }
 
-.tabla-reservas tr:hover {
-    background: #f5f7fa;
-}
 
-.tabla-reservas tr:nth-child(even) {
-    background: #f8fafb;
+
+.tabla-reservas tr:hover {
+    background: #d6c8ed;
+    translate: 0 -2px;
 }
 
 .tabla-reservas tr.separador-dia td {
     background: #e0e0e0 !important;
     color: #333;
     font-weight: bold;
-    font-size: 1.08em;
+    font-size: 16px !important;
     border-bottom: none;
 }
 
@@ -2201,3 +2200,18 @@ input[type="password"]:focus {
                               FIN DEL ARCHIVO
 ===============================================================================
 */
+
+/* Scroll para la tabla de reservas */
+.tabla-scroll {
+    max-height: 450px;
+    overflow-y: auto;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Mantener el ancho de la tabla al hacer scroll */
+.tabla-scroll .tabla-reservas {
+    min-width: 1200px;
+}

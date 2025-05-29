@@ -1,1 +1,0 @@
-{"usuario":"1","correo":"Karla@uniguajira.edu.co","fecha":"2025-05-28","recurso":"1","horaInicio":"12:24","horaFin":"13:00","programa":"1","docente":"1","asignatura":"1","salon":"","semestre":"IV","celular":"3002099544","nombre_estudiante":"","id_registro":"20250528-JHXD"}
