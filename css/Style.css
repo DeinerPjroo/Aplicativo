@@ -845,39 +845,45 @@
     text-align: center;
 }
 
+/* ===== TABLA DE USUARIOS (bordes redondeados y sombra igual a registros) ===== */
 .tabla-usuarios {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-top: 18px;
+    font-size: 15px;
+    animation: fadeInUp 0.7s;
+    transition: box-shadow 0.3s, background 0.3s;
 }
 
-.tabla-usuarios th,
-.tabla-usuarios td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.tabla-usuarios tr {
-    transition: background-color 0.2s;
-}
-
-.tabla-usuarios tr:nth-child(even) {
-    background-color: var(--color-alternate);
-}
-
-.tabla-usuarios tr:hover {
-    background-color: #e6f3f3;
-}
-
-.tabla-usuarios td {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.tabla-usuarios th, .tabla-usuarios td {
+    padding: 14px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .tabla-usuarios th {
-    background-color: var(--color-primary);
-    color: white;
+    background: var(--color-primary);
+    color: #fff;
     font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    letter-spacing: 0.5px;
+}
+
+.tabla-usuarios tr {
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.tabla-usuarios tr:hover {
+    background: #d6c8ed;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 32px rgba(37,135,151,0.10);
 }
 
 /* ===== TABLA RESUMEN ===== */
@@ -2214,4 +2220,17 @@ input[type="password"]:focus {
 /* Mantener el ancho de la tabla al hacer scroll */
 .tabla-scroll .tabla-reservas {
     min-width: 1200px;
+}
+
+/* Scroll vertical para tabla de usuarios, igual que la de reservas pero sin cambiar colores */
+.tabla-scroll-usuarios {
+    max-height: 450px;
+    overflow-y: auto;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.tabla-scroll-usuarios .tabla-usuarios {
+    min-width: 1000px;
 }

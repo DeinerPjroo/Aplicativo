@@ -79,22 +79,24 @@ while ($row = $programasResult->fetch_assoc()) {
             <p>No se encontraron usuarios con ese criterio de búsqueda</p>
         </div>
 
-        <!-- Tabla de usuarios dinámica -->
-        <table id="tablaUsuario" class="tabla-usuarios">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>telefono</th>
-                    <th>Programa</th>
-                    <th>Semestre</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tbodyUsuarios"></tbody>
-        </table>
+        <!-- Scroll vertical para la tabla de usuarios -->
+        <div class="tabla-scroll tabla-scroll-usuarios">
+            <table id="tablaUsuario" class="tabla-usuarios">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>telefono</th>
+                        <th>Programa</th>
+                        <th>Semestre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyUsuarios"></tbody>
+            </table>
+        </div>
         <script>
         function cargarUsuarios() {
             fetch('../Controlador/ControladorUsuario.php?accion=listar')
