@@ -1,1 +1,0 @@
-{"usuario":"1","correo":"deinerflorianpajaro0@gmail.com","fecha":"2025-06-07","recurso":"5","horaInicio":"16:54","horaFin":"17:54","programa":"2","docente":"1","asignatura":"4","salon":"","semestre":"VI","celular":"3002099544","nombre_estudiante":"","id_registro":"20250607-USLM"}
