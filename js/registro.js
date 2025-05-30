@@ -169,7 +169,36 @@ document.addEventListener("DOMContentLoaded", () => {
  */
 function toggleMenu(button) {
     const menu = button.nextElementSibling;
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
+    // Cerrar otros menús abiertos
+    document.querySelectorAll('.menu-desplegable').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+    });
+    // Alternar visibilidad
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+        menu.classList.remove('arriba');
+        menu.classList.remove('derecha');
+        return;
+    }
+    // Mostrar menú
+    menu.style.display = 'block';
+    // Calcular si hay espacio abajo y a la derecha
+    const rect = menu.getBoundingClientRect();
+    const espacioAbajo = window.innerHeight - rect.bottom;
+    const espacioArriba = rect.top;
+    const espacioDerecha = window.innerWidth - rect.right;
+    // Si no hay suficiente espacio abajo, mostrar hacia arriba
+    if (espacioAbajo < 80 && espacioArriba > 80) {
+        menu.classList.add('arriba');
+    } else {
+        menu.classList.remove('arriba');
+    }
+    // Si no hay suficiente espacio a la derecha, alinear a la derecha
+    if (espacioDerecha < 0) {
+        menu.classList.add('derecha');
+    } else {
+        menu.classList.remove('derecha');
+    }
 }
 
 // Funciones para modales de modificar/agregar/eliminar

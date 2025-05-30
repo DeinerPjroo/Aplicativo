@@ -1575,8 +1575,39 @@
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-    z-index: 1;
-    min-width: 100px;
+    z-index: 9999;
+    min-width: 120px;
+    max-width: 220px;
+    right: 0;
+    left: auto;
+    overflow: visible;
+    white-space: nowrap;
+}
+
+/* Nueva clase para menú desplegable hacia arriba */
+.menu-desplegable.arriba {
+    bottom: 100%;
+    top: auto;
+    box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 0;
+    margin-top: 0;
+    /* Ajuste visual para que no se superponga con el botón */
+    transform: translateY(-8px);
+}
+
+/* Nueva clase para menú desplegable a la derecha */
+.menu-desplegable.derecha {
+    left: auto !important;
+    right: 0 !important;
+    /* Si también está arriba, combinar ambas clases */
+}
+.menu-desplegable.arriba.derecha {
+    left: auto !important;
+    right: 0 !important;
+    bottom: 100%;
+    top: auto;
+    box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
 }
 
 .menu-desplegable .menu-opcion {
@@ -1590,10 +1621,6 @@
 
 .menu-desplegable .menu-opcion:hover {
     background-color: #f0f0f0;
-}
-
-.menu-acciones:hover .menu-desplegable {
-    display: block;
 }
 
 /* ===== TÍTULO Y BOTÓN ===== */
