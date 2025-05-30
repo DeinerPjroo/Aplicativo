@@ -228,6 +228,27 @@ switch ($accion) {
         }
         break;
 
+    case 'eliminar':
+        // Eliminar un registro por ID_Registro
+        $id = $_REQUEST['id'] ?? null;
+        if (!$id) {
+            echo json_encode(['success' => false, 'error' => 'ID de registro no especificado']);
+            break;
+        }
+        try {
+            $stmt = $conn->prepare("DELETE FROM registro WHERE ID_Registro = ?");
+            $stmt->bind_param("s", $id);
+            if ($stmt->execute()) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'No se pudo eliminar el registro']);
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
         // ... resto de tus casos (modificar, actualizar, cancelar, etc) igual que antes ...
         // (No necesitas repetir el correo en los otros casos, solo en 'agregar')
 
