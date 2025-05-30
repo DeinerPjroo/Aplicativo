@@ -1,0 +1,2 @@
+El ID de la reserva ya existe, por favor intente de nuevo.
+#0 {main}
