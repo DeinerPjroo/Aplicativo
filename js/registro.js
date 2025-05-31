@@ -87,11 +87,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (formAgregar) {
         formAgregar.addEventListener('submit', async function(event) {
             event.preventDefault();
+            const btn = formAgregar.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Guardando...';
             // Obtener valores
             const fecha = formAgregar.fecha.value;
             const horaInicio = formAgregar.horaInicio.value;
             const horaFin = formAgregar.horaFin.value;
-            if (!validarRegistro(fecha, horaInicio, horaFin)) return;
+            if (!validarRegistro(fecha, horaInicio, horaFin)) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
             // Enviar por AJAX
             const formData = new FormData(formAgregar);
             // Generar un id_registro si no existe
@@ -115,6 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (error) {
                 showToast('Error de conexión al guardar', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         });
     }
@@ -124,10 +135,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (formModificar) {
         formModificar.addEventListener('submit', async function(event) {
             event.preventDefault();
+            const btn = formModificar.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Guardando...';
             const fecha = formModificar.fecha.value;
             const horaInicio = formModificar.horaInicio.value;
             const horaFin = formModificar.horaFin.value;
-            if (!validarRegistro(fecha, horaInicio, horaFin)) return;
+            if (!validarRegistro(fecha, horaInicio, horaFin)) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
             const formData = new FormData(formModificar);
             let data;
             try {
@@ -138,6 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 data = await response.json();
             } catch (error) {
                 showToast('Error de conexión al guardar', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
                 return;
             }
             if (data && data.status === 'success') {
@@ -159,6 +180,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 showToast((data && data.message) || 'Error al modificar la reserva', 'error');
             }
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         });
     }
 });

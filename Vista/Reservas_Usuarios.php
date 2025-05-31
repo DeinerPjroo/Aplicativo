@@ -440,6 +440,11 @@ if (isset($_GET['error'])) {
         async function guardarReservaUnica(event) {
             event.preventDefault();
             const form = document.getElementById('reservaFormUnica');
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn.disabled) return; // Evita doble envío si ya está desactivado
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Reservando...';
             const fecha = form.fecha.value;
             const idInput = form.id_registro;
 
@@ -493,6 +498,9 @@ if (isset($_GET['error'])) {
                     title: 'Error',
                     text: error.message
                 });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
 
@@ -540,6 +548,11 @@ if (isset($_GET['error'])) {
         async function guardarReservaUnica(event) {
             event.preventDefault();
             const form = document.getElementById('reservaFormUnica');
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn.disabled) return; // Evita doble envío si ya está desactivado
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Reservando...';
             const fecha = form.fecha.value;
             const idInput = form.id_registro;
 
@@ -593,6 +606,9 @@ if (isset($_GET['error'])) {
                     title: 'Error',
                     text: error.message
                 });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         }
 

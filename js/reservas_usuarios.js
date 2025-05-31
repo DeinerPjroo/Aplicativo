@@ -185,6 +185,10 @@ if (fechaInput && idInput) {
 async function guardarReservaUnica(event) {
     event.preventDefault();
     const form = document.getElementById('reservaFormUnica');
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Reservando...';
     const fecha = form.fecha.value;
     const idInput = form.id_registro;
     if (!idInput.value) {
@@ -217,27 +221,8 @@ async function guardarReservaUnica(event) {
             icon: 'error',
             text: error.message
         });
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
-}
-
-// Validación en tiempo real para fecha y horas
-const horaInicioInput = document.getElementById('horaInicio_unico');
-const horaFinInput = document.getElementById('horaFin_unico');
-if (fechaInput && horaInicioInput && horaFinInput) {
-    function validarHoras() {
-        const fecha = fechaInput.value;
-        const horaInicio = horaInicioInput.value;
-        const horaFin = horaFinInput.value;
-        if (!fecha || !horaInicio || !horaFin) return;
-        try {
-            validarRegistro(fecha, horaInicio, horaFin);
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                text: error.message
-            });
-        }
-    }
-    horaInicioInput.addEventListener('change', validarHoras);
-    horaFinInput.addEventListener('change', validarHoras);
 }

@@ -22,7 +22,7 @@ switch ($accion) {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception('Método no permitido');
             }
-            file_put_contents(__DIR__ . '/debug_reserva.txt', json_encode($_POST));
+            // file_put_contents(__DIR__ . '/debug_reserva.txt', json_encode($_POST)); // DEBUG: Eliminar o comentar en producción
             $id_registro = $_POST['id_registro'] ?? null;
             $usuario = $_POST['usuario'] ?? $_POST['id_usuario'] ?? null;
             $recurso = $_POST['recurso'] ?? null;
