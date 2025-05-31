@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formAgregar.addEventListener('submit', async function(event) {
             event.preventDefault();
             const btn = formAgregar.querySelector('button[type="submit"]');
+            if (btn.disabled) return; // Evita doble envío si ya está desactivado
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> Guardando...';
@@ -136,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formModificar.addEventListener('submit', async function(event) {
             event.preventDefault();
             const btn = formModificar.querySelector('button[type="submit"]');
+            if (btn.disabled) return; // Evita doble envío si ya está desactivado
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> Guardando...';
