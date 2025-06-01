@@ -91,8 +91,9 @@ $programas = [];
 $stmt = $conn->prepare("
     SELECT COALESCE(p.nombrePrograma, 'Sin programa') AS nombrePrograma, COUNT(*) as cantidad
     FROM registro r
-    LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
-    LEFT JOIN programa p ON u.ID_Programa = p.ID_Programa
+    LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+    LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
+    LEFT JOIN programa p ON asig.ID_Programa = p.ID_Programa
     WHERE r.fechaReserva BETWEEN ? AND ?
     AND r.estado IN ('Confirmada', 'Cancelada')
     GROUP BY p.nombrePrograma
@@ -183,17 +184,15 @@ while ($row = $resProgramas->fetch_assoc()) {
                 <?php endforeach; ?>
             </tbody>
         </table>
-    </div>
-    <!-- Botón para descargar las estadísticas en PDF -->
-    <div >
+    </div>    <!-- Botones para diagnóstico y descarga -->
+    <div style="margin: 20px 0; text-align: center;">
+        <button onclick="diagnosticarEstadisticas()" style="background: #17a2b8; color: white; border: none; padding: 10px 20px; margin-right: 10px; border-radius: 5px; cursor: pointer;">
+            🔍 Diagnosticar
+        </button>
         <button onclick="descargarEstadisticasPDF()" class="btn-pdf">
              <img src="../Imagen/Iconos/download.svg" alt="" />
             <span class="nav-tooltip">Descargar estadísticas en PDF</span>
-            
         </button>
-
-
-
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="../js/estadisticas.js"></script>
