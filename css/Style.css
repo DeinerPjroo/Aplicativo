@@ -709,13 +709,14 @@
 /* ===== TABLA DE RESERVAS ===== */
 .contenedor-reservas {
     font-size: 15px;
-    margin-left: 95px !important;
-    width: 93%;
-    margin: 20px auto;
+    margin-left: 0px !important;
+    width: 100%;
+    margin: 10px auto;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    transition: margin-left 0.4s ease;
 }
 
 .contenedor-reservas h2 {
@@ -836,7 +837,8 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-left: 110px !important;
+    margin-left: 300px;
+    transition: margin-left 0.4s ease;
 }
 
 .contenedor-usuarios h2 {
@@ -1772,7 +1774,8 @@
 .main-content {
     flex: 1;
     padding: 20px;
-    margin-left: 250px;
+    margin-left: 300px;
+    transition: margin-left 0.4s ease;
 }
 
 .profile-container {
@@ -1889,7 +1892,65 @@ input[type="password"]:focus {
 
 /* ===== AJUSTE PARA SIDEBAR COLAPSADO ===== */
 body.sidebar-collapsed .estadisticas-container {
-    margin-left: 120px;
+    margin-left: 100px;
+}
+
+/* ===== AJUSTE PARA CONTENEDORES CON SIDEBAR COLAPSADO ===== */
+body.sidebar-collapsed .contenedor-reservas {
+    margin-left: 100px;
+}
+
+body.sidebar-collapsed .contenedor-usuarios {
+    margin-left: 100px;
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: 100px;
+}
+
+/* ===== SECCIONES DE CONTENIDO GENERAL ===== */
+.Encabezado {
+    margin-left: 300px;
+    padding: 20px;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: margin-left 0.4s ease;
+}
+
+.Table {
+    margin-left: 300px;
+    padding: 20px;
+    transition: margin-left 0.4s ease;
+}
+
+body.sidebar-collapsed .Encabezado {
+    margin-left: 100px;
+}
+
+body.sidebar-collapsed .Table {
+    margin-left: 100px;
+}
+
+/* ===== SECCIÓN PRINCIPAL MAIN ===== */
+.Main {
+    margin-left: 300px;
+    padding: 0;
+    transition: margin-left 0.4s ease;
+}
+
+body.sidebar-collapsed .Main {
+    margin-left: 100px;
+}
+
+/* ===== CONTENIDO DE INICIO ===== */
+.inicio-content {
+    padding: 40px 20px;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===== TARJETAS DE ESTADÍSTICAS ===== */
@@ -2077,12 +2138,19 @@ body.sidebar-collapsed .estadisticas-container {
         flex-direction: column;
     }
     
-    .estadisticas-container {
+    .estadisticas-container,
+    .contenedor-reservas,
+    .contenedor-usuarios,
+    .main-content,
+    .Encabezado,
+    .Table,
+    .Main {
         margin-left: 20px;
         margin-right: 20px;
         padding: 25px 20px;
     }
-      .filtros-form {
+    
+    .filtros-form {
         margin: 0 auto 30px auto;
         flex-direction: column;
         gap: 15px;
@@ -2157,7 +2225,13 @@ body.sidebar-collapsed .estadisticas-container {
 
 /* ===== RESPONSIVE PARA PERFIL ===== */
 @media (max-width: 768px) {
-    .main-content {
+    .main-content,
+    .estadisticas-container,
+    .contenedor-reservas,
+    .contenedor-usuarios,
+    .Encabezado,
+    .Table,
+    .Main {
         margin-left: 0;
         padding: 10px;
     }
@@ -2244,6 +2318,7 @@ body.sidebar-collapsed .estadisticas-container {
 .tabla-scroll {
     max-height: 450px;
     overflow-y: auto;
+    overflow-x: auto;
     width: 100%;
     margin-top: 10px;
     border-radius: 12px;
@@ -2259,29 +2334,66 @@ body.sidebar-collapsed .estadisticas-container {
 .tabla-scroll-usuarios {
     max-height: 450px;
     overflow-y: auto;
+    overflow-x: auto;
     width: 100%;
     margin-top: 10px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .tabla-scroll-usuarios .tabla-usuarios {
-    min-width: 1000px;
+    min-width: 1200px;
 }
 
-/* ===== SPINNER DE CARGA ===== */
-.spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  border-top: 2px solid #3498db;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
+/* ===== MEJORAS PARA SCROLL HORIZONTAL EN TABLAS ===== */
+.tabla-scroll::-webkit-scrollbar,
+.tabla-scroll-usuarios::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.tabla-scroll::-webkit-scrollbar-track,
+.tabla-scroll-usuarios::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb,
+.tabla-scroll-usuarios::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb:hover,
+.tabla-scroll-usuarios::-webkit-scrollbar-thumb:hover {
+    background: #4a90a4;
+}
+
+/* Asegurar que las celdas no se compriman */
+.tabla-usuarios th,
+.tabla-usuarios td,
+.tabla-reservas th,
+.tabla-reservas td {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* Columnas específicas con ancho fijo */
+.tabla-usuarios .td-codigo,
+.tabla-reservas .td-codigo {
+    min-width: 100px;
+}
+
+.tabla-usuarios .td-nombre,
+.tabla-reservas .td-nombre {
+    min-width: 150px;
+}
+
+.tabla-usuarios .td-correo,
+.tabla-reservas .td-correo {
+    min-width: 200px;
+}
+
+.tabla-usuarios .td-acciones,
+.tabla-reservas .td-acciones {
+    min-width: 160px;
 }

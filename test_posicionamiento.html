@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Posicionamiento - Sidebar</title>
+    <link rel="stylesheet" href="css/Style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="header-logo">
+                <img src="img/Logo.png" alt="Logo">
+                <h2>Sistema</h2>
+            </div>
+            <button class="sidebar-toggler material-icons">chevron_left</button>
+            <button class="menu-toggler material-icons">menu</button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-icons">dashboard</span>
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon material-icons">book</span>
+                        <span class="nav-text">Reservas</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px;">
+            <h1>Prueba de Posicionamiento</h1>
+            <p>Este contenido debe aparecer al lado del sidebar, no superpuesto.</p>
+            
+            <div class="estadisticas-container" style="background: #e3f2fd; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h2>Contenedor de Estadísticas</h2>
+                <p>Este contenedor debe respetar el margen del sidebar.</p>
+            </div>
+
+            <div class="contenedor-reservas" style="background: #fff3e0; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h2>Contenedor de Reservas</h2>
+                <p>Este contenedor debe respetar el margen del sidebar.</p>
+            </div>
+
+            <div class="contenedor-usuarios" style="background: #f3e5f5; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                <h2>Contenedor de Usuarios</h2>
+                <p>Este contenedor debe respetar el margen del sidebar.</p>
+            </div>
+
+            <div class="Encabezado" style="background: #e8f5e8; margin: 20px 0; border-radius: 8px;">
+                <h2>Encabezado</h2>
+                <p>Este encabezado debe respetar el margen del sidebar.</p>
+            </div>
+
+            <div class="Table" style="background: #fff9c4; margin: 20px 0; border-radius: 8px;">
+                <h2>Tabla</h2>
+                <p>Esta tabla debe respetar el margen del sidebar.</p>
+            </div>            <div class="Main" style="background: #fce4ec; margin: 20px 0; border-radius: 8px;">
+                <h2>Main</h2>
+                <p>Este contenedor Main debe respetar el margen del sidebar.</p>
+            </div>            <!-- Prueba de tabla con scroll -->
+            <div class="contenedor-usuarios" style="background: #f8f9fa; margin: 20px 0; border-radius: 8px; padding: 20px;">
+                <h2>Prueba de Tabla con Scroll (Mismo comportamiento que Registros)</h2>
+                <div class="tabla-scroll">
+                    <table class="tabla-reservas">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre Completo</th>
+                                <th>Teléfono</th>
+                                <th>Programa Académico</th>
+                                <th>Semestre</th>
+                                <th>Correo Electrónico</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="td-codigo">2023001</td>
+                                <td class="td-nombre">Juan Carlos Pérez</td>
+                                <td>3001234567</td>
+                                <td>Ingeniería de Sistemas</td>
+                                <td>5</td>
+                                <td class="td-correo">juan.perez@uniguajira.edu.co</td>
+                                <td>Estudiante</td>
+                                <td class="td-acciones">
+                                    <button style="margin-right: 5px; padding: 5px 10px;">Modificar</button>
+                                    <button style="padding: 5px 10px;">Eliminar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td-codigo">2023002</td>
+                                <td class="td-nombre">María Fernanda González</td>
+                                <td>3109876543</td>
+                                <td>Administración de Empresas</td>
+                                <td>3</td>
+                                <td class="td-correo">maria.gonzalez@uniguajira.edu.co</td>
+                                <td>Estudiante</td>
+                                <td class="td-acciones">
+                                    <button style="margin-right: 5px; padding: 5px 10px;">Modificar</button>
+                                    <button style="padding: 5px 10px;">Eliminar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="td-codigo">admin01</td>
+                                <td class="td-nombre">Carlos Alberto Martínez</td>
+                                <td>3157894561</td>
+                                <td>No aplica</td>
+                                <td>N/A</td>
+                                <td class="td-correo">carlos.martinez@uniguajira.edu.co</td>
+                                <td>Administrador</td>
+                                <td class="td-acciones">
+                                    <button style="margin-right: 5px; padding: 5px 10px;">Modificar</button>
+                                    <button style="padding: 5px 10px;">Eliminar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><small>Esta tabla ahora usa exactamente las mismas clases que la tabla de registros</small></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/sidebar.js"></script>
+    
+    <script>
+        // Agregar información de estado del sidebar
+        const statusDiv = document.createElement('div');
+        statusDiv.style.position = 'fixed';
+        statusDiv.style.top = '10px';
+        statusDiv.style.right = '10px';
+        statusDiv.style.background = '#333';
+        statusDiv.style.color = 'white';
+        statusDiv.style.padding = '10px';
+        statusDiv.style.borderRadius = '5px';
+        statusDiv.style.zIndex = '9999';
+        statusDiv.id = 'sidebar-status';
+        document.body.appendChild(statusDiv);        function updateStatus() {
+            const sidebar = document.getElementById('sidebar');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            const bodyHasClass = document.body.classList.contains('sidebar-collapsed');
+            const expectedMargin = isCollapsed ? '100px' : '300px';
+            statusDiv.innerHTML = `
+                <strong>Estado Sidebar:</strong><br>
+                Colapsado: ${isCollapsed ? 'Sí' : 'No'}<br>
+                Body Class: ${bodyHasClass ? 'Sí' : 'No'}<br>
+                Margen esperado: ${expectedMargin}<br>
+                <small>Click en el botón para alternar</small>
+            `;
+        }
+
+        // Actualizar estado inicial
+        updateStatus();
+
+        // Escuchar cambios en el sidebar
+        const observer = new MutationObserver(updateStatus);
+        observer.observe(document.getElementById('sidebar'), { attributes: true, attributeFilter: ['class'] });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>

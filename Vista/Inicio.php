@@ -69,7 +69,7 @@ if (isset($_SESSION['usuario_id'])) {
         Algunos elementos pueden no cargar correctamente. Esto no afecta la funcionalidad principal.
     </div>
     
-    <div class="main-content" style="margin-left:250px; padding:40px 20px; min-height:80vh; display:flex; align-items:center; justify-content:center;">
+    <div class="main-content inicio-content">
         <div style="background:#fff; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.08); padding:40px 32px; max-width:420px; width:100%; text-align:center;">
             <h1 style="color:var(--primary-color); font-size:2.2rem; margin-bottom:18px;">¡Bienvenido, <?php echo htmlspecialchars($nombreUsuario ?? 'Usuario'); ?>!</h1>
             <p style="font-size:1.15rem; color:#444; margin-bottom:18px;">Has iniciado sesión como <b><?php echo htmlspecialchars($role); ?></b>.</p>

@@ -77,11 +77,9 @@ while ($row = $programasResult->fetch_assoc()) {
 
         <div id="mensajeSinResultados" style="display:none;" class="sin-usuarios">
             <p>No se encontraron usuarios con ese criterio de búsqueda</p>
-        </div>
-
-        <!-- Scroll vertical para la tabla de usuarios -->
-        <div class="tabla-scroll tabla-scroll-usuarios">
-            <table id="tablaUsuario" class="tabla-usuarios">
+        </div>        <!-- Scroll vertical para la tabla de usuarios -->
+        <div class="tabla-scroll">
+            <table id="tablaUsuario" class="tabla-reservas">
                 <thead>
                     <tr>
                         <th>Código</th>
