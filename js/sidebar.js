@@ -1,5 +1,6 @@
 const sidebar = document.querySelector(".sidebar");
 sidebar.classList.add("collapsed"); // Sidebar cerrado por defecto
+document.body.classList.add("sidebar-collapsed"); // Agregar clase al body
 const sidebarToggler = document.querySelector(".sidebar-toggler");
 const menuToggler = document.querySelector(".menu-toggler");
 
@@ -14,6 +15,12 @@ window.generateReportsLegends = function() {
 //Toggle sidebar's collapsed state
 sidebarToggler.addEventListener("click", () => {
     sidebar.classList.toggle("collapsed"); // Toggle collapsed state
+    // Sincronizar la clase del body con el estado del sidebar
+    if (sidebar.classList.contains("collapsed")) {
+        document.body.classList.add("sidebar-collapsed");
+    } else {
+        document.body.classList.remove("sidebar-collapsed");
+    }
 });
 
 //update sidebar height and menu toggle text
