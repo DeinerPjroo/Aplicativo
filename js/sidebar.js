@@ -6,6 +6,11 @@ const menuToggler = document.querySelector(".menu-toggler");
 const collapsedSidebarHeight = "56px";
 const fullSidebarHeight = "calc(100vh - 32px)";
 
+// Función placeholder para evitar errores si se llama desde algún lugar
+window.generateReportsLegends = function() {
+    console.log("generateReportsLegends fue llamada, pero no está implementada.");
+};
+
 //Toggle sidebar's collapsed state
 sidebarToggler.addEventListener("click", () => {
     sidebar.classList.toggle("collapsed"); // Toggle collapsed state
@@ -33,12 +38,11 @@ window.addEventListener("resize", () => {
     }
 });
 
-// Verifica si hay elementos con IDs duplicados o conflictos
+// Verifica si hay elementos con IDs específicos (solo si existen en la página)
 document.addEventListener("DOMContentLoaded", () => {
     const botonReporteSiguiente = document.getElementById("generarReporteSiguiente");
-    if (!botonReporteSiguiente) {
-        console.error("El botón 'generarReporteSiguiente' no existe o no está definido.");
-    } else {
+    if (botonReporteSiguiente) {
         console.log("El botón 'generarReporteSiguiente' está correctamente definido.");
     }
+    // No mostrar error si no existe, ya que es normal que no esté en todas las páginas
 });
