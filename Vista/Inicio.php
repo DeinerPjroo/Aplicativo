@@ -41,10 +41,7 @@ if (isset($_SESSION['usuario_id'])) {
             font-display: swap;
         }
         /* Mejoras de rendimiento */
-        img {
-            max-width: 100%;
-            height: auto;
-        }
+        
         /* Prevenir errores de JavaScript mostrando un mensaje amigable */
         .js-error {
             display: none;

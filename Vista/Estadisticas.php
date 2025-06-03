@@ -180,12 +180,8 @@ while ($row = $resProgramas->fetch_assoc()) {
                 </tr>
                 <?php endforeach; ?>
             </tbody>
-        </table>
-    </div>    <!-- Botones para diagnóstico y descarga -->
+        </table>    </div>    <!-- Botón para descarga -->
     <div style="margin: 20px 0; text-align: center;">
-        <button onclick="diagnosticarEstadisticas()" style="background: #17a2b8; color: white; border: none; padding: 10px 20px; margin-right: 10px; border-radius: 5px; cursor: pointer;">
-            🔍 Diagnosticar
-        </button>
         <button onclick="descargarEstadisticasPDF()" class="btn-pdf">
              <img src="../Imagen/Iconos/download.svg" alt="" />
             <span class="nav-tooltip">Descargar estadísticas en PDF</span>

@@ -109,16 +109,13 @@ if (isset($_GET['error'])) {
             if (!empty($mensaje)) {
                 echo $mensaje;
             }
-            ?>
-
-            <h2>Reservas Activas</h2>
-
+            ?>            <h2>Reservas Activas</h2>
 
             <?php
 
-
             if ($resultado->num_rows > 0) : ?>
-                <table class="tabla-reservas">
+                <div class="tabla-scroll">
+                    <table class="tabla-reservas">
                     <thead>
                         <tr>
                             <th>Recurso</th>
@@ -174,9 +171,9 @@ if (isset($_GET['error'])) {
         <?php endif; ?>
     </td>
 </tr>
-                        <?php endwhile; ?>
-                    </tbody>
+                        <?php endwhile; ?>                    </tbody>
                 </table>
+                </div>
             <?php else : ?>
                 <div class="sin-reservas">
                     <p>No tienes reservas activas en este momento</p>
@@ -186,10 +183,8 @@ if (isset($_GET['error'])) {
             <center>
                 <button class="btn-agregar" onclick="abrirModalReserva()">
                     <img src="../Imagen/Iconos/Mas.svg" alt="" />
-                    <span class="btn-text">Crear Nueva Reserva</span>
-                </button>
-            </center>
-        </div>
+                    <span class="btn-text">Crear Nueva Reserva</span>                </button>
+            </center>        </div>
     </section>
 
     <!-- Modal único para reserva -->

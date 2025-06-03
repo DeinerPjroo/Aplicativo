@@ -1775,7 +1775,7 @@
 .main-content {
     flex: 1;
     padding: 20px;
-    margin-left: 300px;
+    margin-left: 280px;
     transition: margin-left 0.4s ease;
 }
 
@@ -1880,7 +1880,7 @@ input[type="password"]:focus {
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .estadisticas-container {
-    margin-left: 300px;
+    margin-left: 290px;
     margin-top: 30px;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border-radius: 16px;
@@ -1893,25 +1893,25 @@ input[type="password"]:focus {
 
 /* ===== AJUSTE PARA SIDEBAR COLAPSADO ===== */
 body.sidebar-collapsed .estadisticas-container {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 /* ===== AJUSTE PARA CONTENEDORES CON SIDEBAR COLAPSADO ===== */
 body.sidebar-collapsed .contenedor-reservas {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 body.sidebar-collapsed .contenedor-usuarios {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 body.sidebar-collapsed .main-content {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 /* ===== SECCIONES DE CONTENIDO GENERAL ===== */
 .Encabezado {
-    margin-left: 300px;
+    margin-left: 290px;
     padding: 20px;
     background-color: var(--color-primary);
     color: white;
@@ -1921,28 +1921,28 @@ body.sidebar-collapsed .main-content {
 }
 
 .Table {
-    margin-left: 300px;
+    margin-left: 290px;
     padding: 20px;
     transition: margin-left 0.4s ease;
 }
 
 body.sidebar-collapsed .Encabezado {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 body.sidebar-collapsed .Table {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 /* ===== SECCIÓN PRINCIPAL MAIN ===== */
 .Main {
-    margin-left: 300px;
+    margin-left: 290px;
     padding: 0;
     transition: margin-left 0.4s ease;
 }
 
 body.sidebar-collapsed .Main {
-    margin-left: 100px;
+    margin-left: 90px;
 }
 
 /* ===== CONTENIDO DE INICIO ===== */
@@ -2315,9 +2315,11 @@ body.sidebar-collapsed .Main {
 ===============================================================================
 */
 
-/* Scroll para la tabla de reservas */
+
+
+/* Contenedor de scroll horizontal para tablas de reservas */
 .tabla-scroll {
-    max-height: 450px;
+    max-height: 550px;
     overflow-y: auto;
     overflow-x: auto;
     width: 100%;

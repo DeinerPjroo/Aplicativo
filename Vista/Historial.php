@@ -48,17 +48,15 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
 
      <section class="Topbard">
          <h1><center>Historial de Reservas</center></h1>
-     </section>
-
-     <section class="Table">
+     </section>     <section class="Table">
         <div class="contenedor-reservas">
-            
-            <table class="tabla-reservas">
-                <thead>
-                    <!-- Encabezados de la tabla -->
-                    <tr>
-                        <th>Recurso</th>
-                        <th>Fecha</th>
+            <div class="tabla-scroll">
+                <table class="tabla-reservas">
+                    <thead>
+                        <!-- Encabezados de la tabla -->
+                        <tr>
+                            <th>Recurso</th>
+                            <th>Fecha</th>
                         <th>Hora Inicio</th>
                         <th>Hora Fin</th>
                         <th>Nombre Usuario</th>
@@ -154,6 +152,8 @@ $conn->close();
                  
              </tbody>
          </table>
+            </div> <!-- Cierre de tabla-scroll -->
+        </div> <!-- Cierre de contenedor-reservas -->
      </section>
 
 </body>
