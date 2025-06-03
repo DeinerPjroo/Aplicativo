@@ -48,23 +48,16 @@ while ($row = $programasResult->fetch_assoc()) {
     
 </head>
 
-<body class="Registro">
+<body class="Registro">    <?php include("../Vista/Sidebar.php"); ?>
 
-    <?php include("../Vista/Sidebar.php"); ?>
-
-
-    <div class="Topbard" style="padding-bottom: 10px;">
+    <section class="Topbard" style="padding-bottom: 10px;">
         <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
-    </div>
+        <!-- Toast Container for Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </section>
 
-    <!-- Toast Container for Notifications -->
-    <div id="toastContainer" class="toast-container"></div>
-
-
-
-
-
-    <div class="contenedor-usuarios">
+    <section class="Table">
+        <div class="contenedor-usuarios">
         <h2>Lista de Usuarios</h2>
 
 
@@ -135,9 +128,9 @@ while ($row = $programasResult->fetch_assoc()) {
                 });
         }
         document.addEventListener('DOMContentLoaded', cargarUsuarios);
-        </script>
-        <!-- Renderizado PHP de la tabla de usuarios eliminado: ahora todo es dinámico por AJAX -->
-    </div>
+        </script>        <!-- Renderizado PHP de la tabla de usuarios eliminado: ahora todo es dinámico por AJAX -->
+        </div>
+    </section>
 
 
     <!-- Modal para Agregar/Modificar Usuario -->
