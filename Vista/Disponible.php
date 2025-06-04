@@ -29,18 +29,25 @@ checkRole('Administrador');
 
 <body class="Registro">
 
- <!------------------------------------------------------------------------------------->
-     <!--SIDEBAR-->
+ <!------------------------------------------------------------------------------------->     <!--SIDEBAR-->
      <?php include("../Vista/Sidebar.php"); ?>
+     
+     <!-- BOTÓN DE MENÚ MÓVIL -->
+     <button class="menu-toggle" id="menuToggle">
+         <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+     </button>
+     
+     <!-- OVERLAY PARA CERRAR MENÚ -->
+     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <!------------------------------------------------------------------------------------->
 <section class="Encabezado">
     <h1><center>Revisar Disponibilidad ( MARIAAA TE TOCA)</center></h1>
      </section>
      <section class="Table">
-        <Table></Table>
-         </section>
+        <Table></Table>         </section>
 
-
+<script src="../js/sidebar.js"></script>
+<script src="../js/mobile_menu.js"></script>
 </body>
 
 </html>

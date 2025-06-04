@@ -375,70 +375,10 @@
     display: block;
 }
 
+
 /* ===== RESPONSIVE DESIGN PARA SIDEBAR ===== */
-@media(max-width: 500px) {
-    .sidebar {
-        height: 50px;
-        overflow: hidden;
-        margin: 10px;
-        scrollbar-width: none;
-        width: calc(100% - 20px);
-        max-height: calc(100vh - 20px);
-    }
-
-    .sidebar .menu-active {
-        overflow: auto;
-    }
-
-    .sidebar-header {
-        justify-content: center;
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        background: #d3892e;
-        padding: 5px 8px;
-        border-radius: 12px;
-    }
-
-    .sidebar-header .header-logo img {
-        width: 40px;
-        height: 40px;
-    }
-
-    .sidebar-header .sidebar-toggler {
-        display: none;
-    }
-
-    .sidebar-header .menu-toggler {
-        display: flex;
-        height: 25px;
-        width: 25px;
-    }
-
-    .sidebar-header .menu-toggler span {
-        font-size: 1.1rem;
-    }
-
-    .sidebar-nav .nav-list {
-        padding: 0 8px;
-    }
-
-    .sidebar-nav .nav-link {
-        gap: 8px;
-        padding: 8px;
-        font-size: 0.85rem;
-    }
-
-    .sidebar-nav .nav-link .nav-icon {
-        font-size: 1.2rem;
-    }
-
-    .sidebar-nav .nav-segundo {
-        position: relative;
-        bottom: 0;
-        margin: 30px 0 20px;
-    }
-}
+/* NOTA: Las reglas del sidebar para móviles están definidas más abajo 
+   en la sección "MENU MÓVIL RESPONSIVE" */
 
 /*
 ===============================================================================
@@ -2224,6 +2164,14 @@ body.sidebar-collapsed .Main {
 .grafica-box:nth-child(1) { animation-delay: 0.2s; }
 .grafica-box:nth-child(2) { animation-delay: 0.4s; }
 
+/* ===== RESPONSIVE PARA TABLETS (iPad) ===== */
+@media (max-width: 1024px) and (min-width: 769px) {
+    /* Ocultar botón toggle del sidebar en tablets */
+    .sidebar-toggler {
+        display: none !important;
+    }
+}
+
 /* ===== RESPONSIVE PARA PERFIL ===== */
 @media (max-width: 768px) {
     .main-content,
@@ -2399,4 +2347,360 @@ body.sidebar-collapsed .Main {
 .tabla-usuarios .td-acciones,
 .tabla-reservas .td-acciones {
     min-width: 160px;
+}
+
+/* 
+===============================================================================
+                         MENU MÓVIL RESPONSIVE
+===============================================================================
+*/
+
+/* ===== BOTÓN DE MENÚ FLOTANTE ===== */
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.menu-toggle:hover {
+    background: linear-gradient(135deg, #34495e, #5dade2);
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.menu-toggle:active {
+    transform: scale(0.95);
+}
+
+.menu-toggle .menu-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+    filter: brightness(0) invert(1); /* Convierte el SVG a blanco */
+}
+
+.menu-toggle:hover .menu-icon {
+    transform: rotate(90deg);
+    filter: brightness(0) invert(1) drop-shadow(0 0 3px rgba(255,255,255,0.8));
+}
+
+/* Icono de cerrar (X) */
+.menu-toggle .close-icon {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover .close-icon {
+    transform: rotate(180deg);
+}
+
+/* ===== OVERLAY DE FONDO ===== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 998; /* Debajo del sidebar */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== RESPONSIVE PARA MÓVILES ===== */
+@media (max-width: 768px) {
+    /* Ocultar botón toggle del sidebar en móviles */
+    .desktop-only,
+    .sidebar-toggler {
+        display: none !important;
+    }
+    
+    /* Mostrar botón de menú */
+    .menu-toggle {
+        display: block;
+        
+    }
+    
+    /* Ocultar sidebar por defecto y resetear todas las propiedades conflictivas */
+    .sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        top: 0 !important;
+        height: 100vh !important;
+        width: 280px !important;
+        z-index: 1000 !important;
+        transition: left 0.3s ease !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
+        overflow-y: auto !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        background: var(--color-primary) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    
+    /* Sidebar activo (visible) - con máxima especificidad */
+    .sidebar.active {
+        left: 0 !important;
+        display: block !important;
+        z-index: 1001 !important;
+        width: 280px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+    }
+    
+    /* Asegurar que el contenido del sidebar sea visible */
+    .sidebar .sidebar-header,
+    .sidebar .sidebar-nav,
+    .sidebar .nav-list,
+    .sidebar .nav-item,
+    .sidebar .nav-link,
+    .sidebar .nav-label {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Mostrar las etiquetas de navegación en móviles */
+    .sidebar .nav-label {
+        display: inline-block !important;
+    }
+    
+    /* Ajustar el sidebar-header para móviles */
+    .sidebar .sidebar-header {
+        padding: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    /* Ajustar la navegación para móviles */
+    .sidebar .sidebar-nav {
+        padding: 0 10px !important;
+        display: block !important;
+    }
+    
+    /* Asegurar que los elementos de navegación sean visibles */
+    .sidebar .nav-list {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+    }
+    
+    .sidebar .nav-item {
+        margin: 8px 0 !important;
+        display: list-item !important;
+    }
+    
+    .sidebar .nav-link {
+        display: flex !important;
+        align-items: center !important;
+        padding: 12px 16px !important;
+        text-decoration: none !important;
+        color: white !important;
+        border-radius: 8px !important;
+        transition: background-color 0.2s !important;
+    }
+    
+    .sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .sidebar .nav-link img {
+        width: 20px !important;
+        height: 20px !important;
+        margin-right: 12px !important;
+        filter: brightness(0) invert(1) !important;
+    }
+    
+    .sidebar .nav-label {
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        color: white !important;
+    }
+    
+    /* Forzar que el sidebar activo no esté colapsado en móviles */
+    .sidebar.active.collapsed {
+        width: 280px !important;
+    }
+    
+    /* Asegurar que el contenido del sidebar sea visible */
+    .sidebar.active .sidebar-header,
+    .sidebar.active .sidebar-nav {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Asegurar que los enlaces sean visibles y tengan ancho completo */
+    .sidebar.active .nav-link {
+        color: #fff;
+        opacity: 1;
+        visibility: visible;
+        width: auto;
+        white-space: nowrap;
+    }
+    
+    /* Mostrar etiquetas de navegación en móviles cuando está activo */
+    .sidebar.active .nav-label {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        display: inline !important;
+    }
+    
+    /* Ajustar contenido principal */
+    .contenido-principal {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 80px 15px 15px 15px; /* Espacio arriba para el botón */
+    }
+    
+    /* Ajustar Main */
+    .Main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 70px; /* Espacio para el botón flotante */
+    }
+    
+    /* Topbar responsive */
+    .Topbard {
+        
+        padding: 15px;
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    .Topbard h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+    
+    /* Contenedor de reservas responsive */
+    .contenedor-reservas {
+        padding: 0 10px;
+    }
+    
+    /* Tabla responsive */
+    .tabla-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+    
+    .tabla-reservas {
+        min-width: 800px; /* Ancho mínimo para que no se comprima demasiado */
+    }
+    
+    .tabla-reservas th,
+    .tabla-reservas td {
+        padding: 8px 6px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+}
+
+/* ===== RESPONSIVE PARA MÓVILES PEQUEÑOS ===== */
+@media (max-width: 480px) {
+    /* Botón de menú más pequeño */
+    .menu-toggle {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        left: 15px;
+        font-size: 18px;
+    }
+    
+    /* Sidebar más estrecho */
+    .sidebar {
+        width: 260px;
+        left: -260px;
+    }
+    
+    /* Contenido principal más compacto */
+    .contenido-principal {
+        padding: 70px 10px 10px 10px;
+    }
+    
+    .Main {
+        padding-top: 60px;
+    }
+    
+    .Topbard h1 {
+        font-size: 20px;
+    }
+    
+    /* Tabla más compacta */
+    .tabla-reservas th,
+    .tabla-reservas td {
+        padding: 6px 4px;
+        font-size: 13px;
+    }
+}
+
+/* ===== MEJORAS PARA DISPOSITIVOS TÁCTILES ===== */
+@media (hover: none) and (pointer: coarse) {
+    .menu-toggle {
+        min-width: 48px;
+        min-height: 48px;
+        background: var(--color-primary);
+    }
+    
+    .menu-toggle:active {
+        background: var(--color-accent);
+    }
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutToLeft {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+.sidebar.sliding-in {
+    animation: slideInFromLeft 0.3s ease-out;
+}
+
+.sidebar.sliding-out {
+    animation: slideOutToLeft 0.3s ease-in;
 }

@@ -39,11 +39,18 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
 
 <body class="Registro">
 
- <!------------------------------------------------------------------------------------->
-     <!--SIDEBAR-->
+ <!------------------------------------------------------------------------------------->     <!--SIDEBAR-->
      <?php 
     include("../Vista/Sidebar.php");
      ?>
+     
+     <!-- BOTÓN DE MENÚ MÓVIL -->
+     <button class="menu-toggle" id="menuToggle">
+         <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+     </button>
+     
+     <!-- OVERLAY PARA CERRAR MENÚ -->
+     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <!------------------------------------------------------------------------------------->
 
      <section class="Topbard">
@@ -153,9 +160,10 @@ $conn->close();
              </tbody>
          </table>
             </div> <!-- Cierre de tabla-scroll -->
-        </div> <!-- Cierre de contenedor-reservas -->
-     </section>
+        </div> <!-- Cierre de contenedor-reservas -->     </section>
 
+<script src="../js/sidebar.js"></script>
+<script src="../js/mobile_menu.js"></script>
 </body>
 
 </html>

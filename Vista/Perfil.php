@@ -53,11 +53,18 @@ if ($row = $result->fetch_assoc()) {
     
 </head>
 
-<body>
-    <!-- Sidebar incluido desde el archivo externo -->
+<body>    <!-- Sidebar incluido desde el archivo externo -->
     <?php
     include("../Vista/Sidebar.php");
     ?>
+    
+    <!-- BOTÓN DE MENÚ MÓVIL -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+    </button>
+    
+    <!-- OVERLAY PARA CERRAR MENÚ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="container">
         <div class="main-content" style="padding: 0px !important;">
@@ -127,8 +134,8 @@ if ($row = $result->fetch_assoc()) {
                 <button type="submit" class="btn-agregar" style="margin: 0 auto; justify-content: center; width: 60%; text-align: center !important; display: flex;">Guardar contraseña</button>
             </form>
         </div>
-    </div>
-
+    </div>    <script src="../js/sidebar.js"></script>
+    <script src="../js/mobile_menu.js"></script>
     <script src="../js/perfil.js"></script>
 </body>
 

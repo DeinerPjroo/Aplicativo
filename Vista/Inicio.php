@@ -57,9 +57,16 @@ if (isset($_SESSION['usuario_id'])) {
 
 </head>
 
-<body class="Registro">
-    <!--SIDEBAR-->
+<body class="Registro">    <!--SIDEBAR-->
     <?php include("../Vista/Sidebar.php"); ?>
+    
+    <!-- BOTÓN DE MENÚ MÓVIL -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+    </button>
+    
+    <!-- OVERLAY PARA CERRAR MENÚ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <!-- Mensaje de error JS oculto -->
     <div id="js-error-message" class="js-error">
@@ -90,8 +97,10 @@ if (isset($_SESSION['usuario_id'])) {
         window.addEventListener('unhandledrejection', function(e) {
             console.info('Promesa rechazada manejada automáticamente:', e.reason);
             e.preventDefault();
-        });
-    </script>
+        });    </script>
+    
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/mobile_menu.js"></script>
 </body>
 
 </html>

@@ -115,8 +115,16 @@ while ($row = $resProgramas->fetch_assoc()) {
     
         
 </head>
-<body class="Registro">
-    <?php include("../Vista/Sidebar.php"); ?>
+<body class="Registro">    <?php include("../Vista/Sidebar.php"); ?>
+    
+    <!-- BOTÓN DE MENÚ MÓVIL -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+    </button>
+    
+    <!-- OVERLAY PARA CERRAR MENÚ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <section class="Topbard">
         <h1><center>Estadísticas</center></h1>
     </section>
@@ -186,8 +194,9 @@ while ($row = $resProgramas->fetch_assoc()) {
              <img src="../Imagen/Iconos/download.svg" alt="" />
             <span class="nav-tooltip">Descargar estadísticas en PDF</span>
         </button>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    </div>    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/mobile_menu.js"></script>
     <script src="../js/estadisticas.js"></script>
     <script>
         // Datos PHP a JS

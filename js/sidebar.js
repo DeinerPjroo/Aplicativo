@@ -1,4 +1,15 @@
+/*
+===============================================================================
+                     SIDEBAR JAVASCRIPT (RESTAURADO)
+     Funcionalidad de colapsar/expandir para desktop solamente
+===============================================================================
+*/
+
 const sidebar = document.querySelector(".sidebar");
+
+/**
+ * Función para alternar el estado colapsado del sidebar (solo desktop)
+ */
 sidebar.classList.add("collapsed"); // Sidebar cerrado por defecto
 document.body.classList.add("sidebar-collapsed"); // Agregar clase al body
 const sidebarToggler = document.querySelector(".sidebar-toggler");

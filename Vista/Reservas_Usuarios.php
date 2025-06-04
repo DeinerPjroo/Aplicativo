@@ -88,11 +88,19 @@ if (isset($_GET['error'])) {
 
 <body class="Registro">
 
-    <!------------------------------------------------------------------------------------->
-    <!--SIDEBAR-->
+    <!------------------------------------------------------------------------------------->    <!--SIDEBAR-->
     <?php
     include("../Vista/Sidebar.php");
     ?>
+    <!------------------------------------------------------------------------------------->
+      <!-- BOTÓN DE MENÚ MÓVIL -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+    </button>
+    
+    <!-- OVERLAY PARA CERRAR MENÚ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!------------------------------------------------------------------------------------->
 
 
@@ -109,7 +117,7 @@ if (isset($_GET['error'])) {
             if (!empty($mensaje)) {
                 echo $mensaje;
             }
-            ?>            <h2>Reservas Activas</h2>
+            ?>            
 
             <?php
 
@@ -773,12 +781,14 @@ if (isset($_GET['error'])) {
 
             horaInicioInput.addEventListener('change', validarHoras);
             horaFinInput.addEventListener('change', validarHoras);
-        });
-
-        function cerrarModalReserva(modalId) {
+        });        function cerrarModalReserva(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
     </script>
+    
+    <!-- JAVASCRIPT PARA MENÚ MÓVIL -->
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/mobile_menu.js"></script>
     <script src="../js/reservas_usuarios.js"></script>
 </body>
 

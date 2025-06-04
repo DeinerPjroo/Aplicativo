@@ -7,32 +7,19 @@
     <title>Document</title>
 </head>
 
-<body>
-
-    <aside class="sidebar">
+<body>    <aside class="sidebar">
         <header class="sidebar-header">
             <a href="javascript:location.reload(true);" class="header-logo">
-                <img src="../Imagen/logo_sinLetra.png">
+                <img src="../Imagen/logo_sinLetra.png" alt="Logo Universidad">
             </a>
-
-
-            <button class="toggler sidebar-toggler">
+            <!-- Botón toggle para desktop (oculto en móvil) -->
+             <button class="toggler sidebar-toggler">
                 <span class="material-symbols-outlined">
                     <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="" />
                 </span>
             </button>
-
-
-
-       
-
-
-            <button class="toggler menu-toggler">
-                <span class="material-symbols-outlined">
-                    menu
-                </span>
-            </button>
         </header>
+
 
 
 

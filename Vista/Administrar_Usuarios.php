@@ -48,7 +48,15 @@ while ($row = $programasResult->fetch_assoc()) {
     
 </head>
 
-<body class="Registro">    <?php include("../Vista/Sidebar.php"); ?>
+<body class="Registro">    
+    <?php include("../Vista/Sidebar.php"); ?>
+      <!-- Mobile Menu Button -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menu" width="24" height="24">
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <section class="Topbard" style="padding-bottom: 10px;">
         <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
@@ -212,12 +220,13 @@ while ($row = $programasResult->fetch_assoc()) {
                     <i class="fas fa-check"></i> Confirmar
                 </button>
             </div>
-        </div>
-    </div>
+        </div>    </div>
 </body>
 
 </html>
 
+<script src="../js/sidebar.js"></script>
+<script src="../js/mobile_menu.js"></script>
 <script src="../js/administrar_usuarios.js"></script>
 
 <?php

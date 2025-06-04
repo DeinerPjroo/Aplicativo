@@ -88,9 +88,19 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
 
 <body class="Registro">
 
-    <?php
-    // Incluye la barra lateral de navegación.
+    <?php    // Incluye la barra lateral de navegación.
     include("../Vista/Sidebar.php");
+    ?>
+    
+    <!-- BOTÓN DE MENÚ MÓVIL -->
+    <button class="menu-toggle" id="menuToggle">
+        <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
+    </button>
+    
+    <!-- OVERLAY PARA CERRAR MENÚ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <?php
 
 
 
@@ -812,9 +822,11 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             var docenteId = $(this).val();
             var programaId = $('#programa_modificar').val();
             $('#asignatura_modificar').val('');
-            cargarAsignaturasModificar(docenteId, programaId, '');
-        });
+            cargarAsignaturasModificar(docenteId, programaId, '');        });
     </script>
+    
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/mobile_menu.js"></script>
 </body>
 
 </html>
