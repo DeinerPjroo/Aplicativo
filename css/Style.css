@@ -1894,6 +1894,94 @@ body.sidebar-collapsed .Main {
     justify-content: center;
 }
 
+/* Cuadro de bienvenida centrado y responsive */
+.welcome-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 40px 32px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.welcome-box h1 {
+    color: var(--primary-color);
+    font-size: 2.2rem;
+    margin-bottom: 18px;
+    line-height: 1.2;
+}
+
+.welcome-box p {
+    font-size: 1.15rem;
+    color: #444;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+.welcome-box img {
+    width: 110px;
+    margin-bottom: 18px;
+    height: auto;
+}
+
+.welcome-box .subtitle {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 768px) {
+    .inicio-content {
+        padding: 20px 15px;
+        min-height: calc(100vh - 60px);
+        margin-left: 0 !important;
+    }
+    
+    .welcome-box {
+        padding: 30px 20px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .welcome-box h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+    
+    .welcome-box p {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+    
+    .welcome-box img {
+        width: 90px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Para móviles muy pequeños */
+@media (max-width: 480px) {
+    .inicio-content {
+        padding: 15px 10px;
+        margin-left: 0 !important;
+    }
+    
+    .welcome-box {
+        padding: 25px 15px;
+    }
+    
+    .welcome-box h1 {
+        font-size: 1.6rem;
+    }
+    
+    .welcome-box img {
+        width: 80px;
+    }
+}
+
 /* ===== TARJETAS DE ESTADÍSTICAS ===== */
 .estadisticas-cards {
     display: flex;
@@ -2192,10 +2280,18 @@ body.sidebar-collapsed .Main {
     .profile-image,
     .profile-details {
         flex: 0 0 100%;
-    }
-
-    .profile-image {
+    }    .profile-image {
         margin-bottom: 20px;
+    }
+}
+
+/* ===== CORRECCIÓN ESPECÍFICA PARA CENTRADO DE INICIO ===== */
+@media (max-width: 1024px) {
+    .main-content.inicio-content {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }
 
