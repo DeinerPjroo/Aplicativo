@@ -122,20 +122,21 @@ if (isset($_GET['error'])) {
             <?php
 
             if ($resultado->num_rows > 0) : ?>
-                <div class="tabla-scroll">
-                    <table class="tabla-reservas">
+                <div class="tabla-scroll">                    <table class="tabla-reservas">
                     <thead>
                         <tr>
+                            <!-- Columnas principales para móviles (solo 3 columnas) -->
                             <th>Recurso</th>
-<th>Fecha</th>
-<th>Hora Inicio</th>
-<th>Hora Fin</th>
-<th>Programa</th>
-<th>Docente</th>
-<th>Asignatura</th>
-<th>Estado</th>
-<th>Fecha de Solicitud</th>
-<th>Acciones</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <!-- Columnas adicionales solo para desktop -->
+                            <th class="desktop-only">Hora Fin</th>
+                            <th class="desktop-only">Programa</th>
+                            <th class="desktop-only">Docente</th>
+                            <th class="desktop-only">Asignatura</th>
+                            <th class="desktop-only">Estado</th>
+                            <th class="desktop-only">Fecha de Solicitud</th>
+                            <th class="desktop-only">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>

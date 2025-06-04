@@ -51,27 +51,32 @@ if ($_SESSION['usuario_rol'] != 'Administrador' && strpos($_SERVER['PHP_SELF'], 
      
      <!-- OVERLAY PARA CERRAR MENÚ -->
      <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<!------------------------------------------------------------------------------------->
+     
+     <!------------------------------------------------------------------------------------->
 
-     <section class="Topbard">
-         <h1><center>Historial de Reservas</center></h1>
-     </section>     <section class="Table">
-        <div class="contenedor-reservas">
-            <div class="tabla-scroll">
-                <table class="tabla-reservas">
-                    <thead>
-                        <!-- Encabezados de la tabla -->
+     <section class="Main">
+         <section class="Topbard">
+             <h1>
+                 <center>Historial de Reservas</center>
+             </h1>
+         </section>
+
+         <div class="contenedor-reservas">
+         <div class="tabla-scroll">
+             <table class="tabla-reservas">                    <thead>                        <!-- Encabezados de la tabla -->
                         <tr>
+                            <!-- Columnas principales para móviles (solo 3 columnas) -->
                             <th>Recurso</th>
                             <th>Fecha</th>
-                        <th>Hora Inicio</th>
-                        <th>Hora Fin</th>
-                        <th>Nombre Usuario</th>
-                        <th>Nombre Docente</th>
-                        <th>Asignatura</th>
-                        <th>Programa</th>
-                        <th>Semestre</th>
-                        <th>Estado</th>
+                            <th>Hora</th>
+                            <!-- Columnas adicionales solo para desktop -->
+                            <th class="desktop-only">Hora Fin</th>
+                            <th class="desktop-only">Nombre Usuario</th>
+                            <th class="desktop-only">Nombre Docente</th>
+                            <th class="desktop-only">Asignatura</th>
+                            <th class="desktop-only">Programa</th>
+                            <th class="desktop-only">Semestre</th>
+                            <th class="desktop-only">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,9 +125,7 @@ if ($result->num_rows > 0) {
     
     while ($row = $result->fetch_assoc()) {
         if ($row['estado'] === 'Confirmada' || $row['estado'] === 'Cancelada') {
-            $fechaActual = $row['fechaReserva'];
-            
-            // Si la fecha es diferente, mostrar el separador
+            $fechaActual = $row['fechaReserva'];              // Si la fecha es diferente, mostrar el separador
             if ($fechaActual !== $fechaAnterior) {
                 echo "<tr class='separador-dia'>
                     <td colspan='10' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
@@ -130,9 +133,7 @@ if ($result->num_rows > 0) {
                     </td>
                 </tr>";
                 $fechaAnterior = $fechaActual;
-            }
-            
-            // Mostrar la fila de datos
+            }// Mostrar la fila de datos
             echo "<tr>
                 <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
                 <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
@@ -148,19 +149,20 @@ if ($result->num_rows > 0) {
         }
     }
 } else {
-    echo "<tr><td colspan='10' class='sin-reservas'>No hay registros disponibles</td></tr>";
+    echo "<tr>
+        <td colspan='3' class='sin-reservas mobile-no-data'>No hay registros disponibles</td>
+        <td colspan='10' class='sin-reservas desktop-no-data' style='display: none;'>No hay registros disponibles</td>
+    </tr>";
 }
 
 // Cerrar la conexión
 $stmt->close();
 $conn->close();
-?>
-                 
-                 
-             </tbody>
+?>                   </tbody>
          </table>
-            </div> <!-- Cierre de tabla-scroll -->
-        </div> <!-- Cierre de contenedor-reservas -->     </section>
+         </div> <!-- Cierre de tabla-scroll -->
+     </div> <!-- Cierre de contenedor-reservas -->
+ </section> <!-- Cierre de Main -->
 
 <script src="../js/sidebar.js"></script>
 <script src="../js/mobile_menu.js"></script>
