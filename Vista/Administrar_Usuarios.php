@@ -78,19 +78,21 @@ while ($row = $programasResult->fetch_assoc()) {
 
         <div id="mensajeSinResultados" style="display:none;" class="sin-usuarios">
             <p>No se encontraron usuarios con ese criterio de búsqueda</p>
-        </div>        <!-- Scroll vertical para la tabla de usuarios -->
+        </div>        <!-- Scroll horizontal para la tabla de usuarios -->
         <div class="tabla-scroll">
             <table id="tablaUsuario" class="tabla-reservas">
                 <thead>
                     <tr>
+                        <!-- Columnas principales para móviles (solo 3 columnas) -->
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>telefono</th>
-                        <th>Programa</th>
-                        <th>Semestre</th>
                         <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
+                        <!-- Columnas adicionales solo para desktop -->
+                        <th class="desktop-only">Teléfono</th>
+                        <th class="desktop-only">Programa</th>
+                        <th class="desktop-only">Semestre</th>
+                        <th class="desktop-only">Rol</th>
+                        <th class="desktop-only">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tbodyUsuarios"></tbody>
@@ -103,16 +105,15 @@ while ($row = $programasResult->fetch_assoc()) {
                 .then(data => {
                     const tbody = document.getElementById('tbodyUsuarios');
                     tbody.innerHTML = '';
-                    if (data.status === 'success') {
-                        data.data.forEach(row => {
+                    if (data.status === 'success') {                        data.data.forEach(row => {
                             tbody.innerHTML += `
                             <tr class="usuario-row">
                                 <td class="td-codigo">${row.codigo_u}</td>
                                 <td class="td-nombre">${row.nombre}</td>
+                                <td class="td-correo">${row.correo}</td>
                                 <td class="td-telefono">${row.telefono ?? ''}</td>
                                 <td class="td-programa">${row.programa ? row.programa : 'No aplica'}</td>
                                 <td class="td-semestre">${row.semestre ?? 'N/A'}</td>
-                                <td class="td-correo">${row.correo}</td>
                                 <td class="td-rol">${row.rol}</td>
                                 <td class="td-acciones" style="display: flex;">
                                     <button class="btn btn-modificar" onclick="openModificarForm(

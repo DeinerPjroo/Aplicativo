@@ -49,65 +49,65 @@ if ($row = $result->fetch_assoc()) {
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Perfil de Usuario</title>    <link rel="stylesheet" href="../css/Style.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="../css/Style.css">
+
 </head>
 
-<body>    <!-- Sidebar incluido desde el archivo externo -->
+<body class="Registro"> <!-- Sidebar incluido desde el archivo externo -->
     <?php
     include("../Vista/Sidebar.php");
     ?>
-    
+
     <!-- BOTÓN DE MENÚ MÓVIL -->
     <button class="menu-toggle" id="menuToggle">
         <img src="../Imagen/Iconos/Menu_3lineas.svg" alt="Menú" class="menu-icon">
     </button>
-    
+
     <!-- OVERLAY PARA CERRAR MENÚ -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="container">
-        <div class="main-content" style="padding: 0px !important;">
-            <div class="Topbard" style="padding: 0px !important; ">
-                <h1>Perfil de Usuario</h1>
+    <section class="Main">
+        <section class="Topbard">
+            <h1>
+                <center>Perfil de Usuario</center>
+            </h1>
+        </section>
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil"> <!-- Se mantiene la referencia a la imagen -->
+                <button type="button" class="btn-agregar" onclick="abrirModal()">Cambiar contraseña</button>
             </div>
 
-            <div class="profile-container">
-                <div class="profile-image">
-                    <img src="<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil"> <!-- Se mantiene la referencia a la imagen -->
-                    <button type="button" class="btn-agregar" onclick="abrirModal()">Cambiar contraseña</button>
-                </div>
+            <div class="profile-details">
+                <form id="formActualizarPerfil" action="../Controlador/ControladorPerfil.php" method="POST">
+                    <input type="hidden" name="accion" value="actualizar_datos">
+                    <div class="form-group">
+                        <label for="nombreUsuario">Nombre</label>
+                        <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
+                    </div>
 
-                <div class="profile-details">
-                    <form id="formActualizarPerfil" action="../Controlador/ControladorPerfil.php" method="POST">
-                        <input type="hidden" name="accion" value="actualizar_datos">
-                        <div class="form-group">
-                            <label for="nombreUsuario">Nombre</label>
-                            <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
-                        </div>
+                    <div class="form-group">
+                        <label for="programaUsuario">Programa</label>
+                        <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
+                        <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="programaUsuario">Programa</label>
-                            <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
-                            <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
-                        </div>
+                    <div class="form-group">
+                        <label for="correoUsuario">Correo</label>
+                        <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>" required pattern="^[^@]+@[^@]+\.[a-zA-Z]{2,}$" title="Por favor, ingrese un correo válido que contenga '@'.">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="correoUsuario">Correo</label>
-                            <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>" required pattern="^[^@]+@[^@]+\.[a-zA-Z]{2,}$" title="Por favor, ingrese un correo válido que contenga '@'.">
-                        </div>
+                    <div class="form-group">
+                        <label for="telefonoUsuario">Teléfono</label>
+                        <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="telefonoUsuario">Teléfono</label>
-                            <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
-                        </div>
-
-                        <button type="submit" class="btn-agregar">Guardar cambios</button>
-                    </form>
-                </div>
+                    <button type="submit" class="btn-agregar btn-guardar-perfil">Guardar cambios</button>
+                </form>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Modal para cambiar contraseña -->
     <div id="modalCambiarContraseña" class="modal">
@@ -134,7 +134,8 @@ if ($row = $result->fetch_assoc()) {
                 <button type="submit" class="btn-agregar" style="margin: 0 auto; justify-content: center; width: 60%; text-align: center !important; display: flex;">Guardar contraseña</button>
             </form>
         </div>
-    </div>    <script src="../js/sidebar.js"></script>
+    </div>
+    <script src="../js/sidebar.js"></script>
     <script src="../js/mobile_menu.js"></script>
     <script src="../js/perfil.js"></script>
 </body>
