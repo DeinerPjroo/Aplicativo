@@ -68,7 +68,7 @@ if ($row = $result->fetch_assoc()) {
 
     <div class="container">
         <div class="main-content" style="padding: 0px !important;">
-            <div class="Topbard" style="padding: 0px !important;">
+            <div class="Topbard" style="padding: 0px !important; ">
                 <h1>Perfil de Usuario</h1>
             </div>
 
