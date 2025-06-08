@@ -249,10 +249,129 @@ switch ($accion) {
         }
         break;
 
-        // ... resto de tus casos (modificar, actualizar, cancelar, etc) igual que antes ...
+    case 'modificar':
+        // Modificar un registro existente
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Método no permitido');
+            }
+
+            $registro_id = $_POST['registro_id'] ?? null;
+            $correo = $_POST['correo'] ?? null;
+            $fecha = $_POST['fecha'] ?? null;
+            $horaInicio = $_POST['horaInicio'] ?? null;
+            $horaFin = $_POST['horaFin'] ?? null;
+            $recurso = $_POST['recurso'] ?? null;
+            $programa = $_POST['programa'] ?? null;
+            $docente = $_POST['docente'] ?? null;
+            $asignatura = $_POST['asignatura'] ?? null;
+            $salon = $_POST['salon'] ?? null;
+            $semestre = $_POST['semestre'] ?? null;
+            $celular = $_POST['celular'] ?? null;
+            $estado = $_POST['estado'] ?? 'Confirmada';
+
+            // Validaciones básicas
+            if (!$registro_id) {
+                throw new Exception('Falta ID del registro');
+            }
+            if (!$fecha) {
+                throw new Exception('Falta fecha');
+            }
+            if (!$horaInicio) {
+                throw new Exception('Falta hora de inicio');
+            }
+            if (!$horaFin) {
+                throw new Exception('Falta hora de fin');
+            }
+            if (!$recurso) {
+                throw new Exception('Falta recurso');
+            }
+
+            // Verificar que el registro existe
+            $stmtExiste = $conn->prepare("SELECT ID_Usuario FROM registro WHERE ID_Registro = ?");
+            $stmtExiste->bind_param("s", $registro_id);
+            $stmtExiste->execute();
+            $resultExiste = $stmtExiste->get_result();
+            if ($resultExiste->num_rows === 0) {
+                throw new Exception('El registro no existe');
+            }
+            $rowExiste = $resultExiste->fetch_assoc();
+            $usuario_id = $rowExiste['ID_Usuario'];
+            $stmtExiste->close();
+
+            // Obtener ID_DocenteAsignatura si se proporcionaron docente y asignatura
+            $id_docente_asignatura = null;
+            if ($docente && $asignatura) {
+                $stmtDA = $conn->prepare("SELECT ID_DocenteAsignatura FROM docente_asignatura WHERE ID_Usuario = ? AND ID_Asignatura = ? LIMIT 1");
+                $stmtDA->bind_param("ii", $docente, $asignatura);
+                $stmtDA->execute();
+                $resDA = $stmtDA->get_result();
+                if ($rowDA = $resDA->fetch_assoc()) {
+                    $id_docente_asignatura = $rowDA['ID_DocenteAsignatura'];
+                }
+                $stmtDA->close();
+            }
+
+            // Validar disponibilidad del recurso (excluyendo el registro actual)
+            $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro 
+                            WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' 
+                            AND ID_Registro != ? 
+                            AND (horaInicio < ? AND horaFin > ?)";
+            $stmtVerificar = $conn->prepare($sqlVerificar);
+            $stmtVerificar->bind_param("issss", $recurso, $fecha, $registro_id, $horaFin, $horaInicio);
+            $stmtVerificar->execute();
+            $resultVerificar = $stmtVerificar->get_result();
+            $rowVerificar = $resultVerificar->fetch_assoc();
+            $stmtVerificar->close();
+
+            if ($rowVerificar['conteo'] > 0) {
+                throw new Exception('El recurso no está disponible en ese horario');
+            }
+
+            // Actualizar el registro
+            $sql = "UPDATE registro SET 
+                    fechaReserva = ?, 
+                    horaInicio = ?, 
+                    horaFin = ?, 
+                    ID_Recurso = ?, 
+                    ID_DocenteAsignatura = ?, 
+                    salon = ?, 
+                    semestre = ?, 
+                    estado = ?";
+
+            $params = "sssiisss";
+            $paramValues = [$fecha, $horaInicio, $horaFin, $recurso, $id_docente_asignatura, $salon, $semestre, $estado];
+
+            // Si se proporciona celular, actualizar también el usuario
+            if ($celular !== null) {
+                $stmtUsuario = $conn->prepare("UPDATE usuario SET telefono = ? WHERE ID_Usuario = ?");
+                $stmtUsuario->bind_param("si", $celular, $usuario_id);
+                $stmtUsuario->execute();
+                $stmtUsuario->close();
+            }
+
+            $sql .= " WHERE ID_Registro = ?";
+            $params .= "s";
+            $paramValues[] = $registro_id;
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param($params, ...$paramValues);
+
+            if ($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => 'Registro modificado correctamente']);
+            } else {
+                throw new Exception('Error al actualizar el registro: ' . $conn->error);
+            }
+            $stmt->close();
+
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
+        // ... resto de tus casos (actualizar, cancelar, etc) igual que antes ...
         // (No necesitas repetir el correo en los otros casos, solo en 'agregar')
 
         // ... (todo el resto del código igual) ...
-
 }
 $conn->close();

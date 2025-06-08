@@ -2366,7 +2366,7 @@ body.sidebar-collapsed .Main {
     justify-content: space-between;
 }
 .form-group {
-    flex: 1 1 180px;
+    flex: 1 1 20px;
     min-width: 180px;
     display: flex;
     flex-direction: column;

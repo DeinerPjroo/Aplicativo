@@ -462,11 +462,11 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                             <option value="">Seleccione una Asignatura</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" id="grupo_salon_agregar" style="display:none;">
+                </div>                <div class="form-row">
+                    <div class="form-group" id="grupo_salon_agregar">
                         <label for="salon_agregar">Salón</label>
-                        <input type="text" id="salon_agregar" name="salon" class="input-dinamico">
+                        <input type="text" id="salon_agregar" name="salon" class="input-dinamico" placeholder="Ej: 2B, 1A...">
+                        <small class="form-note">💡 Ingrese el salón donde normalmente da clase o donde se realizará la actividad</small>
                     </div>
                     <div class="form-group">
                         <label for="semestre_agregar">Semestre</label>
@@ -560,11 +560,11 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                             <option value="">Seleccione una Asignatura</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" id="grupo_salon_modificar" style="display:none;">
+                </div>                <div class="form-row">
+                    <div class="form-group" id="grupo_salon_modificar">
                         <label for="salon_modificar">Salón</label>
-                        <input type="text" id="salon_modificar" name="salon" class="input-dinamico">
+                        <input type="text" id="salon_modificar" name="salon" class="input-dinamico" placeholder="Ej: 2B, 1A...">
+                        <small class="form-note">💡 Ingrese el salón donde normalmente da clase o donde se realizará la actividad</small>
                     </div>
                     <div class="form-group">
                         <label for="semestre_modificar">Semestre</label>
@@ -797,17 +797,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         }
                     }, 100);
                 }
-            }, 100);
-
-            setTimeout(function() {
-                var recursoNombre = $('#recurso_modificar option:selected').data('nombre') || '';
-                if (recursoNombre.toLowerCase().includes('videobeam')) {
-                    $('#grupo_salon_modificar').show();
-                } else {
-                    $('#grupo_salon_modificar').hide();
-                }
-            }, 200);
-        }
+            }, 100);        }
 
         // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
         $('#programa_modificar').on('change', function() {

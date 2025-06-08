@@ -258,10 +258,10 @@ if (isset($_GET['error'])) {
                 <div class="form-group">
                     <label for="nombre_alumno_unico">Nombre del Alumno:</label>
                     <input type="text" id="nombre_alumno_unico" name="nombre_alumno" value="<?php echo ($role === 'Estudiante') ? htmlspecialchars($_SESSION['usuario_nombre']) : 'N/A'; ?>" readonly>
-                </div>
-                <div class="form-group" id="grupo_salon_unico" style="display:none;">
+                </div>                <div class="form-group" id="grupo_salon_unico">
                     <label for="salon_unico">Salón:</label>
-                    <input type="text" id="salon_unico" name="salon">
+                    <input type="text" id="salon_unico" name="salon" placeholder="Ej: 2B, 1A...">
+                    <small class="form-note">💡 Ingrese el salón donde normalmente da clase o donde se realizará la actividad</small>
                 </div>
                 <div class="form-group">
                     <label for="semestre_unico">Semestre:</label>
@@ -290,17 +290,7 @@ if (isset($_GET['error'])) {
                 </div>
             </form>
         </div>
-    </div>
-
-    <script>
-        // Mostrar/ocultar campo salón según recurso
-        const recursoSelect = document.getElementById('recurso_unico');
-        recursoSelect.addEventListener('change', function() {
-            const selected = recursoSelect.options[recursoSelect.selectedIndex];
-            const nombre = selected.getAttribute('data-nombre');
-            document.getElementById('grupo_salon_unico').style.display = (nombre && nombre.toLowerCase().includes('videobeam')) ? 'block' : 'none';
-        });
-
+    </div>    <script>
         // Cargar docentes según programa
         const programaSelect = document.getElementById('programa_unico');
         const docenteSelect = document.getElementById('docente_unico');
