@@ -279,10 +279,34 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                                 $esHoy = ($fechaActual === $fechaHoy); // Verificar si es el día actual
 
                                 if ($fechaActual !== $fechaAnterior) {
-                                    // Mostrar encabezado de día SIN data-registro-id
+                                    // Mostrar encabezado de día SIN data-registro-id y SIN tildes ni caracteres especiales en el día
+                                    $dias_sin_tilde = [
+                                        'monday' => 'Lunes',
+                                        'tuesday' => 'Martes',
+                                        'wednesday' => 'Miercoles',
+                                        'thursday' => 'Jueves',
+                                        'friday' => 'Viernes',
+                                        'saturday' => 'Sabado',
+                                        'sunday' => 'Domingo',
+                                    ];
+                                    $meses_sin_tilde = [
+                                        'january' => 'enero', 'february' => 'febrero', 'march' => 'marzo', 'april' => 'abril',
+                                        'may' => 'mayo', 'june' => 'junio', 'july' => 'julio', 'august' => 'agosto',
+                                        'september' => 'septiembre', 'october' => 'octubre', 'november' => 'noviembre', 'december' => 'diciembre'
+                                    ];
+                                    // Forzar locale a 'C' para obtener los nombres en inglés y mapearlos a español sin tildes
+                                    setlocale(LC_TIME, 'C');
+                                    $dia_en = strtolower(strftime('%A', strtotime($fechaActual)));
+                                    $mes_en = strtolower(strftime('%B', strtotime($fechaActual)));
+                                    setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES', 'Spanish_Spain.1252'); // Restaurar
+                                    $dia_sin_tilde = $dias_sin_tilde[$dia_en] ?? ucfirst($dia_en);
+                                    $mes_sin_tilde = $meses_sin_tilde[$mes_en] ?? $mes_en;
+                                    $dia_num = date('d', strtotime($fechaActual));
+                                    $anio = date('Y', strtotime($fechaActual));
+                                    $fecha_formateada = "$dia_sin_tilde $dia_num de $mes_sin_tilde de $anio";
                                     echo "<tr class='separador-dia'>
         <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
-            📅 " . strftime("%A %d de %B de %Y", strtotime($fechaActual)) . "
+            📅 $fecha_formateada
         </td>
       </tr>";
                                     $fechaAnterior = $fechaActual;
