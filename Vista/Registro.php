@@ -251,8 +251,8 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
     pr.ID_Programa,
     CASE 
-        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Estudiante') THEN COALESCE(r.semestre, 'Sin semestre')
-        ELSE 'No aplica'
+        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Administrativo') THEN 'No aplica'
+        ELSE COALESCE(r.semestre, 'Sin semestre')
     END AS semestre,
     r.estado
 FROM registro r
