@@ -36,6 +36,30 @@ if ($row = $result->fetch_assoc()) {
     $telefonoUsuario = !empty($row['telefonoUsuario']) ? $row['telefonoUsuario'] : ''; // Se elimina el valor predeterminado "No disponible"
     $programa = $row['programa'];
     $fotoPerfil = '../Imagen/default.jpg'; // Imagen predeterminada definida directamente
+    // Si el usuario es docente, obtener todos los programas asociados
+    if ($role === 'Docente') {
+        $sql_programas = "SELECT p.nombrePrograma FROM docente_programa dp INNER JOIN programa p ON dp.ID_Programa = p.ID_Programa WHERE dp.ID_Usuario = ?";
+        $stmt_programas = $conn->prepare($sql_programas);
+        $stmt_programas->bind_param("i", $usuario_id);
+        $stmt_programas->execute();
+        $result_programas = $stmt_programas->get_result();
+        $listaProgramas = [];
+        while ($rowP = $result_programas->fetch_assoc()) {
+            $listaProgramas[] = $rowP['nombrePrograma'];
+        }
+        if (count($listaProgramas) > 0) {
+            $programa = implode(", ", $listaProgramas); // Para el input value
+            $programasListaHTML = '<ul style="margin: 0.5em 0 0 0; padding-left: 1.2em;">';
+            foreach ($listaProgramas as $prog) {
+                $programasListaHTML .= '<li>' . htmlspecialchars($prog) . '</li>';
+            }
+            $programasListaHTML .= '</ul>';
+        } else {
+            $programasListaHTML = '';
+        }
+    } else {
+        $programasListaHTML = '';
+    }
 } else {
     $nombreUsuario = 'Usuario no identificado';
     $correoUsuario = 'Correo no disponible';
@@ -91,6 +115,7 @@ if ($row = $result->fetch_assoc()) {
                         <label for="programaUsuario">Programa</label>
                         <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
                         <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
+                        <?php if (!empty($programasListaHTML)) echo $programasListaHTML; ?>
                     </div>
 
                     <div class="form-group">
