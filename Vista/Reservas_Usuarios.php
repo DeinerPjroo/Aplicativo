@@ -76,14 +76,21 @@ if (isset($_GET['error'])) {
 <!DOCTYPE html>
 <html lang="es">
 
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <link rel="stylesheet" href="../css/Style.css">
+    <link rel="stylesheet" href="../css/videobeam-info.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="webside icon" type="png" href="images/logo.png">
-    <title>Mis Reservas</title>
+    <link rel="webside icon" type="png" href="images/logo.png">    <title>Mis Reservas</title>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .swal-wide {
+            width: 500px !important;
+        }
+        .swal2-html-container {
+            text-align: left !important;
+        }
+    </style>
 </head>
 
 <body class="Registro">
@@ -102,22 +109,31 @@ if (isset($_GET['error'])) {
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <!------------------------------------------------------------------------------------->
-
-
     <section class="Main">
         <section class="Topbard">
             <h1>
                 <center>Mis Reservas</center>
             </h1>
-        </section>
-
-        <div class="contenedor-reservas">
+            <!-- DEBUG: Botón de prueba modal -->
+          
+        </section><div class="contenedor-reservas">
             <?php
             // Mostrar mensajes de confirmación o error
             if (!empty($mensaje)) {
                 echo $mensaje;
             }
-            ?>            
+            
+            // Mostrar mensajes de la sesión (cancelación)
+            if (isset($_SESSION['mensaje_exito'])) {
+                echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['mensaje_exito']) . '</div>';
+                unset($_SESSION['mensaje_exito']);
+            }
+            
+            if (isset($_SESSION['mensaje_error'])) {
+                echo '<div class="alert alert-danger">' . htmlspecialchars($_SESSION['mensaje_error']) . '</div>';
+                unset($_SESSION['mensaje_error']);
+            }
+            ?>
 
             <?php
 
@@ -166,15 +182,12 @@ if (isset($_GET['error'])) {
             <?php echo $row['estado']; ?>
         </span>
     </td>
-    <td><?php echo date('d/m/Y H:i', strtotime($row['creado_en'])); ?></td>
-    <td>
+    <td><?php echo date('d/m/Y H:i', strtotime($row['creado_en'])); ?></td>    <td>
         <?php if ($row['estado'] === 'Confirmada'): ?>
-            <form method="post" action="../Controlador/Cancelar_Reserva.php" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
-                <input type="hidden" name="id_reserva" value="<?php echo $row['ID_Registro']; ?>">
-                <button type="submit" name="cancelar" class="btn-cancelar">
-                    Cancelar
-                </button>
-            </form>
+            <button type="button" class="btn-cancelar" 
+                    onclick="confirmarCancelacion('<?php echo $row['ID_Registro']; ?>', '<?php echo htmlspecialchars($row['nombreRecurso'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo date('d/m/Y', strtotime($row['fechaReserva'])); ?>', '<?php echo date('h:i A', strtotime($row['horaInicio'])); ?>')">
+                Cancelar
+            </button>
         <?php else: ?>
             <span>—</span>
         <?php endif; ?>
@@ -187,13 +200,14 @@ if (isset($_GET['error'])) {
                 <div class="sin-reservas">
                     <p>No tienes reservas activas en este momento</p>
                 </div>
-            <?php endif; ?>
-
-            <center>
+            <?php endif; ?>            <center>
                 <button class="btn-agregar" onclick="abrirModalReserva()">
                     <img src="../Imagen/Iconos/Mas.svg" alt="" />
-                    <span class="btn-text">Crear Nueva Reserva</span>                </button>
-            </center>        </div>
+                    <span class="btn-text">Crear Nueva Reserva</span>
+                </button>
+                
+               
+            </center></div>
     </section>
 
     <!-- Modal único para reserva -->
@@ -289,8 +303,24 @@ if (isset($_GET['error'])) {
                     <button type="button" onclick="cerrarModalReserva('modalReservaUnica')" class="btn-cancelar">Cancelar</button>
                 </div>
             </form>
-        </div>
-    </div>    <script>
+        </div>    </div>    <script>
+        // 🚨 DEBUG MODAL CANCELACIÓN 🚨
+        console.log('%c🔥 INICIO SCRIPT - RESERVAS USUARIOS', 'background: #ff0000; color: white; padding: 5px; font-size: 16px; font-weight: bold;');
+        console.log('🔧 SweetAlert2 disponible:', typeof Swal !== 'undefined');
+        
+        // Verificar inmediatamente si la función existe
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('%c✅ DOM CARGADO COMPLETAMENTE', 'background: #00ff00; color: white; padding: 5px; font-size: 14px;');
+            console.log('🔧 Función confirmarCancelacion definida:', typeof confirmarCancelacion !== 'undefined');
+            
+            // Listar todos los botones de cancelar
+            const botonesCancelar = document.querySelectorAll('.btn-cancelar');
+            console.log(`🔧 Total botones de cancelar encontrados: ${botonesCancelar.length}`);
+            botonesCancelar.forEach((btn, index) => {
+                console.log(`   - Botón ${index + 1}:`, btn.onclick ? btn.onclick.toString() : 'Sin onclick', btn);
+            });
+        });
+
         // Cargar docentes según programa
         const programaSelect = document.getElementById('programa_unico');
         const docenteSelect = document.getElementById('docente_unico');
@@ -768,15 +798,135 @@ if (isset($_GET['error'])) {
                     });
                     // Puedes limpiar el campo que causó el error si lo deseas
                 }
-            }
-
-            horaInicioInput.addEventListener('change', validarHoras);
+            }            horaInicioInput.addEventListener('change', validarHoras);
             horaFinInput.addEventListener('change', validarHoras);
-        });        function cerrarModalReserva(modalId) {
+        });
+
+        function cerrarModalReserva(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+
+        // Función para confirmar cancelación de reserva
+        function confirmarCancelacion(idReserva, nombreRecurso, fecha, hora) {
+            console.log('Función confirmarCancelacion llamada:', {idReserva, nombreRecurso, fecha, hora});
+            
+            // Verificar si SweetAlert2 está disponible
+            if (typeof Swal === 'undefined') {
+                alert('SweetAlert2 no está cargado. Usando confirm básico.');
+                if (confirm(`¿Estás seguro de cancelar la reserva?\n\nRecurso: ${nombreRecurso}\nFecha: ${fecha}\nHora: ${hora}`)) {
+                    // Crear y enviar formulario
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../Controlador/Cancelar_Reserva.php';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'id_reserva';
+                    input.value = idReserva;
+                    
+                    const submitInput = document.createElement('input');
+                    submitInput.type = 'hidden';
+                    submitInput.name = 'cancelar';
+                    submitInput.value = 'true';
+                    
+                    form.appendChild(input);
+                    form.appendChild(submitInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+                return;
+            }
+            
+            Swal.fire({
+                title: '⚠️ ¿Cancelar Reserva?',
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p><strong>📋 Recurso:</strong> ${nombreRecurso}</p>
+                        <p><strong>📅 Fecha:</strong> ${fecha}</p>
+                        <p><strong>🕐 Hora:</strong> ${hora}</p>
+                    </div>
+                    <p style="color: #dc3545; font-weight: bold;">Esta acción no se puede deshacer</p>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '✅ Sí, cancelar',
+                cancelButtonText: '❌ No, mantener',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'swal-wide'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Cancelando reserva...',
+                        text: 'Por favor espera',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Crear y enviar formulario
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../Controlador/Cancelar_Reserva.php';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'id_reserva';
+                    input.value = idReserva;
+                    
+                    const submitInput = document.createElement('input');
+                    submitInput.type = 'hidden';
+                    submitInput.name = 'cancelar';
+                    submitInput.value = 'true';
+                      form.appendChild(input);
+                    form.appendChild(submitInput);
+                    document.body.appendChild(form);
+                    form.submit();                }
+            });
+        }
+        
+        // Script de debug para verificar que todo está funcionando
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 [DEBUG] DOM cargado completamente');
+            console.log('🔧 [DEBUG] SweetAlert2 disponible:', typeof Swal !== 'undefined');
+            console.log('🔧 [DEBUG] Función confirmarCancelacion definida:', typeof confirmarCancelacion !== 'undefined');
+            
+            // Verificar que los botones de cancelar existen
+            const botonesCancelar = document.querySelectorAll('.btn-cancelar');
+            console.log('🔧 [DEBUG] Botones de cancelar encontrados:', botonesCancelar.length);
+            
+            // Verificar cada botón individualmente
+            botonesCancelar.forEach((btn, index) => {
+                console.log(`🔧 [DEBUG] Botón ${index + 1}:`, {
+                    elemento: btn,
+                    onclick: btn.getAttribute('onclick'),
+                    text: btn.textContent.trim()
+                });
+                
+                // Agregar listener para debug
+                btn.addEventListener('click', function(e) {
+                    console.log('🔧 [DEBUG] Click detectado en botón:', e.target);
+                    console.log('🔧 [DEBUG] Onclick del botón:', e.target.getAttribute('onclick'));
+                });
+            });
+            
+            // Test directo de la función
+            console.log('🔧 [DEBUG] Probando función confirmarCancelacion...');
+            if (typeof confirmarCancelacion === 'function') {
+                console.log('🔧 [DEBUG] ✅ Función confirmarCancelacion está disponible');
+            } else {
+                console.error('🔧 [DEBUG] ❌ Función confirmarCancelacion NO está disponible');
+            }
+        });
     </script>
-    
     <!-- JAVASCRIPT PARA MENÚ MÓVIL -->
     <script src="../js/sidebar.js"></script>
     <script src="../js/mobile_menu.js"></script>

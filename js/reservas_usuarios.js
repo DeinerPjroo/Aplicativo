@@ -7,7 +7,19 @@ if (recursoSelect) {
     recursoSelect.addEventListener('change', function() {
         const selected = recursoSelect.options[recursoSelect.selectedIndex];
         const nombre = selected.getAttribute('data-nombre');
-        document.getElementById('grupo_salon_unico').style.display = (nombre && nombre.toLowerCase().includes('videobeam')) ? 'block' : 'none';
+        const isVideobeam = nombre && nombre.toLowerCase().includes('videobeam');
+        
+        document.getElementById('grupo_salon_unico').style.display = isVideobeam ? 'block' : 'none';
+        
+        // Actualizar info de videobeams si es necesario
+        if (isVideobeam) {
+            actualizarInfoVideobeams();
+        } else {
+            const infoContainer = document.getElementById('info-videobeams');
+            if (infoContainer) {
+                infoContainer.style.display = 'none';
+            }
+        }
     });
 }
 
@@ -122,12 +134,126 @@ async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
             if (!responseBody.disponible) {
                 throw new Error(responseBody.mensaje || responseBody.error || 'El recurso no está disponible en ese horario');
             }
-            return true;
+            return responseBody;
         } else {
             throw new Error('Error en la respuesta del servidor. No es un formato JSON válido.');
         }
     } catch (error) {
         throw error;
+    }
+}
+
+/**
+ * Obtiene información de disponibilidad de videobeams para un horario específico
+ */
+async function obtenerInfoVideobeams(fecha, horaInicio, horaFin) {
+    const formData = new FormData();
+    formData.append("fecha", fecha);
+    formData.append("hora_inicio", horaInicio);
+    formData.append("hora_fin", horaFin);
+    
+    try {
+        const response = await fetch("../Controlador/ControladorVerificar.php?tipo=info_videobeam", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al obtener información de videobeams:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Muestra información de disponibilidad de videobeams en el formulario
+ */
+function mostrarInfoVideobeams(videobeams) {
+    let infoContainer = document.getElementById('info-videobeams');
+    
+    if (!infoContainer) {
+        // Crear el contenedor si no existe
+        infoContainer = document.createElement('div');
+        infoContainer.id = 'info-videobeams';
+        infoContainer.className = 'videobeam-info-container';
+        
+        // Insertarlo después del select de recursos
+        const recursoSelect = document.getElementById('recurso_unico');
+        if (recursoSelect && recursoSelect.parentNode) {
+            recursoSelect.parentNode.insertBefore(infoContainer, recursoSelect.nextSibling);
+        }
+    }
+    
+    if (!videobeams || videobeams.length === 0) {
+        infoContainer.innerHTML = '<p class="no-videobeams">No hay videobeams disponibles.</p>';
+        return;
+    }
+    
+    let html = '<div class="videobeam-info">';
+    html += '<h4>📹 Disponibilidad de Videobeams:</h4>';
+    html += '<div class="videobeam-grid">';
+    
+    videobeams.forEach(vb => {
+        const porcentaje = Math.round((vb.disponibles / vb.cantidad_total) * 100);
+        const estado = vb.disponibles > 0 ? 'disponible' : 'ocupado';
+        
+        html += `
+            <div class="videobeam-item ${estado}">
+                <div class="videobeam-nombre">${vb.nombre}</div>
+                <div class="videobeam-contador">
+                    <span class="disponibles">${vb.disponibles}</span>/<span class="total">${vb.cantidad_total}</span>
+                </div>
+                <div class="videobeam-barra">
+                    <div class="barra-progreso" style="width: ${porcentaje}%"></div>
+                </div>
+                <div class="videobeam-estado">
+                    ${vb.disponibles > 0 ? 'Disponible' : 'No disponible'}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div></div>';
+    infoContainer.innerHTML = html;
+}
+
+/**
+ * Actualiza la información de videobeams cuando cambian fecha/horario
+ */
+async function actualizarInfoVideobeams() {
+    const fecha = document.getElementById('fecha_unico')?.value;
+    const horaInicio = document.getElementById('hora_inicio_unico')?.value;
+    const horaFin = document.getElementById('hora_fin_unico')?.value;
+    const recursoSelect = document.getElementById('recurso_unico');
+    
+    // Solo mostrar para videobeams
+    if (!recursoSelect) return;
+    
+    const selectedOption = recursoSelect.options[recursoSelect.selectedIndex];
+    const nombreRecurso = selectedOption?.getAttribute('data-nombre') || '';
+    
+    if (!nombreRecurso.toLowerCase().includes('videobeam')) {
+        // Ocultar info si no es videobeam
+        const infoContainer = document.getElementById('info-videobeams');
+        if (infoContainer) {
+            infoContainer.style.display = 'none';
+        }
+        return;
+    }
+    
+    if (fecha && horaInicio && horaFin) {
+        try {
+            const info = await obtenerInfoVideobeams(fecha, horaInicio, horaFin);
+            if (info.success) {
+                mostrarInfoVideobeams(info.videobeams);
+                const infoContainer = document.getElementById('info-videobeams');
+                if (infoContainer) {
+                    infoContainer.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Error al actualizar info de videobeams:', error);
+        }
     }
 }
 
@@ -176,7 +302,21 @@ const idInput = document.getElementById('id_registro');
 if (fechaInput && idInput) {
     fechaInput.addEventListener('change', function() {
         idInput.value = generarIdReserva(this.value);
+        // Actualizar info de videobeams cuando cambia la fecha
+        actualizarInfoVideobeams();
     });
+}
+
+// Event listeners para horarios
+const horaInicioInput = document.getElementById('hora_inicio_unico');
+const horaFinInput = document.getElementById('hora_fin_unico');
+
+if (horaInicioInput) {
+    horaInicioInput.addEventListener('change', actualizarInfoVideobeams);
+}
+
+if (horaFinInput) {
+    horaFinInput.addEventListener('change', actualizarInfoVideobeams);
 }
 
 /**
@@ -225,4 +365,87 @@ async function guardarReservaUnica(event) {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
+}
+
+/**
+ * Muestra el modal de confirmación para cancelar una reserva.
+ * @param {number|string} idReserva - ID de la reserva a cancelar
+ * @param {string} nombreRecurso - Nombre del recurso
+ * @param {string} fecha - Fecha de la reserva
+ * @param {string} hora - Hora de la reserva
+ */
+function confirmarCancelacion(idReserva, nombreRecurso, fecha, hora) {
+    if (typeof Swal === 'undefined') {
+        alert('SweetAlert2 no está cargado. Usando confirm básico.');
+        if (confirm(`¿Estás seguro de cancelar la reserva?\n\nRecurso: ${nombreRecurso}\nFecha: ${fecha}\nHora: ${hora}`)) {
+            // Crear y enviar formulario
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '../Controlador/Cancelar_Reserva.php';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'id_reserva';
+            input.value = idReserva;
+            const submitInput = document.createElement('input');
+            submitInput.type = 'hidden';
+            submitInput.name = 'cancelar';
+            submitInput.value = 'true';
+            form.appendChild(input);
+            form.appendChild(submitInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        return;
+    }
+    Swal.fire({
+        title: '⚠️ ¿Cancelar Reserva?',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p><strong>📋 Recurso:</strong> ${nombreRecurso}</p>
+                <p><strong>📅 Fecha:</strong> ${fecha}</p>
+                <p><strong>🕐 Hora:</strong> ${hora}</p>
+            </div>
+            <p style="color: #dc3545; font-weight: bold;">Esta acción no se puede deshacer</p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '✅ Sí, cancelar',
+        cancelButtonText: '❌ No, mantener',
+        reverseButtons: true,
+        focusCancel: true,
+        customClass: {
+            popup: 'swal-wide'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Cancelando reserva...',
+                text: 'Por favor espera',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            // Crear y enviar formulario
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '../Controlador/Cancelar_Reserva.php';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'id_reserva';
+            input.value = idReserva;
+            const submitInput = document.createElement('input');
+            submitInput.type = 'hidden';
+            submitInput.name = 'cancelar';
+            submitInput.value = 'true';
+            form.appendChild(input);
+            form.appendChild(submitInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
