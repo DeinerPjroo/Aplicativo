@@ -158,7 +158,47 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                 <h2>Registros</h2>
 
             </div>
-            <form method="GET" class="filtro-form">
+
+            <!-- FILTROS: ACORDEÓN RESPONSIVE SOLO PARA MÓVIL/TABLET -->
+            <div class="filtros-acordeon-mobile">
+                <button type="button" class="btn-acordeon-filtros" id="toggleFiltrosMobile">
+                    <i class="fa fa-filter"></i> Filtros
+                </button>
+                <div class="acordeon-filtros-content" id="acordeonFiltrosContent">
+                    <form method="GET" class="filtro-form-mobile">
+                        <label for="filtro_recurso_mobile">Filtrar por recurso:</label>
+                        <select name="filtro_recurso" id="filtro_recurso_mobile" onchange="this.form.submit()">
+                            <option value=""> Todos</option>
+                            <?php
+                            $recursosResultMobile = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                            if ($recursosResultMobile->num_rows > 0) {
+                                while ($recurso = $recursosResultMobile->fetch_assoc()) {
+                                    $selected = ($recurso['ID_Recurso'] == $recursoFiltrado) ? 'selected' : '';
+                                    echo "<option value='" . $recurso['ID_Recurso'] . "' $selected>" . htmlspecialchars($recurso['nombreRecurso']) . "</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                        <label for="filtro_fecha_mobile">Filtrar por fecha: </label>
+                        <input type="date" name="filtro_fecha" id="filtro_fecha_mobile" value="<?= htmlspecialchars($fechaFiltrada) ?>">
+                        <label for="hora_desde_mobile">Hora desde:</label>
+                        <input type="time" name="hora_desde" id="hora_desde_mobile" value="<?= htmlspecialchars($horaDesde) ?>">
+                        <label for="hora_hasta_mobile">Hora hasta:</label>
+                        <input type="time" name="hora_hasta" id="hora_hasta_mobile" value="<?= htmlspecialchars($horaHasta) ?>">
+                        <button type="submit" class="btn-agregar">
+                            <img src="../Imagen/Iconos/Filtro.svg" alt="" />
+                            <span class="btn-text">Filtrar</span>
+                        </button>
+                        <button type="button" class="btn-agregar" title="Limpiar Filtro" onclick="window.location.href='Registro.php'">
+                            <img src="../Imagen/Iconos/Quitar_Filtro.svg" alt="" />
+                            <span class="btn-text">Limpiar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- FILTROS: FORMULARIO TRADICIONAL SOLO ESCRITORIO -->
+            <form method="GET" class="filtro-form filtro-form-desktop">
                 <label for="filtro_recurso">Filtrar por recurso:</label>
                 <select name="filtro_recurso" id="filtro_recurso" onchange="this.form.submit()">
                     <option value=""> Todos</option>
@@ -169,40 +209,24 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             echo "<option value='" . $recurso['ID_Recurso'] . "' $selected>" . htmlspecialchars($recurso['nombreRecurso']) . "</option>";
                         }
                     }
-
                     ?>
                 </select>
-
-                <!-- CAMPO DE FECHA -->
                 <label for="filtro_fecha">Filtrar por fecha: </label>
                 <input type="date" name="filtro_fecha" id="filtro_fecha" value="<?= htmlspecialchars($fechaFiltrada) ?>">
-
-                <!-- CAMPO DE HORA -->
-                <!-- NUEVOS CAMPOS DE HORA -->
-
                 <label for="hora_desde">Hora desde:</label>
                 <input type="time" name="hora_desde" id="hora_desde" value="<?= htmlspecialchars($horaDesde) ?>">
-
                 <label for="hora_hasta">Hora hasta:</label>
                 <input type="time" name="hora_hasta" id="hora_hasta" value="<?= htmlspecialchars($horaHasta) ?>">
-
-
-
-
-
-                <!-- ddd -->
                 <button type="submit" class="btn-agregar">
                     <img src="../Imagen/Iconos/Filtro.svg" alt="" />
                     <span class="btn-text">Filtrar</span>
                 </button>
-
                 <button type="button" class="btn-agregar" title="Limpiar Filtro" onclick="window.location.href='Registro.php'">
                     <img src="../Imagen/Iconos/Quitar_Filtro.svg" alt="" />
                     <span class="btn-text">Limpiar</span>
                 </button>
-
-
             </form>
+
             <div class="tabla-scroll">
                 <table class="tabla-reservas">
                     <thead>
@@ -837,6 +861,17 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             var programaId = $('#programa_modificar').val();
             $('#asignatura_modificar').val('');
             cargarAsignaturasModificar(docenteId, programaId, '');        });
+
+            // Script para acordeón de filtros móvil/tablet
+            document.addEventListener('DOMContentLoaded', function() {
+                var btn = document.getElementById('toggleFiltrosMobile');
+                var content = document.getElementById('acordeonFiltrosContent');
+                if(btn && content) {
+                    btn.addEventListener('click', function() {
+                        content.classList.toggle('open');
+                    });
+                }
+            });
     </script>
     
     <script src="../js/sidebar.js"></script>

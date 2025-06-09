@@ -2401,23 +2401,173 @@ body.sidebar-collapsed .Main {
     }
 }
 
-/*
-===============================================================================
-                           SECCIÓN COMENTARIOS
-                         Código comentado para referencia
-===============================================================================
-*/
+/* ================== FILTROS ACORDEÓN RESPONSIVE ================== */
+.filtros-acordeon-mobile {
+    display: none;
+}
 
-/* Fondo con degradado (comentado) */
-/* background: linear-gradient(#f1faff, #c74635); */
+/* Solo mostrar acordeón en móvil/tablet (≤1024px) */
+@media (max-width: 1024px) {
+    .filtros-acordeon-mobile {
+        display: block;
+        margin-bottom: 16px;
+    }
+    .btn-acordeon-filtros {
+        width: 100%;
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-acordeon-filtros:hover {
+        background: var(--color-accent);
+        color: #333;
+    }
+    .acordeon-filtros-content {
+        display: none;
+        background: #f8f8f8;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        padding: 16px 12px 8px 12px;
+        margin-bottom: 12px;
+        animation: fadeIn 0.3s;
+    }
+    .acordeon-filtros-content.open {
+        display: block;
+    }
+    .filtro-form-mobile label {
+        font-size: 1rem;
+        margin-top: 8px;
+        margin-bottom: 2px;
+        display: block;
+    }
+    .filtro-form-mobile select,
+    .filtro-form-mobile input[type="date"],
+    .filtro-form-mobile input[type="time"] {
+        width: 100%;
+        margin-bottom: 8px;
+        padding: 7px 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+    .filtro-form-mobile .btn-agregar {
+        width: 48%;
+        margin: 8px 1% 0 1%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    /* Ocultar formulario tradicional en móvil/tablet */
+    .filtro-form-desktop {
+        display: none !important;
+    }
+}
 
-/*
-===============================================================================
-                              FIN DEL ARCHIVO
-===============================================================================
-*/
+/* Mostrar formulario tradicional solo en escritorio (>1024px) */
+@media (min-width: 1025px) {
+    .filtros-acordeon-mobile {
+        display: none !important;
+    }
+    .filtro-form-desktop {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin-bottom: 18px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+    .filtro-form-desktop label,
+    .filtro-form-desktop select,
+    .filtro-form-desktop input[type="date"],
+    .filtro-form-desktop input[type="time"],
+    .filtro-form-desktop button {
+        margin: 0 !important;
+        padding: 6px 8px !important;
+        width: auto !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        display: inline-block !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important;
+    }
+    .filtro-form-desktop button {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+}
 
+/* Fuerza los filtros en escritorio a estar en una sola línea, alineados verticalmente al centro */
+@media (min-width: 1025px) {
+    .filtro-form-desktop {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 16px !important;
+        margin-bottom: 20px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+    .filtro-form-desktop label,
+    .filtro-form-desktop select,
+    .filtro-form-desktop input[type="date"],
+    .filtro-form-desktop input[type="time"],
+    .filtro-form-desktop button {
+        margin: 0 !important;
+        padding: 10px 10px !important;
+        width: auto !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        display: inline-block !important;
+        box-sizing: border-box !important;
+        font-size:  
+        vertical-align: middle !important;
+    }
+    .filtro-form-desktop button {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        height: 40px !important;
+    }
+}
 
+/* Responsive: Botón y título en columna y centrados en móvil/tablet */
+@media (max-width: 1024px) {
+    .tituloyboton {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+    .tituloyboton .btn-agregar {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        align-self: center !important;
+    }
+    .tituloyboton h2 {
+        text-align: center !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
 
 /* Contenedor de scroll horizontal para tablas de reservas */
 .tabla-scroll {
@@ -2566,6 +2716,8 @@ body.sidebar-collapsed .Main {
 
 /* ===== OVERLAY DE FONDO ===== */
 .sidebar-overlay {
+      
+      
       
       
       
@@ -3113,8 +3265,8 @@ body.sidebar-collapsed .Main {
 
 /* Para móviles muy pequeños, aún más compacto */
 @media (max-width: 480px) {
-    .contenedor-usuarios,
-    .contenedor-reservas {
+    .contenedor-reservas,
+    .contenedor-usuarios {
         padding-left: 5px !important;
         padding-right: 5px !important;
     }
@@ -3127,5 +3279,182 @@ body.sidebar-collapsed .Main {
     .Topbard {
         padding-left: 5px !important;
         padding-right: 5px !important;
+    }
+}
+
+/* Centrado del botón Crear Nueva Reserva en móvil y tablet */
+@media (max-width: 1024px) {
+    .contenedor-reservas center, 
+    .contenedor-reservas .btn-agregar {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .contenedor-reservas .btn-agregar {
+        width: fit-content !important;
+        min-width: 180px;
+    }
+}
+@media (max-width: 600px) {
+    .contenedor-reservas center, 
+    .contenedor-reservas .btn-agregar {
+        width: 100% !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* ===== CENTRADO DEL TÍTULO EN VISTA MÓVIL Y TABLET ===== */
+@media (max-width: 1024px) {
+    .contenedor-usuarios h2 {
+        text-align: center !important;
+        width: 100%;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Asegura que el formulario de filtros tradicional en escritorio siempre esté alineado y ordenado */
+.filtro-form-desktop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 1024px) {
+    .filtro-form-desktop {
+        display: none !important;
+    }
+}
+
+/* Refuerzo para filtros en escritorio: alineación horizontal y compacta */
+@media (min-width: 1025px) {
+    .filtro-form-desktop {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 16px !important;
+        margin-bottom: 18px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+    .filtro-form-desktop label,
+    .filtro-form-desktop select,
+    .filtro-form-desktop input[type="date"],
+    .filtro-form-desktop input[type="time"],
+    .filtro-form-desktop button {
+        margin: 0 !important;
+        padding: 10px 10px !important;
+        width: auto !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        display: inline-block !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important;
+        vertical-align: middle !important;
+    }
+    .filtro-form-desktop button {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        height: 40px !important;
+    }
+}
+
+/* Mejora visual: Título más grande, con mayor separación y centrado en móvil/tablet */
+@media (max-width: 1024px) {
+    .tituloyboton h2 {
+        font-size: 2.1rem !important;
+        font-weight: 700 !important;
+        margin: 0 0 6px 0 !important;
+        padding: 0 !important;
+        letter-spacing: 0.5px;
+        text-align: center !important;
+        width: 100% !important;
+        line-height: 1.1 !important;
+    }
+    .tituloyboton {
+        gap: 16px !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* ===== REORGANIZACIÓN RESPONSIVE DE LA TOPBARD ===== */
+    .Topbard {
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 15px 10px !important;
+    }
+      /* Campo de búsqueda arriba y centrado en móvil/tablet */
+    .Topbard input[type="text"] {
+        order: 1 !important;
+        width: 90% !important;
+        max-width: 500px !important;
+        margin: 0 auto 10px auto !important;
+        display: block !important;
+    }
+    
+    /* Botones de reportes centrados y en una fila */
+    .Topbard .btn-reportes {
+        order: 2 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* Estilos para los botones de reportes en móvil/tablet */
+    .Topbard .btn-reportes .btn-reporte {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 10px 8px !important;
+        min-width: 70px !important;
+        font-size: 11px !important;
+        text-align: center !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Agregar etiquetas de texto a los botones */
+    .Topbard .btn-reportes .btn-reporte::after {
+        content: attr(data-label) !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        color: #fff !important;
+        margin-top: 2px !important;
+        line-height: 1 !important;
+    }
+    
+    /* Etiquetas específicas para cada botón */
+    .Topbard .btn-reportes #generarReporte::after {
+        content: "Hoy" !important;
+    }
+    
+    .Topbard .btn-reportes #generarReporteSiguiente::after {
+        content: "Mañana" !important;
+    }
+    
+    .Topbard .btn-reportes #generarReporteVista::after {
+        content: "Vista" !important;
+    }
+    
+    /* Toast container ajustado */
+    .Topbard .toast-container {
+        order: 0 !important;
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        margin-bottom: 10px !important;
     }
 }
