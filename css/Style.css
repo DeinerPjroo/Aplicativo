@@ -1829,348 +1829,275 @@ input[type="password"]:focus {
 ===============================================================================
 */
 
-/* ===== CONTENEDOR PRINCIPAL ===== */
+/* =============================================================================
+                   RESPONSIVE PARA GRÁFICAS DE ESTADÍSTICAS 
+                     Solución a overflow horizontal en móvil
+=============================================================================== */
+
+/* Contenedor principal de estadísticas */
 .estadisticas-container {
-    margin-left: 290px;
-    margin-top: 30px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 35px 35px 20px 35px;
-    max-width: 1200px;
-    border: 1px solid rgba(37, 135, 151, 0.1);
-    transition: margin-left 0.4s ease;
-}
-
-/* ===== AJUSTE PARA SIDEBAR COLAPSADO ===== */
-body.sidebar-collapsed .estadisticas-container {
-    margin-left: 90px;
-}
-
-/* ===== AJUSTE PARA CONTENEDORES CON SIDEBAR COLAPSADO ===== */
-body.sidebar-collapsed .contenedor-reservas {
-    margin-left: 90px;
-}
-
-body.sidebar-collapsed .contenedor-usuarios {
-    margin-left: 90px;
-}
-
-body.sidebar-collapsed .main-content {
-    margin-left: 90px;
-}
-
-/* ===== SECCIONES DE CONTENIDO GENERAL ===== */
-.Encabezado {
-    margin-left: 290px;
     padding: 20px;
-    background-color: var(--color-primary);
-    color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    transition: margin-left 0.4s ease;
-}
-
-.Table {
-    margin-left: 290px;
-    padding: 20px;
-    transition: margin-left 0.4s ease;
-}
-
-body.sidebar-collapsed .Encabezado {
-    margin-left: 90px;
-}
-
-body.sidebar-collapsed .Table {
-    margin-left: 90px;
-}
-
-/* ===== SECCIÓN PRINCIPAL MAIN ===== */
-.Main {
-    margin-left: 290px;
-    padding: 0;
-    margin-top: 0;
-    transition: margin-left 0.4s ease;
-}
-
-body.sidebar-collapsed .Main {
-    margin-left: 90px;
-}
-
-/* ===== CONTENIDO DE INICIO ===== */
-.inicio-content {
-    padding: 40px 20px;
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Cuadro de bienvenida centrado y responsive */
-.welcome-box {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-    padding: 40px 32px;
-    max-width: 420px;
+    max-width: 100%;
     width: 100%;
-    text-align: center;
-    margin: 0 auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
-.welcome-box h1 {
-    color: var(--primary-color);
-    font-size: 2.2rem;
-    margin-bottom: 18px;
-    line-height: 1.2;
-}
-
-.welcome-box p {
-    font-size: 1.15rem;
-    color: #444;
-    margin-bottom: 18px;
-    line-height: 1.4;
-}
-
-.welcome-box img {
-    width: 110px;
-    margin-bottom: 18px;
-    height: auto;
-}
-
-.welcome-box .subtitle {
-    color: #666;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-/* Responsive para dispositivos móviles */
-@media (max-width: 768px) {
-    .inicio-content {
-        padding: 20px 15px;
-        min-height: calc(100vh - 60px);
-        margin-left: 0 !important;
-    }
-    
-    .welcome-box {
-        padding: 30px 20px;
-        max-width: 100%;
-        margin: 0 auto;
-    }
-    
-    .welcome-box h1 {
-        font-size: 1.8rem;
-        margin-bottom: 15px;
-    }
-    
-    .welcome-box p {
-        font-size: 1rem;
-        margin-bottom: 15px;
-    }
-    
-    .welcome-box img {
-        width: 90px;
-        margin-bottom: 15px;
-    }
-}
-
-/* Para móviles muy pequeños */
-@media (max-width: 480px) {
-    .inicio-content {
-        padding: 15px 10px;
-        margin-left: 0 !important;
-    }
-    
-    .welcome-box {
-        padding: 25px 15px;
-    }
-    
-    .welcome-box h1 {
-        font-size: 1.6rem;
-    }
-    
-    .welcome-box img {
-        width: 80px;
-    }
-}
-
-/* ===== TARJETAS DE ESTADÍSTICAS ===== */
+/* Cards de estadísticas */
 .estadisticas-cards {
     display: flex;
-    gap: 25px;
     flex-wrap: wrap;
-    margin-bottom: 35px;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
 }
 
 .estadistica-card {
-    flex: 1 1 200px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: #fff;
     border-radius: 12px;
-    padding: 25px 20px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     text-align: center;
-    min-width: 180px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(37, 135, 151, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.estadistica-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #258797, #d07c2e);
-}
-
-.estadistica-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    flex: 1;
+    min-width: 150px;
+    box-sizing: border-box;
 }
 
 .estadistica-card h3 {
-    margin: 0 0 15px 0;
-    color: #258797;
-    font-size: 1.1em;
+    font-size: 14px;
+    color: var(--color-primary);
+    margin-bottom: 10px;
     font-weight: 600;
-    letter-spacing: 0.5px;
 }
 
 .estadistica-card .valor {
-    font-size: 2.4em;
-    font-weight: bold;
-    color: #d07c2e;
-    text-shadow: 0 2px 4px rgba(208, 124, 46, 0.2);
-    margin-bottom: 5px;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-accent);
 }
 
-/* ===== GRÁFICAS ===== */
+/* Contenedores de gráficas */
 .graficas-row {
     display: flex;
-    gap: 25px;
+    gap: 20px;
+    margin: 20px 0;
     flex-wrap: wrap;
-    margin-bottom: 25px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .grafica-box {
-    flex: 1 1 350px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    min-width: 320px;
-    height: 450px;
-    max-height: 500px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(37, 135, 151, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex: 1;
+    min-width: 300px;
+    max-width: 100%;
+    box-sizing: border-box;
     overflow: hidden;
 }
 
-.grafica-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #258797, #d07c2e);
-}
-
-.grafica-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-}
-
 .grafica-box h3 {
-    margin: 0 0 20px 0;
-    color: #258797;
-    font-size: 1.3em;
+    font-size: 16px;
+    color: var(--color-primary);
+    margin-bottom: 15px;
     font-weight: 600;
     text-align: center;
-    letter-spacing: 0.5px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid rgba(37, 135, 151, 0.1);
 }
 
+/* Canvas responsive - CLAVE PARA EVITAR OVERFLOW */
 .grafica-box canvas {
-    margin-top: 10px;
-    max-height: 320px !important;
+    max-width: 100% !important;
     width: 100% !important;
+    height: auto !important;
+    display: block !important;
 }
 
-/*
-===============================================================================
-                           SECCIÓN ANIMACIONES
-                         Keyframes y efectos de transición
-===============================================================================
-*/
+/* Tabla resumen */
+.tabla-resumen {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
 
-/* ===== ANIMACIONES DE MODAL ===== */
-@keyframes modalFadeIn {
-    from {
-        transform: translateY(-30px);
-        opacity: 0;
+.tabla-resumen th,
+.tabla-resumen td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-resumen th {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Formulario de filtros */
+.filtros-form {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filtros-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+.filtros-form input {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.filtros-form input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ===== RESPONSIVE MÓVIL/TABLET (≤1024px) ===== */
+@media (max-width: 1024px) {
+    /* Contenedor principal más restrictivo para evitar overflow */
+    .estadisticas-container {
+        padding: 10px;
+        margin: 0;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
     }
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    
+    /* Cards en columna para móvil */
+    .estadisticas-cards {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .estadistica-card {
+        min-width: unset;
+        padding: 15px;
+        width: 100%;
+    }
+    
+    .estadistica-card .valor {
+        font-size: 28px;
+    }
+    
+    /* GRÁFICAS EN COLUMNA - SOLUCIÓN PRINCIPAL AL OVERFLOW */
+    .graficas-row {
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px 0;
+        width: 100%;
+    }
+    
+    .grafica-box {
+        min-width: unset;
+        padding: 12px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .grafica-box h3 {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    
+    /* Canvas súper restrictivo para móvil */
+    .grafica-box canvas {
+        width: 100% !important;
+        max-width: calc(100vw - 60px) !important;
+        height: auto !important;
+        max-height: 280px !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Formulario de filtros responsive */
+    .filtros-form {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .filtros-form label {
+        width: 100%;
+    }
+    
+    .filtros-form input {
+        width: 100%;
+    }
+    
+    /* Tabla responsive con scroll horizontal controlado */
+    .tabla-resumen {
+        font-size: 14px;
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .tabla-resumen th,
+    .tabla-resumen td {
+        padding: 8px 10px;
+        min-width: 100px;
     }
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+/* ===== RESPONSIVE MÓVIL PEQUEÑO (≤768px) ===== */
+@media (max-width: 768px) {
+    /* Contenedor aún más restrictivo */
+    .estadisticas-container {
+        padding: 8px;
+        max-width: 100vw;
     }
-    to {
-        opacity: 1;
+    
+    /* Cards más compactas */
+    .estadistica-card {
+        padding: 12px;
     }
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.9);
-        opacity: 0;
+    
+    .estadistica-card h3 {
+        font-size: 12px;
     }
-    to {
-        transform: scale(1);
-        opacity: 1;
+    
+    .estadistica-card .valor {
+        font-size: 24px;
     }
-}
-
-/* ===== ANIMACIONES DE TOAST ===== */
-@keyframes slide-in {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
+    
+    /* Gráficas ultra compactas */
+    .grafica-box {
+        padding: 10px;
     }
-    to {
-        transform: translateX(0);
-        opacity: 1;
+    
+    .grafica-box h3 {
+        font-size: 13px;
+        margin-bottom: 10px;
     }
-}
-
-@keyframes fade-out {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
+    
+    /* Canvas ultra restrictivo para móvil pequeño */
+    .grafica-box canvas {
+        max-width: calc(100vw - 40px) !important;
+        max-height: 240px !important;
     }
 }
-
-/*
-===============================================================================
-                           SECCIÓN RESPONSIVE
-                         Media queries para dispositivos
-===============================================================================
-*/
 
 /* ===== RESPONSIVE PARA ESTADÍSTICAS ===== */
 @media (max-width: 900px) {
@@ -2179,36 +2106,6 @@ body.sidebar-collapsed .Main {
         flex-direction: column;
     }
     
-    .estadisticas-container,
-    .contenedor-reservas,
-    .contenedor-usuarios,
-    .main-content,
-    .Encabezado,
-    .Table,
-    .Main {
-        margin-left: 20px;
-        margin-right: 20px;
-        padding: 25px 20px;
-    }
-    
-    .filtros-form {
-        margin: 0 auto 30px auto;
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-        max-width: 90%;
-    }
-    
-    .filtros-form label {
-        text-align: center;
-    }
-    
-    .grafica-box {
-        min-height: 350px;
-    }
-}
-
-@media (max-width: 600px) {
     .estadistica-card {
         min-width: 100%;
     }
