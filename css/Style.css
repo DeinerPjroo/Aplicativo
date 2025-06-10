@@ -229,6 +229,7 @@
 /* Cuando sidebar está expandido (estado normal) - 270px + 10px separación */
 .contenedor-reservas,
 .contenedor-usuarios,
+.estadisticas-container,
 .Table {
     margin-left: 10px !important;
     margin-right: 10px !important;
@@ -238,6 +239,7 @@
 /* Cuando sidebar está colapsado - 85px + 10px separación */
 body.sidebar-collapsed .contenedor-reservas,
 body.sidebar-collapsed .contenedor-usuarios,
+body.sidebar-collapsed .estadisticas-container,
 body.sidebar-collapsed .Table {
     margin-left: 55px !important;
     margin-right: 10px !important;
@@ -676,7 +678,7 @@ body.sidebar-collapsed .Table {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    transition: margin-left 0.4s ease;
+    transition: margin-left 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .contenedor-reservas h2 {
@@ -1856,51 +1858,143 @@ input[type="password"]:focus {
 
 /* Contenedor principal de estadísticas */
 .estadisticas-container {
-    padding: 20px;
-    max-width: 100%;
+    padding: 15px;
+    max-width: 1200px;
     width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
+    margin-left: 280px !important; /* Sidebar expandido (270px + 10px separación) */
+    margin-right: 10px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: margin-left 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* Cards de estadísticas */
+body.sidebar-collapsed .estadisticas-container {
+    margin-left: 95px !important; /* 85px del sidebar colapsado + 10px separación */
+    transition: margin-left 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+@media (max-width: 1300px) {
+  .estadisticas-container {
+    max-width: 98vw;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .estadisticas-container {
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+  }
+  body.sidebar-collapsed .estadisticas-container {
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .estadisticas-container {
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+    padding: 10px !important;
+  }
+  body.sidebar-collapsed .estadisticas-container {
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+  }
+}
+
+/* Header de estadísticas */
+.estadisticas-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #004d54 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 109, 117, 0.2);
+}
+
+.estadisticas-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.estadisticas-header p {
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+/* Cards de estadísticas mejoradas */
 .estadisticas-cards {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 15px;
-    margin: 20px 0;
+    margin: 15px 0;
     width: 100%;
 }
 
 .estadistica-card {
-    background: #fff;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 109, 117, 0.08);
     text-align: center;
-    flex: 1;
-    min-width: 150px;
-    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 109, 117, 0.1);
+}
+
+.estadistica-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.estadistica-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 109, 117, 0.15);
 }
 
 .estadistica-card h3 {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--color-primary);
     margin-bottom: 10px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .estadistica-card .valor {
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 2.2rem;
+    font-weight: 800;
     color: var(--color-accent);
+    text-shadow: 0 2px 4px rgba(224, 164, 60, 0.3);
+    margin-bottom: 8px;
 }
 
-/* Contenedores de gráficas */
+.estadistica-card .descripcion {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* ===== GRÁFICAS MÁS COMPACTAS ===== */
 .graficas-row {
     display: flex;
-    gap: 20px;
-    margin: 20px 0;
+    gap: 10px;
+    margin: 10px 0;
     flex-wrap: wrap;
     width: 100%;
     box-sizing: border-box;
@@ -1908,48 +2002,65 @@ input[type="password"]:focus {
 
 .grafica-box {
     background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     flex: 1;
-    min-width: 300px;
+    min-width: 260px;
     max-width: 100%;
     box-sizing: border-box;
     overflow: hidden;
+    /* Altura más pequeña y controlada */
+    height: 260px;
+    max-height: 260px;
 }
 
 .grafica-box h3 {
-    font-size: 16px;
+    font-size: 13px;
     color: var(--color-primary);
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     font-weight: 600;
     text-align: center;
 }
 
-/* Canvas responsive - CLAVE PARA EVITAR OVERFLOW */
+/* Canvas más pequeño y controlado */
 .grafica-box canvas {
     max-width: 100% !important;
     width: 100% !important;
-    height: auto !important;
+    height: 190px !important;
+    max-height: 190px !important;
     display: block !important;
+    margin: 0 auto !important;
+}
+
+/* Gráfica de programas más ancha pero controlada en altura */
+.grafica-box[style*="width:100%"] {
+    height: 220px;
+    max-height: 220px;
+}
+
+.grafica-box[style*="width:100%"] canvas {
+    height: 160px !important;
+    max-height: 160px !important;
 }
 
 /* Tabla resumen */
 .tabla-resumen {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 15px;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .tabla-resumen th,
 .tabla-resumen td {
-    padding: 12px;
+    padding: 8px 10px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    font-size: 13px;
 }
 
 .tabla-resumen th {
@@ -1961,9 +2072,9 @@ input[type="password"]:focus {
 /* Formulario de filtros */
 .filtros-form {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     align-items: end;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
     width: 100%;
     box-sizing: border-box;
@@ -1978,10 +2089,10 @@ input[type="password"]:focus {
 }
 
 .filtros-form input {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 13px;
     box-sizing: border-box;
 }
 
@@ -1994,84 +2105,126 @@ input[type="password"]:focus {
 @media (max-width: 1024px) {
     /* Contenedor principal más restrictivo para evitar overflow */
     .estadisticas-container {
-        padding: 10px;
-        margin: 0;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
+        padding: 8px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        /* Resetear propiedades de desktop */
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Header más compacto en móvil */
+    .estadisticas-header {
+        padding: 10px 15px;
+        margin-bottom: 10px;
+    }
+    
+    .estadisticas-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .estadisticas-header p {
+        font-size: 0.9rem;
     }
     
     /* Cards en columna para móvil */
     .estadisticas-cards {
-        flex-direction: column;
-        gap: 12px;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin: 10px 0;
         width: 100%;
     }
     
     .estadistica-card {
         min-width: unset;
-        padding: 15px;
+        padding: 12px;
         width: 100%;
     }
     
     .estadistica-card .valor {
-        font-size: 28px;
+        font-size: 1.8rem;
     }
-    
-    /* GRÁFICAS EN COLUMNA - SOLUCIÓN PRINCIPAL AL OVERFLOW */
+      /* GRÁFICAS EN COLUMNA - SOLUCIÓN PRINCIPAL AL OVERFLOW */
     .graficas-row {
         flex-direction: column;
-        gap: 15px;
-        margin: 15px 0;
+        gap: 8px;
+        margin: 8px 0;
         width: 100%;
     }
     
     .grafica-box {
         min-width: unset;
-        padding: 12px;
+        padding: 8px;
         width: 100%;
         max-width: 100%;
         overflow: hidden;
+        height: 200px;
+        max-height: 200px;
     }
     
     .grafica-box h3 {
-        font-size: 14px;
-        margin-bottom: 12px;
+        font-size: 12px;
+        margin-bottom: 6px;
     }
     
     /* Canvas súper restrictivo para móvil */
     .grafica-box canvas {
         width: 100% !important;
-        max-width: calc(100vw - 60px) !important;
-        height: auto !important;
-        max-height: 280px !important;
+        max-width: calc(100vw - 40px) !important;
+        height: 140px !important;
+        max-height: 140px !important;
         display: block !important;
         margin: 0 auto !important;
     }
     
-    /* Formulario de filtros responsive */
+    /* Gráfica de programas en móvil */
+    .grafica-box[style*="width:100%"] {
+        height: 180px;
+        max-height: 180px;
+    }
+
+    .grafica-box[style*="width:100%"] canvas {
+        height: 120px !important;
+        max-height: 120px !important;
+    }
+      /* Formulario de filtros responsive */
     .filtros-form {
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         align-items: stretch;
         width: 100%;
+        margin-bottom: 10px;
     }
     
     .filtros-form label {
         width: 100%;
+        font-size: 13px;
     }
     
     .filtros-form input {
         width: 100%;
+        padding: 5px 8px;
+        font-size: 12px;
     }
     
     /* Tabla responsive con scroll horizontal controlado */
     .tabla-resumen {
-        font-size: 14px;
+        font-size: 12px;
         width: 100%;
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+        margin-top: 10px;
+    }
+    
+    .tabla-resumen th,
+    .tabla-resumen td {
+        padding: 6px 8px;
+        font-size: 11px;
     }
     
     .tabla-resumen th,
@@ -2260,13 +2413,51 @@ input[type="password"]:focus {
     }
 }
 
-/* ===== CORRECCIÓN ESPECÍFICA PARA CENTRADO DE INICIO ===== */
-@media (max-width: 1024px) {
+/* ===== CENTRADO DEL CONTENIDO DE INICIO ===== */
+/* Para PC: centrar el contenido teniendo en cuenta el sidebar */
+.main-content.inicio-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+    width: calc(100vw - 280px); /* Ancho completo menos sidebar */
+    margin-left: 280px; /* Compensar por el sidebar */
+    margin-right: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Cuando el sidebar está colapsado en desktop */
+body.sidebar-collapsed .main-content.inicio-content {
+    width: calc(100vw - 85px);
+    margin-left: 85px;
+}
+
+/* Para tablets (iPad) - centrar sin sidebar */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .main-content.inicio-content {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100vw !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 40px);
+        padding: 20px;
+        box-sizing: border-box;
+    }
+}
+
+/* Para móviles: NO centrar, alinear a la izquierda */
+@media (max-width: 768px) {
     .main-content.inicio-content {
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
+        padding: 80px 15px 15px 15px; /* Espacio para el botón móvil */
+        display: block;
+        min-height: auto;
+        box-sizing: border-box;
     }
 }
 
@@ -2334,7 +2525,7 @@ input[type="password"]:focus {
         background: var(--color-primary);
         color: #fff;
         border: none;
-        padding: 12px 0;
+        padding:  12px 0;
         font-size: 1.1rem;
         border-radius: 8px;
         margin-bottom: 8px;
@@ -2584,8 +2775,7 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
 /* 
 ===============================================================================
                          MENU MÓVIL RESPONSIVE
-===============================================================================
-*/
+=============================================================================== */
 
 /* ===== BOTÓN DE MENÚ FLOTANTE ===== */
 .menu-toggle {
@@ -2644,13 +2834,6 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
 
 /* ===== OVERLAY DE FONDO ===== */
 .sidebar-overlay {
-      
-      
-      
-      
-      
-      
-      
        position: fixed;
     top: 0;
     left: 0;
@@ -2902,10 +3085,46 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
     }
     
     /* Tabla más compacta */
-    .tabla-reservas th,
+    .tabla-reservas th.desktop-only,
+    .tabla-usuarios th.desktop-only {
+        display: table-cell !important;
+        min-width: 80px;
+        font-size: 12px;
+        padding: 8px 4px;
+    }
+    
+    .tabla-reservas {
+        min-width: 900px; /* Ancho suficiente para todas las columnas */
+        font-size: 10px;
+    }
+    
+    .tabla-reservas th {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 8px 4px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
     .tabla-reservas td {
         padding: 6px 4px;
-        font-size: 13px;
+        font-size: 11px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    /* Indicador visual de scroll horizontal */
+    .tabla-scroll::after {
+        content: "← Desliza para ver más →";
+        display: block;
+        text-align: center;
+        font-size: 10px;
+        color: #666;
+        padding: 5px;
+        font-style: italic;
+        background: rgba(37, 135, 151, 0.05);
+        margin-top: 5px;
+        border-radius: 4px;
     }
 }
 
@@ -3004,7 +3223,7 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
     
     .tabla-reservas {
         min-width: 900px; /* Ancho suficiente para todas las columnas */
-        font-size: 12px;
+        font-size: 10px;
     }
     
     .tabla-reservas th {
@@ -3058,7 +3277,7 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
     }
 }
 
-/* ===== MEJORA DEL SCROLL HORIZONTAL EN TABLAS ===== */
+/* ===== MEJORAS DEL SCROLL HORIZONTAL EN TABLAS ===== */
 /* Barra de scroll personalizada para tablas */
 .tabla-scroll::-webkit-scrollbar {
     height: 8px;
@@ -3268,32 +3487,11 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
         flex-wrap: nowrap !important;
         align-items: center !important;
         gap: 16px !important;
-        margin-bottom: 18px !important;
+        margin-bottom: 20px !important;
         width: 100% !important;
         padding: 0 !important;
         background: none !important;
         box-shadow: none !important;
-    }
-    .filtro-form-desktop label,
-    .filtro-form-desktop select,
-    .filtro-form-desktop input[type="date"],
-    .filtro-form-desktop input[type="time"],
-    .filtro-form-desktop button {
-        margin: 0 !important;
-        padding: 10px 10px !important;
-        width: auto !important;
-        min-width: unset !important;
-        max-width: unset !important;
-        display: inline-block !important;
-        box-sizing: border-box !important;
-        font-size: 1rem !important;
-        vertical-align: middle !important;
-    }
-    .filtro-form-desktop button {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        height: 40px !important;
     }
 }
 
@@ -3384,5 +3582,58 @@ body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
         top: auto !important;
         right: auto !important;
         margin-bottom: 10px !important;
+    }
+}
+
+/*
+===============================================================================
+                        REGLAS ESPECÍFICAS PARA MÓVIL Y TABLET
+                     Ajustes de margenes para contenedores
+===============================================================================
+*/
+
+/* ===== TABLET (iPad) - máximo 1024px ===== */
+@media (max-width: 1024px) {
+    .contenedor-reservas,
+    .contenedor-usuarios {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
+    }
+    
+    /* También aplicar a la sección Table si existe */
+    .Table {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
+    }
+    
+    /* Asegurar que las reglas del sidebar colapsado no interfieran */
+    body.sidebar-collapsed .contenedor-reservas,
+    body.sidebar-collapsed .contenedor-usuarios,
+    body.sidebar-collapsed .Table {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
+    }
+}
+
+/* ===== MÓVIL - máximo 768px ===== */
+@media (max-width: 768px) {
+    .contenedor-reservas,
+    .contenedor-usuarios {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
+    }
+    
+    /* También aplicar a la sección Table si existe */
+    .Table {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
+    }
+    
+    /* Asegurar que las reglas del sidebar colapsado no interfieran */
+    body.sidebar-collapsed .contenedor-reservas,
+    body.sidebar-collapsed .contenedor-usuarios,
+    body.sidebar-collapsed .Table {
+        margin-left: 2px !important;
+        margin-right: 2px !important;
     }
 }

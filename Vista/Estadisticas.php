@@ -197,14 +197,34 @@ while ($row = $resProgramas->fetch_assoc()) {
     </div>    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="../js/sidebar.js"></script>
     <script src="../js/mobile_menu.js"></script>
-    <script src="../js/estadisticas.js"></script>
-    <script>
+    <script src="../js/estadisticas.js"></script>    <script>
         // Datos PHP a JS
         const estados = <?php echo json_encode($estados); ?>;
         const recursos = <?php echo json_encode($recursos); ?>;
         const dias = <?php echo json_encode($dias); ?>;
         const roles = <?php echo json_encode($roles); ?>;
         const programas = <?php echo json_encode($programas); ?>;
+        
+        // Configuración global de Chart.js para gráficas más compactas
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+        Chart.defaults.aspectRatio = 1;
+        
+        // Configurar tamaños más pequeños para todas las gráficas
+        Chart.defaults.plugins.legend.labels.boxWidth = 12;
+        Chart.defaults.plugins.legend.labels.padding = 10;
+        Chart.defaults.plugins.legend.labels.font = {size: 11};
+        
+        // Asegurar que las gráficas se ajusten al contenedor
+        document.addEventListener('DOMContentLoaded', function() {
+            // Forzar redimensionamiento de canvas
+            setTimeout(function() {
+                document.querySelectorAll('canvas').forEach(canvas => {
+                    canvas.style.maxHeight = '250px';
+                    canvas.style.height = '250px';
+                });
+            }, 100);
+        });
     </script>
 </body>
 </html>
