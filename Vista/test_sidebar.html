@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sidebar - Layout</title>
+    <link rel="stylesheet" href="../css/Style.css">
+    <style>
+        /* Estilos de prueba adicionales */
+        .test-content {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border: 2px solid #333;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-table th, .test-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .test-table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 5px;
+            font-size: 11px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Indicador de estado -->
+    <div class="status-indicator" id="statusIndicator">
+        Estado: Cargando...
+    </div>
+    
+    <!-- Información de debug -->
+    <div class="debug-info" id="debugInfo">
+        <div>Sidebar classes: <span id="sidebarClasses">-</span></div>
+        <div>Body classes: <span id="bodyClasses">-</span></div>
+        <div>Sidebar width: <span id="sidebarWidth">-</span></div>
+        <div>Content margin: <span id="contentMargin">-</span></div>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h3>Sistema</h3>
+            <button class="sidebar-toggler">☰</button>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span>🏠</span>
+                    <span class="nav-text">Inicio</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span>📊</span>
+                    <span class="nav-text">Reservas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span>👥</span>
+                    <span class="nav-text">Usuarios</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span>⚙️</span>
+                    <span class="nav-text">Configuración</span>
+                </a>
+            </li>
+        </ul>
+    </nav>    <!-- Contenido principal -->
+    <main class="contenedor-reservas">
+        <div class="test-content">
+            <h1>Prueba de Layout - Contenedor Reservas</h1>
+            <p>Este contenido debería moverse hacia la derecha cuando el sidebar se expande, y hacia la izquierda cuando se colapsa.</p>
+            
+            <button onclick="toggleSidebarTest()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px 0;">
+                Toggle Sidebar (Manual)
+            </button>
+        </div>
+        
+        <div class="Table">
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Reserva</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>001</td>
+                        <td>Juan Pérez</td>
+                        <td>Sala de Conferencias A</td>
+                        <td>2024-01-15</td>
+                        <td>Confirmada</td>
+                    </tr>
+                    <tr>
+                        <td>002</td>
+                        <td>María García</td>
+                        <td>Sala de Reuniones B</td>
+                        <td>2024-01-16</td>
+                        <td>Pendiente</td>
+                    </tr>
+                    <tr>
+                        <td>003</td>
+                        <td>Carlos López</td>
+                        <td>Sala de Capacitación</td>
+                        <td>2024-01-17</td>
+                        <td>Cancelada</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Topbar - NO debe moverse -->
+    <section class="Topbard" style="padding: 20px; background: #f8f9fa; border: 2px solid #28a745; margin: 20px 0;">
+        <h3 style="margin: 0; color: #28a745;">🔹 TOPBAR - No debe moverse con el sidebar</h3>
+        <p style="margin: 5px 0 0 0; font-size: 14px;">Este elemento debe mantener su posición normal, independientemente del estado del sidebar.</p>
+    </section>
+
+    <div class="contenedor-usuarios">
+        <div class="test-content">
+            <h2>Prueba de Layout - Contenedor Usuarios</h2>
+            <p>Este es otro contenedor que también debería ajustarse al estado del sidebar.</p>
+            
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Admin Usuario</td>
+                        <td>admin@test.com</td>
+                        <td>Administrador</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Usuario Normal</td>
+                        <td>user@test.com</td>
+                        <td>Usuario</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="../js/sidebar.js"></script>
+    <script>
+        // Script de debug y prueba
+        function updateDebugInfo() {
+            const sidebar = document.querySelector('.sidebar');
+            const contenedorReservas = document.querySelector('.contenedor-reservas');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            if (sidebar && contenedorReservas) {
+                const sidebarClasses = sidebar.className;
+                const bodyClasses = document.body.className;
+                const sidebarWidth = window.getComputedStyle(sidebar).width;
+                const contentMargin = window.getComputedStyle(contenedorReservas).marginLeft;
+                
+                document.getElementById('sidebarClasses').textContent = sidebarClasses || 'none';
+                document.getElementById('bodyClasses').textContent = bodyClasses || 'none';
+                document.getElementById('sidebarWidth').textContent = sidebarWidth;
+                document.getElementById('contentMargin').textContent = contentMargin;
+                
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                statusIndicator.textContent = `Estado: ${isCollapsed ? 'Colapsado' : 'Expandido'}`;
+                statusIndicator.style.backgroundColor = isCollapsed ? '#dc3545' : '#28a745';
+            }
+        }
+        
+        function toggleSidebarTest() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+                
+                if (sidebar.classList.contains('collapsed')) {
+                    document.body.classList.add('sidebar-collapsed');
+                } else {
+                    document.body.classList.remove('sidebar-collapsed');
+                }
+                
+                updateDebugInfo();
+            }
+        }
+        
+        // Observer para detectar cambios en las clases
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    updateDebugInfo();
+                }
+            });
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                observer.observe(sidebar, { attributes: true });
+                observer.observe(document.body, { attributes: true });
+            }
+            
+            updateDebugInfo();
+            
+            // Actualizar info cada segundo
+            setInterval(updateDebugInfo, 1000);
+        });
+    </script>
+</body>
+</html>

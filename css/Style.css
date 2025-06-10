@@ -225,6 +225,24 @@
     width: 85px;
 }
 
+/* ===== AJUSTE DEL CONTENIDO SEGÚN ESTADO DEL SIDEBAR (DESKTOP) ===== */
+/* Cuando sidebar está expandido (estado normal) - 270px + 10px separación */
+.contenedor-reservas,
+.contenedor-usuarios,
+.Table {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    transition: margin-left 0.4s ease;
+}
+
+/* Cuando sidebar está colapsado - 85px + 10px separación */
+body.sidebar-collapsed .contenedor-reservas,
+body.sidebar-collapsed .contenedor-usuarios,
+body.sidebar-collapsed .Table {
+    margin-left: 55px !important;
+    margin-right: 10px !important;
+}
+
 /* ===== ENCABEZADO DEL SIDEBAR ===== */
 .sidebar-header {
     position: relative;
@@ -650,9 +668,10 @@
 /* ===== TABLA DE RESERVAS ===== */
 .contenedor-reservas {
     font-size: 15px;
-    margin-left: 0px !important;
-    width: 100%;
-    margin: 10px auto;
+    margin-left: 280px !important; /* Sidebar (270px) + 10px separación */
+    margin-right: 10px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -773,9 +792,10 @@
 /* ===== TABLA DE USUARIOS ===== */
 .contenedor-usuarios {
     font-size: 15px;
-    margin-left: 0px !important;
-    width: 100%;
-    margin: 10px auto;
+    margin-left: 280px !important; /* Margen para sidebar expandido (270px + 10px separación) */
+    margin-right: 10px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -2419,8 +2439,7 @@ input[type="password"]:focus {
         padding: 0 !important;
         background: none !important;
         box-shadow: none !important;
-    }
-    .filtro-form-desktop label,
+    }    .filtro-form-desktop label,
     .filtro-form-desktop select,
     .filtro-form-desktop input[type="date"],
     .filtro-form-desktop input[type="time"],
@@ -2432,7 +2451,7 @@ input[type="password"]:focus {
         max-width: unset !important;
         display: inline-block !important;
         box-sizing: border-box !important;
-        font-size:  
+        font-size: 1rem !important;
         vertical-align: middle !important;
     }
     .filtro-form-desktop button {
@@ -2443,7 +2462,7 @@ input[type="password"]:focus {
     }
 }
 
-/* Responsive: Botón y título en columna y centrados en móvil/tablet */
+/* Responsive: Botón y título in column and centered in mobile/tablet */
 @media (max-width: 1024px) {
     .tituloyboton {
         display: flex !important;
@@ -2494,6 +2513,18 @@ input[type="password"]:focus {
 }
 .tabla-scroll-usuarios .tabla-usuarios {
     min-width: 1200px;
+}
+
+/* ===== AJUSTES ESPECÍFICOS PARA TABLAS SEGÚN ESTADO DEL SIDEBAR ===== */
+
+/* Tabla dentro de contenedor-usuarios cuando sidebar está expandido */
+.contenedor-usuarios .tabla-scroll .tabla-reservas {
+    min-width: 1000px; /* Reducido para mejor ajuste */
+}
+
+/* Tabla dentro de contenedor-usuarios cuando sidebar está colapsado */
+body.sidebar-collapsed .contenedor-usuarios .tabla-scroll .tabla-reservas {
+    min-width: 1200px; /* Puede usar más espacio cuando sidebar está colapsado */
 }
 
 /* ===== MEJORAS PARA SCROLL HORIZONTAL EN TABLAS ===== */
