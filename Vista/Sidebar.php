@@ -61,16 +61,7 @@
 
 
 
-                <!-- revisar la disponibilidad administrador  -->
-                <?php if ($_SESSION['usuario_rol'] === 'Administrador'): ?>
-                    <li class="nav-item">
-                        <a href="../Vista/Disponible.php" class="nav-link">
-                            <img src="../Imagen/Iconos/Disponibles.svg" alt="" />
-                            <span class="nav-label">Disponibles</span>
-                        </a>
-                        <span class="nav-tooltip">Disponibles</span>
-                    </li>
-                <?php endif; ?>
+                
 
 
 

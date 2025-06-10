@@ -381,20 +381,30 @@ body.sidebar-collapsed .Table {
     top: -10px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     white-space: nowrap;
-    transition: 0s;
+    transition: opacity 0.3s ease;
+    z-index: 999999999 !important;
 }
 
 .sidebar-nav .nav-item:hover .nav-tooltip {
-    opacity: 12;
+    opacity: 1;
     pointer-events: auto;
-    transform: translateY(50%);
-    transition: 0.04s ease;
+    display: block;
+    z-index: 999999999 !important;
 }
 
 .sidebar.collapsed .sidebar-nav .nav-tooltip {
     display: block;
+    z-index: 999999999 !important;
 }
 
+/* Asegurar que el sidebar tenga un z-index alto también */
+.sidebar {
+    z-index: 999999998 !important;
+}
+
+.sidebar-nav {
+    z-index: 999999998 !important;
+}
 
 /* ===== RESPONSIVE DESIGN PARA SIDEBAR ===== */
 /* NOTA: Las reglas del sidebar para móviles están definidas más abajo 
@@ -1097,10 +1107,7 @@ body.sidebar-collapsed .Table {
     pointer-events: none;
     transition: opacity 0.3s ease;
     margin-bottom: 10px;
-}
-
-.btn-pdf:hover .nav-tooltip {
-    opacity: 1;
+    z-index: 999999999 !important;
 }
 
 /* ===== BOTÓN CANCELAR ===== */
