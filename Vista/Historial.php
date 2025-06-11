@@ -95,9 +95,18 @@ $sql = "SELECT
             r.horaFin,
             rc.nombreRecurso,
             u.nombre AS nombreUsuario,
-            COALESCE(doc.nombre, 'Sin docente') AS nombreDocente,
-            COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
-            COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
+            CASE 
+                WHEN r.ID_DocenteAsignatura IS NOT NULL THEN doc.nombre
+                ELSE u.nombre
+            END AS nombreDocente,
+            CASE 
+                WHEN r.ID_DocenteAsignatura IS NOT NULL THEN asig.nombreAsignatura
+                ELSE 'N/A'
+            END AS asignatura,
+            CASE 
+                WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.nombrePrograma
+                ELSE prog_user.nombrePrograma
+            END AS programa,
             CASE 
                 WHEN u.ID_Rol = 1 THEN COALESCE(u.semestre, 'Sin semestre')
                 ELSE 'No aplica'
@@ -105,6 +114,7 @@ $sql = "SELECT
             r.estado
         FROM registro r
         LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+        LEFT JOIN programa prog_user ON u.Id_Programa = prog_user.ID_Programa
         LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
         LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
         LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario

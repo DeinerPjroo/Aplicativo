@@ -33,11 +33,22 @@ $fechaActual = date("Y-m-d");
 // Consulta para obtener reservas del usuario actual (pendientes y confirmadas)
 $sql = "SELECT r.ID_Registro, r.fechaReserva, r.horaInicio, r.horaFin, 
                rec.nombreRecurso, r.estado, r.creado_en,
-               COALESCE(doc.nombre, 'Sin docente') AS nombreDocente,
-               COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
-               COALESCE(pr.nombrePrograma, 'Sin programa') AS programa
+               CASE 
+                   WHEN r.ID_DocenteAsignatura IS NOT NULL THEN doc.nombre
+                   ELSE u.nombre
+               END AS nombreDocente,
+               CASE 
+                   WHEN r.ID_DocenteAsignatura IS NOT NULL THEN asig.nombreAsignatura
+                   ELSE 'N/A'
+               END AS asignatura,
+               CASE 
+                   WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.nombrePrograma
+                   ELSE prog_user.nombrePrograma
+               END AS programa
         FROM registro r
         JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso
+        JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+        LEFT JOIN programa prog_user ON u.Id_Programa = prog_user.ID_Programa
         LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
         LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
         LEFT JOIN asignatura asig ON da.ID_Asignatura = asig.ID_Asignatura
@@ -258,9 +269,9 @@ if (isset($_GET['error'])) {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="docente_unico">Docente:</label>
+                    <label for="docente_unico">Docente/Administrativo:</label>
                     <select id="docente_unico" name="docente" required>
-                        <option value="">Seleccione un Docente</option>
+                        <option value="">Seleccione un Docente/Administrativo</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -319,14 +330,17 @@ if (isset($_GET['error'])) {
             botonesCancelar.forEach((btn, index) => {
                 console.log(`   - Botón ${index + 1}:`, btn.onclick ? btn.onclick.toString() : 'Sin onclick', btn);
             });
-        });
-
-        // Cargar docentes según programa
+        });        // Cargar docentes según programa
         const programaSelect = document.getElementById('programa_unico');
         const docenteSelect = document.getElementById('docente_unico');
+        const asignaturaSelect = document.getElementById('asignatura_unico');
+        const asignaturaGroup = document.querySelector('#asignatura_unico').closest('.form-group');
+        
         programaSelect.addEventListener('change', function() {
             const programaId = this.value;
             docenteSelect.innerHTML = '<option value="">Cargando...</option>';
+            asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+            
             fetch('../Controlador/ControladorObtener.php?tipo=docentes', {
                     method: 'POST',
                     headers: {
@@ -336,33 +350,60 @@ if (isset($_GET['error'])) {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente</option>';
+                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente/Administrativo</option>';
                     data.data.forEach(docente => {
-                        docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}">${docente.nombre}</option>`;
+                        docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}" data-rol="${docente.rol}">${docente.nombre} (${docente.rol})</option>`;
                     });
                 });
-        });
-
-        // Cambiado a ControladorObtener.php para asignaturas
-        const asignaturaSelect = document.getElementById('asignatura_unico');
+        });        // Cambiado para manejar docentes y administrativos
         docenteSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
             const docenteId = this.value;
             const programaId = programaSelect.value;
-            asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
-            fetch('../Controlador/ControladorObtener.php?tipo=asignaturas', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
-                    data.data.forEach(asig => {
-                        asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
-                    });
-                });
+            const rolUsuario = selectedOption.getAttribute('data-rol');
+            
+            console.log('Rol del usuario seleccionado:', rolUsuario);
+            
+            // Obtener referencias a los campos que se ocultan para administrativos
+            const semestreGroup = document.querySelector('#semestre_unico').closest('.form-group');
+            const semestreSelect = document.getElementById('semestre_unico');
+            
+            // Si es administrativo, ocultar campos de asignatura y semestre
+            if (rolUsuario === 'Administrativo') {
+                asignaturaGroup.style.display = 'none';
+                asignaturaSelect.removeAttribute('required');
+                asignaturaSelect.value = ''; // Limpiar valor
+                
+                semestreGroup.style.display = 'none';
+                semestreSelect.removeAttribute('required');
+                semestreSelect.value = ''; // Limpiar valor
+            } else {
+                // Si es docente, mostrar los campos de asignatura y semestre
+                asignaturaGroup.style.display = 'block';
+                asignaturaSelect.setAttribute('required', 'required');
+                
+                semestreGroup.style.display = 'block';
+                semestreSelect.setAttribute('required', 'required');
+                
+                // Cargar asignaturas del docente
+                if (docenteId && programaId) {
+                    asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
+                    fetch('../Controlador/ControladorObtener.php?tipo=asignaturas', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+                            data.data.forEach(asig => {
+                                asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
+                            });
+                        });
+                }
+            }
         });
 
         // Función común de validación para todos los formularios
@@ -488,10 +529,20 @@ if (isset($_GET['error'])) {
                     form.horaInicio.value,
                     form.horaFin.value,
                     form.recurso.value
-                );
-
-                // Si pasa todas las validaciones, enviar el formulario
+                );                // Si pasa todas las validaciones, enviar el formulario
                 const formData = new FormData(form);
+                
+                // Manejar el caso de campos opcionales para administrativos
+                const docenteSelect = document.getElementById('docente_unico');
+                const selectedOption = docenteSelect.options[docenteSelect.selectedIndex];
+                const rolUsuario = selectedOption.getAttribute('data-rol');
+                
+                // Si es administrativo, eliminar campos que no aplican
+                if (rolUsuario === 'Administrativo') {
+                    formData.delete('asignatura'); // Eliminar el campo asignatura
+                    formData.delete('semestre'); // Eliminar el campo semestre
+                }
+                
                 const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
                     method: 'POST',
                     body: formData
@@ -531,12 +582,15 @@ if (isset($_GET['error'])) {
             if (!fecha) return '';
             const random = Math.random().toString(36).substr(2, 4).toUpperCase();
             return fecha.replace(/-/g, '') + '-' + random;
-        }
-
-        function abrirModalReserva() {
+        }        function abrirModalReserva() {
             document.getElementById('modalReservaUnica').style.display = 'block';
             // Limpiar campos manualmente
             const form = document.getElementById('reservaFormUnica');
+            const asignaturaGroup = document.querySelector('#asignatura_unico').closest('.form-group');
+            const asignaturaSelect = document.getElementById('asignatura_unico');
+            const semestreGroup = document.querySelector('#semestre_unico').closest('.form-group');
+            const semestreSelect = document.getElementById('semestre_unico');
+            
             form.recurso.value = '';
             form.horaInicio.value = '';
             form.horaFin.value = '';
@@ -548,14 +602,20 @@ if (isset($_GET['error'])) {
             form.semestre.value = '';
             form.celular.value = '';
             form.correo.value = '<?php echo htmlspecialchars($_SESSION['usuario_correo']); ?>';
+            
+            // Resetear los campos de asignatura y semestre al estado inicial (visibles y requeridos)
+            asignaturaGroup.style.display = 'block';
+            asignaturaSelect.setAttribute('required', 'required');
+            
+            semestreGroup.style.display = 'block';
+            semestreSelect.setAttribute('required', 'required');
+            
             // Asignar fecha de hoy y generar el ID
             const fechaInput = document.getElementById('fecha_unico');
             const hoy = new Date().toISOString().split('T')[0];
             fechaInput.value = hoy;
             document.getElementById('id_registro').value = generarIdReserva(hoy);
-        }
-
-        // Cuando el usuario selecciona una fecha, generar el ID
+        }// Cuando el usuario selecciona una fecha, generar el ID
         document.addEventListener('DOMContentLoaded', function() {
             const fechaInput = document.getElementById('fecha_unico');
             const idInput = document.getElementById('id_registro');
@@ -565,74 +625,6 @@ if (isset($_GET['error'])) {
                 });
             }
         });
-
-        // Al enviar el formulario, asegúrate de que el ID esté generado
-        async function guardarReservaUnica(event) {
-            event.preventDefault();
-            const form = document.getElementById('reservaFormUnica');
-            const btn = form.querySelector('button[type="submit"]');
-            if (btn.disabled) return; // Evita doble envío si ya está desactivado
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Reservando...';
-            const fecha = form.fecha.value;
-            const idInput = form.id_registro;
-
-            if (!idInput.value) {
-                idInput.value = generarIdReserva(fecha);
-            }
-
-            try {
-                // Validar el formulario
-                validarRegistro(
-                    form.fecha.value,
-                    form.horaInicio.value,
-                    form.horaFin.value
-                );
-
-                // Verificar disponibilidad
-                await verificarDisponibilidad(
-                    form.fecha.value,
-                    form.horaInicio.value,
-                    form.horaFin.value,
-                    form.recurso.value
-                );
-
-                // Si pasa todas las validaciones, enviar el formulario
-                const formData = new FormData(form);
-                const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        cerrarModalReserva('modalReservaUnica');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 300); // Espera breve para asegurar el cierre visual del modal
-                    });
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                });
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        }
 
         // Agregar validación en tiempo real para los campos de fecha y hora
         document.addEventListener('DOMContentLoaded', function() {

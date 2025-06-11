@@ -248,11 +248,9 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                    </thead>                    <tbody>
                         <?php
                         // Consulta SQL para obtener los registros de reservas con sus relaciones.
-
                         $sql = "SELECT 
     r.ID_Registro,
     r.fechaReserva,
@@ -266,14 +264,26 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     u.Codigo_U,
     u.ID_Rol,
     CASE 
-        WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
-        ELSE COALESCE(doc.nombre, 'Sin docente')
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN doc.nombre
+        ELSE u.nombre
     END AS nombreDocente,
-    doc.ID_Usuario AS id_docente,
-    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN doc.ID_Usuario
+        ELSE u.ID_Usuario
+    END AS id_docente,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN asig.nombreAsignatura
+        ELSE 'N/A'
+    END AS asignatura,
     asig.ID_Asignatura,
-    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
-    pr.ID_Programa,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.nombrePrograma
+        ELSE prog_user.nombrePrograma
+    END AS programa,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.ID_Programa
+        ELSE prog_user.ID_Programa
+    END AS ID_Programa,
     CASE 
         WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Administrativo') THEN 'No aplica'
         ELSE COALESCE(r.semestre, 'Sin semestre')
@@ -281,6 +291,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     r.estado
 FROM registro r
 LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+LEFT JOIN programa prog_user ON u.Id_Programa = prog_user.ID_Programa
 LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
 LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
 LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
@@ -499,9 +510,9 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="docente_agregar">Docente</label>
+                        <label for="docente_agregar">Docente/Administrativo</label>
                         <select id="docente_agregar" name="docente" class="input-dinamico">
-                            <option value="">Seleccione un Docente</option>
+                            <option value="">Seleccione un Docente/Administrativo</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -699,52 +710,78 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         data: {
                             id_programa: programaId
                         },
-                        dataType: 'json',
-                        success: function(data) {
-                            docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                        dataType: 'json',                        success: function(data) {
+                            docenteSelect.html('<option value="">Seleccione un Docente/Administrativo</option>');
                             if (data.data) {
                                 data.data.forEach(function(docente) {
-                                    docenteSelect.append('<option value="' + docente.ID_Usuario + '">' + docente.nombre + '</option>');
+                                    // Incluir el rol como data-attribute para poder identificar administrativos
+                                    docenteSelect.append('<option value="' + docente.ID_Usuario + '" data-rol="' + docente.rol + '">' + docente.nombre + ' (' + docente.rol + ')</option>');
                                 });
                             }
                         }
-                    });
-                } else {
-                    docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                    });                } else {
+                    docenteSelect.html('<option value="">Seleccione un Docente/Administrativo</option>');
                 }
             });
 
-            // Cargar asignaturas según docente y programa
+            // Agregar lógica para ocultar campos de asignatura y semestre para administrativos en modal AGREGAR
             $('#docente_agregar').on('change', function() {
+                var selectedOption = $(this).find('option:selected');
                 var docenteId = $(this).val();
                 var programaId = $('#programa_agregar').val();
+                var rolUsuario = selectedOption.data('rol');
+                
+                console.log('Rol del usuario seleccionado (Agregar):', rolUsuario);
+                
+                // Obtener referencias a los campos que se ocultan para administrativos
+                var asignaturaGroup = $('#asignatura_agregar').closest('.form-group');
                 var asignaturaSelect = $('#asignatura_agregar');
-                asignaturaSelect.html('<option value="">Cargando...</option>');
-                if (docenteId && programaId) {
-                    $.ajax({
-                        url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
-                        method: 'POST',
-                        data: {
-                            id_docente: docenteId,
-                            id_programa: programaId
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-                            if (data.data) {
-                                data.data.forEach(function(asig) {
-                                    asignaturaSelect.append('<option value="' + asig.ID_Asignatura + '">' + asig.nombreAsignatura + '</option>');
-                                });
-                            }
-                        }
-                    });
+                var semestreGroup = $('#semestre_agregar').closest('.form-group');
+                var semestreSelect = $('#semestre_agregar');
+                
+                // Si es administrativo, ocultar campos de asignatura y semestre
+                if (rolUsuario === 'Administrativo') {
+                    asignaturaGroup.hide();
+                    asignaturaSelect.removeAttr('required');
+                    asignaturaSelect.val(''); // Limpiar valor
+                    
+                    semestreGroup.hide();
+                    semestreSelect.removeAttr('required');
+                    semestreSelect.val(''); // Limpiar valor
                 } else {
-                    asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
-                }
-            });
+                    // Si es docente, mostrar los campos de asignatura y semestre
+                    asignaturaGroup.show();
+                    asignaturaSelect.attr('required', 'required');
+                    
+                    semestreGroup.show();
+                    semestreSelect.attr('required', 'required');
+                    
+                    // Cargar asignaturas del docente
+                    if (docenteId && programaId) {
+                        asignaturaSelect.html('<option value="">Cargando...</option>');
+                        $.ajax({
+                            url: '../Controlador/ControladorObtener.php?tipo=asignaturas',
+                            method: 'POST',
+                            data: {
+                                id_docente: docenteId,
+                                id_programa: programaId
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
+                                if (data.data) {
+                                    data.data.forEach(function(asig) {
+                                        asignaturaSelect.append('<option value="' + asig.ID_Asignatura + '">' + asig.nombreAsignatura + '</option>');
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }            });
 
-            // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
-        });
+            // --- FIN LÓGICA PARA MODALES DE AGREGAR ---
+
+        }); // Cerrar $(document).ready
 
         // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
         function cargarDocentesModificar(programaId, docenteIdSeleccionado) {
@@ -758,20 +795,17 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     data: {
                         id_programa: programaId
                     },
-                    dataType: 'json',
-                    success: function(data) {
-                        docenteSelect.html('<option value="">Seleccione un Docente</option>');
+                    dataType: 'json',                    success: function(data) {
+                        docenteSelect.html('<option value="">Seleccione un Docente/Administrativo</option>');
                         if (data.data) {
                             data.data.forEach(function(docente) {
                                 var selected = docenteIdSeleccionado == docente.ID_Usuario ? 'selected' : '';
-                                docenteSelect.append('<option value="' + docente.ID_Usuario + '" ' + selected + '>' + docente.nombre + '</option>');
+                                // Incluir el rol como data-attribute para poder identificar administrativos
+                                docenteSelect.append('<option value="' + docente.ID_Usuario + '" data-rol="' + docente.rol + '" ' + selected + '>' + docente.nombre + ' (' + docente.rol + ')</option>');
                             });
                         }
                     }
-                });
-            } else {
-                docenteSelect.html('<option value="">Seleccione un Docente</option>');
-            }
+                });            }
         }
 
         function cargarAsignaturasModificar(docenteId, programaId, asignaturaIdSeleccionada) {
@@ -827,25 +861,47 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             console.log('ID Docente:', data.id_docente);
             console.log('ID Asignatura:', data.id_asignatura);
 
-            cargarDocentesModificar(data.id_programa, data.id_docente);
-
-            var docenteInterval = setInterval(function() {
+            cargarDocentesModificar(data.id_programa, data.id_docente);            var docenteInterval = setInterval(function() {
                 var docenteSel = $('#docente_modificar');
                 if (docenteSel.find('option[value="' + data.id_docente + '"]').length > 0) {
                     clearInterval(docenteInterval);
                     docenteSel.val(data.id_docente);
 
-                    cargarAsignaturasModificar(data.id_docente, data.id_programa, data.id_asignatura);
+                    // Verificar si es administrativo después de cargar los datos
+                    var selectedOption = docenteSel.find('option:selected');
+                    var rolUsuario = selectedOption.data('rol');
+                    
+                    console.log('Rol del usuario en mostrarModal:', rolUsuario);
+                    
+                    // Obtener referencias a los campos que se ocultan para administrativos
+                    var asignaturaGroup = $('#asignatura_modificar').closest('.form-group');
+                    var semestreGroup = $('#semestre_modificar').closest('.form-group');
+                    
+                    if (rolUsuario === 'Administrativo') {
+                        // Si es administrativo, ocultar campos de asignatura y semestre
+                        asignaturaGroup.hide();
+                        semestreGroup.hide();
+                        $('#asignatura_modificar').removeAttr('required');
+                        $('#semestre_modificar').removeAttr('required');
+                    } else {
+                        // Si es docente, mostrar campos y cargar asignaturas
+                        asignaturaGroup.show();
+                        semestreGroup.show();
+                        $('#asignatura_modificar').attr('required', 'required');
+                        $('#semestre_modificar').attr('required', 'required');
+                        
+                        cargarAsignaturasModificar(data.id_docente, data.id_programa, data.id_asignatura);
 
-                    var asignaturaInterval = setInterval(function() {
-                        var asigSel = $('#asignatura_modificar');
-                        if (asigSel.find('option[value="' + data.id_asignatura + '"]').length > 0) {
-                            clearInterval(asignaturaInterval);
-                            asigSel.val(data.id_asignatura);
-                        }
-                    }, 100);
+                        var asignaturaInterval = setInterval(function() {
+                            var asigSel = $('#asignatura_modificar');
+                            if (asigSel.find('option[value="' + data.id_asignatura + '"]').length > 0) {
+                                clearInterval(asignaturaInterval);
+                                asigSel.val(data.id_asignatura);
+                            }                        }, 100);
+                    }
                 }
-            }, 100);        }
+            }, 100);
+        }
 
         // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
         $('#programa_modificar').on('change', function() {
@@ -854,24 +910,51 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             $('#docente_modificar').val('');
             $('#asignatura_modificar').val('');
             cargarDocentesModificar(programaId, '');
-        });
-        // Al cambiar el docente en el modal de modificar, actualizar asignaturas
+        });        // Al cambiar el docente en el modal de modificar, actualizar asignaturas
         $('#docente_modificar').on('change', function() {
+            var selectedOption = $(this).find('option:selected');
             var docenteId = $(this).val();
             var programaId = $('#programa_modificar').val();
-            $('#asignatura_modificar').val('');
-            cargarAsignaturasModificar(docenteId, programaId, '');        });
+            var rolUsuario = selectedOption.data('rol');
+            
+            console.log('Rol del usuario seleccionado (Modificar):', rolUsuario);
+            
+            // Obtener referencias a los campos que se ocultan para administrativos
+            var asignaturaGroup = $('#asignatura_modificar').closest('.form-group');
+            var asignaturaSelect = $('#asignatura_modificar');
+            var semestreGroup = $('#semestre_modificar').closest('.form-group');
+            var semestreSelect = $('#semestre_modificar');
+            
+            // Si es administrativo, ocultar campos de asignatura y semestre
+            if (rolUsuario === 'Administrativo') {
+                asignaturaGroup.hide();                asignaturaSelect.removeAttr('required');
+                asignaturaSelect.val(''); // Limpiar valor
+                
+                semestreGroup.hide();
+                semestreSelect.removeAttr('required');
+                semestreSelect.val(''); // Limpiar valor
+            } else {
+                // Si es docente, mostrar los campos de asignatura y semestre
+                asignaturaGroup.show();
+                asignaturaSelect.attr('required', 'required');
+                
+                semestreGroup.show();
+                semestreSelect.attr('required', 'required');
+                
+                // Cargar asignaturas del docente                cargarAsignaturasModificar(docenteId, programaId, '');
+            }
+        });
 
-            // Script para acordeón de filtros móvil/tablet
-            document.addEventListener('DOMContentLoaded', function() {
-                var btn = document.getElementById('toggleFiltrosMobile');
-                var content = document.getElementById('acordeonFiltrosContent');
-                if(btn && content) {
-                    btn.addEventListener('click', function() {
-                        content.classList.toggle('open');
-                    });
-                }
-            });
+        // Script para acordeón de filtros móvil/tablet
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('toggleFiltrosMobile');
+            var content = document.getElementById('acordeonFiltrosContent');
+            if(btn && content) {
+                btn.addEventListener('click', function() {
+                    content.classList.toggle('open');
+                });
+            }
+        });
     </script>
     
     <script src="../js/sidebar.js"></script>

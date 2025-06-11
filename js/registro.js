@@ -100,9 +100,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 return;
-            }
-            // Enviar por AJAX
+            }            // Enviar por AJAX
             const formData = new FormData(formAgregar);
+            
+            // Manejar el caso de campos opcionales para administrativos
+            const docenteSelect = document.getElementById('docente_agregar');
+            const selectedOption = docenteSelect.options[docenteSelect.selectedIndex];
+            const rolUsuario = selectedOption.getAttribute('data-rol');
+            
+            // Si es administrativo, eliminar campos que no aplican
+            if (rolUsuario === 'Administrativo') {
+                formData.delete('asignatura'); // Eliminar el campo asignatura
+                formData.delete('semestre'); // Eliminar el campo semestre
+            }
+            
             // Generar un id_registro si no existe
             if (!formData.get('id_registro')) {
                 const hoy = fecha || new Date().toISOString().split('T')[0];
@@ -147,9 +158,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!validarRegistro(fecha, horaInicio, horaFin)) {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                return;
-            }
+                return;            }
             const formData = new FormData(formModificar);
+            
+            // Manejar el caso de campos opcionales para administrativos
+            const docenteSelect = document.getElementById('docente_modificar');
+            const selectedOption = docenteSelect.options[docenteSelect.selectedIndex];
+            const rolUsuario = selectedOption.getAttribute('data-rol');
+            
+            // Si es administrativo, eliminar campos que no aplican
+            if (rolUsuario === 'Administrativo') {
+                formData.delete('asignatura'); // Eliminar el campo asignatura
+                formData.delete('semestre'); // Eliminar el campo semestre
+            }
+            
             let data;
             try {
                 const response = await fetch('../Controlador/ControladorRegistro.php?accion=modificar', {

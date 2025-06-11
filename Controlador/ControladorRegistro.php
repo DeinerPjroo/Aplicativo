@@ -29,13 +29,55 @@ switch ($accion) {
             $fecha = $_POST['fecha'] ?? null;
             $horaInicio = $_POST['hora_inicio'] ?? $_POST['horaInicio'] ?? null;
             $horaFin = $_POST['hora_fin'] ?? $_POST['horaFin'] ?? null;
-            $estado = 'Confirmada';
-            // NUEVO: obtener docente y asignatura
+            $estado = 'Confirmada';            // NUEVO: obtener docente y asignatura
             $docente = $_POST['docente'] ?? null;
             $asignatura = $_POST['asignatura'] ?? null;
             $semestre = $_POST['semestre'] ?? null; // <-- Agregado correctamente
             $salon = $_POST['salon'] ?? null; // <-- Agregado correctamente
             $id_docente_asignatura = null;
+
+            // VALIDACIÓN DE SEGURIDAD: Verificar consistencia de datos según el rol del usuario
+            if ($docente) {
+                $stmtRol = $conn->prepare("
+                    SELECT r.nombreRol 
+                    FROM usuario u 
+                    INNER JOIN rol r ON u.ID_Rol = r.ID_Rol 
+                    WHERE u.ID_Usuario = ?
+                ");
+                $stmtRol->bind_param("i", $docente);
+                $stmtRol->execute();
+                $resultRol = $stmtRol->get_result();
+                
+                if ($resultRol->num_rows > 0) {
+                    $rolReal = $resultRol->fetch_assoc()['nombreRol'];
+                    
+                    // Validar consistencia según el rol
+                    if ($rolReal === 'Administrativo') {
+                        // Los administrativos NO pueden tener asignatura
+                        if (!empty($asignatura)) {
+                            $stmtRol->close();
+                            throw new Exception('Error de validación: Los administrativos no pueden tener asignaturas asignadas');
+                        }
+                        // Para administrativos, forzar valores apropiados
+                        $asignatura = null;
+                        $semestre = null;
+                        
+                    } else if ($rolReal === 'Docente') {
+                        // Los docentes SÍ deben tener asignatura (validación opcional, ya que el frontend lo maneja)
+                        if (empty($asignatura)) {
+                            $stmtRol->close();
+                            throw new Exception('Error de validación: Los docentes deben tener una asignatura asignada');
+                        }
+                    }
+                } else {
+                    $stmtRol->close();
+                    throw new Exception('Error: Usuario docente no encontrado');
+                }
+                $stmtRol->close();
+            }
+            
+            // Solo buscar ID_DocenteAsignatura si tenemos AMBOS: docente Y asignatura
+            // Si es administrativo, no tendrá asignatura y no necesitamos ID_DocenteAsignatura
             if ($docente && $asignatura) {
                 // Buscar el ID_DocenteAsignatura correspondiente
                 $stmtDA = $conn->prepare("SELECT ID_DocenteAsignatura FROM docente_asignatura WHERE ID_Usuario = ? AND ID_Asignatura = ? LIMIT 1");
@@ -46,6 +88,11 @@ switch ($accion) {
                     $id_docente_asignatura = $rowDA['ID_DocenteAsignatura'];
                 }
                 $stmtDA->close();
+            } else if ($docente && !$asignatura) {
+                // Caso para administrativos: solo tenemos docente pero no asignatura
+                // En este caso, ID_DocenteAsignatura permanece NULL
+                // Esto es válido para usuarios con rol 'Administrativo'
+                $id_docente_asignatura = null;
             }
             // ...validaciones existentes...
             if (!$id_registro) {
@@ -176,10 +223,8 @@ switch ($accion) {
                             $nombre_docente = $rowDocente['nombre'];
                         }
                         $stmtDocente->close();
-                    }
-
-                    // Nombre de la asignatura
-                    $nombre_asignatura = '';
+                    }                    // Nombre de la asignatura (solo si existe)
+                    $nombre_asignatura = 'N/A';
                     if ($asignatura) {
                         $stmtAsignatura = $conn->prepare("SELECT nombreAsignatura FROM asignatura WHERE ID_Asignatura = ? LIMIT 1");
                         $stmtAsignatura->bind_param("i", $asignatura);
@@ -266,9 +311,48 @@ switch ($accion) {
             $docente = $_POST['docente'] ?? null;
             $asignatura = $_POST['asignatura'] ?? null;
             $salon = $_POST['salon'] ?? null;
-            $semestre = $_POST['semestre'] ?? null;
-            $celular = $_POST['celular'] ?? null;
+            $semestre = $_POST['semestre'] ?? null;            $celular = $_POST['celular'] ?? null;
             $estado = $_POST['estado'] ?? 'Confirmada';
+
+            // VALIDACIÓN DE SEGURIDAD: Verificar consistencia de datos según el rol del usuario (MODIFICAR)
+            if ($docente) {
+                $stmtRol = $conn->prepare("
+                    SELECT r.nombreRol 
+                    FROM usuario u 
+                    INNER JOIN rol r ON u.ID_Rol = r.ID_Rol 
+                    WHERE u.ID_Usuario = ?
+                ");
+                $stmtRol->bind_param("i", $docente);
+                $stmtRol->execute();
+                $resultRol = $stmtRol->get_result();
+                
+                if ($resultRol->num_rows > 0) {
+                    $rolReal = $resultRol->fetch_assoc()['nombreRol'];
+                    
+                    // Validar consistencia según el rol
+                    if ($rolReal === 'Administrativo') {
+                        // Los administrativos NO pueden tener asignatura
+                        if (!empty($asignatura)) {
+                            $stmtRol->close();
+                            throw new Exception('Error de validación: Los administrativos no pueden tener asignaturas asignadas');
+                        }
+                        // Para administrativos, forzar valores apropiados
+                        $asignatura = null;
+                        $semestre = null;
+                        
+                    } else if ($rolReal === 'Docente') {
+                        // Los docentes SÍ deben tener asignatura (validación opcional, ya que el frontend lo maneja)
+                        if (empty($asignatura)) {
+                            $stmtRol->close();
+                            throw new Exception('Error de validación: Los docentes deben tener una asignatura asignada');
+                        }
+                    }
+                } else {
+                    $stmtRol->close();
+                    throw new Exception('Error: Usuario docente no encontrado');
+                }
+                $stmtRol->close();
+            }
 
             // Validaciones básicas
             if (!$registro_id) {
@@ -297,9 +381,7 @@ switch ($accion) {
             }
             $rowExiste = $resultExiste->fetch_assoc();
             $usuario_id = $rowExiste['ID_Usuario'];
-            $stmtExiste->close();
-
-            // Obtener ID_DocenteAsignatura si se proporcionaron docente y asignatura
+            $stmtExiste->close();            // Obtener ID_DocenteAsignatura si se proporcionaron docente y asignatura
             $id_docente_asignatura = null;
             if ($docente && $asignatura) {
                 $stmtDA = $conn->prepare("SELECT ID_DocenteAsignatura FROM docente_asignatura WHERE ID_Usuario = ? AND ID_Asignatura = ? LIMIT 1");
@@ -310,6 +392,10 @@ switch ($accion) {
                     $id_docente_asignatura = $rowDA['ID_DocenteAsignatura'];
                 }
                 $stmtDA->close();
+            } else if ($docente && !$asignatura) {
+                // Caso para administrativos: solo tenemos docente pero no asignatura
+                // En este caso, ID_DocenteAsignatura permanece NULL
+                $id_docente_asignatura = null;
             }
 
             // Validar disponibilidad del recurso (excluyendo el registro actual)
