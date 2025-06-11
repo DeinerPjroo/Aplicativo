@@ -302,7 +302,8 @@ switch ($tipo) {
                 'reservas_existentes' => $reservasExistentes,
                 'recurso_info' => $recursoInfo
             ];
-              } catch (Exception $e) {
+            
+        } catch (Exception $e) {
             $response = [
                 'disponible' => false,
                 'error' => $e->getMessage()
@@ -315,154 +316,31 @@ switch ($tipo) {
             $recursoId = $_POST['recurso_id'] ?? '';
             $fecha = $_POST['fecha'] ?? '';
             $registroExcluir = $_POST['registro_excluir'] ?? null; // Para modificaciones
-            
+            $asignaturaId = $_POST['asignatura_id'] ?? $_POST['asignatura'] ?? null;
+
             if (!$usuarioId || !$recursoId || !$fecha) {
                 throw new Exception('Faltan datos requeridos para validación');
             }
-            
-            // Verificar si el recurso es una sala (no videobeam)
-            $sqlRecurso = "SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?";
-            $stmtRecurso = $conn->prepare($sqlRecurso);
-            $stmtRecurso->bind_param("i", $recursoId);
-            $stmtRecurso->execute();
-            $resultRecurso = $stmtRecurso->get_result();
-            $recursoInfo = $resultRecurso->fetch_assoc();
-            $stmtRecurso->close();
-            
-            if (!$recursoInfo) {
-                throw new Exception('Recurso no encontrado');
+
+            include_once("ControladorRegistro.php");
+            if (!isset($conn) || !$conn) {
+                include("../database/conection.php");
             }
-            
-            $esVideobeam = stripos($recursoInfo['nombreRecurso'], 'videobeam') !== false;
-            $esSala = (stripos($recursoInfo['nombreRecurso'], 'sala') !== false ||
-                      stripos($recursoInfo['nombreRecurso'], 'aula') !== false ||
-                      stripos($recursoInfo['nombreRecurso'], 'laboratorio') !== false ||
-                      stripos($recursoInfo['nombreRecurso'], 'lab') !== false) && !$esVideobeam;
-            
-            // Si no es una sala, permitir la reserva (videobeams y otros recursos tienen sus propias validaciones)
-            if (!$esSala) {
-                $response = [
-                    'permitido' => true,
-                    'mensaje' => 'Recurso no está sujeto a límite de salas',
-                    'es_sala' => false
-                ];
-                break;
+            if (!isset($conn) || !$conn) {
+                throw new Exception('No se pudo establecer la conexión a la base de datos');
             }
-            
-            // Obtener información del usuario (rol y asignaturas si es docente)
-            $sqlUsuario = "SELECT u.ID_Usuario, u.nombre, r.nombreRol, u.Id_Programa 
-                          FROM usuario u 
-                          INNER JOIN rol r ON u.ID_Rol = r.ID_Rol 
-                          WHERE u.ID_Usuario = ?";
-            $stmtUsuario = $conn->prepare($sqlUsuario);
-            $stmtUsuario->bind_param("i", $usuarioId);
-            $stmtUsuario->execute();
-            $resultUsuario = $stmtUsuario->get_result();
-            $usuarioInfo = $resultUsuario->fetch_assoc();
-            $stmtUsuario->close();
-            
-            if (!$usuarioInfo) {
-                throw new Exception('Usuario no encontrado');
+            $formData = new stdClass();
+            $formData->usuario_id = $usuarioId;
+            $formData->recurso_id = $recursoId;
+            $formData->fecha = $fecha;
+            $formData->registro_excluir = $registroExcluir;
+            $formData->asignatura_id = $asignaturaId;
+
+            if (!is_object($formData)) {
+                $formData = (object)$formData;
             }
-            
-            $rol = $usuarioInfo['nombreRol'];
-            
-            // Solo aplicar límite a Docentes y Administrativos
-            if (!in_array($rol, ['Docente', 'Administrativo'])) {
-                $response = [
-                    'permitido' => true,
-                    'mensaje' => 'Rol no sujeto a límite de salas',
-                    'es_sala' => true,
-                    'rol' => $rol
-                ];
-                break;
-            }
-            
-            // Calcular el inicio y fin de la semana de la fecha dada
-            $fechaObj = new DateTime($fecha);
-            $inicioSemana = clone $fechaObj;
-            $inicioSemana->modify('monday this week'); // Lunes de esta semana
-            $finSemana = clone $inicioSemana;
-            $finSemana->modify('+6 days'); // Domingo de esta semana
-            
-            $fechaInicioSemana = $inicioSemana->format('Y-m-d');
-            $fechaFinSemana = $finSemana->format('Y-m-d');
-            
-            // Calcular límite base (3 reservas)
-            $limiteBase = 3;
-            $multiplicadorAsignaturas = 1;
-            
-            // Si es docente, calcular multiplicador por asignaturas
-            if ($rol === 'Docente') {
-                $sqlAsignaturas = "SELECT COUNT(DISTINCT da.ID_Asignatura) as total_asignaturas
-                                  FROM docente_asignatura da 
-                                  WHERE da.ID_Usuario = ?";
-                $stmtAsignaturas = $conn->prepare($sqlAsignaturas);
-                $stmtAsignaturas->bind_param("i", $usuarioId);
-                $stmtAsignaturas->execute();
-                $resultAsignaturas = $stmtAsignaturas->get_result();
-                $asignaturasInfo = $resultAsignaturas->fetch_assoc();
-                $stmtAsignaturas->close();
-                
-                $multiplicadorAsignaturas = max(1, $asignaturasInfo['total_asignaturas']);
-            }
-            
-            $limiteTotal = $limiteBase * $multiplicadorAsignaturas;
-            
-            // Contar reservas de salas existentes en la semana (solo salas, no videobeams)
-            $sqlConteoSalas = "SELECT COUNT(*) as total_reservas_salas
-                              FROM registro r 
-                              INNER JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso 
-                              WHERE r.ID_Usuario = ? 
-                              AND r.fechaReserva BETWEEN ? AND ? 
-                              AND r.estado = 'Confirmada'
-                              AND (LOWER(rec.nombreRecurso) LIKE '%sala%' 
-                                   OR LOWER(rec.nombreRecurso) LIKE '%aula%' 
-                                   OR LOWER(rec.nombreRecurso) LIKE '%laboratorio%' 
-                                   OR LOWER(rec.nombreRecurso) LIKE '%lab%')
-                              AND LOWER(rec.nombreRecurso) NOT LIKE '%videobeam%'";
-            
-            // Excluir registro actual si se está modificando
-            if ($registroExcluir) {
-                $sqlConteoSalas .= " AND r.ID_Registro != ?";
-            }
-            
-            $stmtConteo = $conn->prepare($sqlConteoSalas);
-            if ($registroExcluir) {
-                $stmtConteo->bind_param("isss", $usuarioId, $fechaInicioSemana, $fechaFinSemana, $registroExcluir);
-            } else {
-                $stmtConteo->bind_param("iss", $usuarioId, $fechaInicioSemana, $fechaFinSemana);
-            }
-            $stmtConteo->execute();
-            $resultConteo = $stmtConteo->get_result();
-            $conteoInfo = $resultConteo->fetch_assoc();
-            $stmtConteo->close();
-            
-            $reservasActuales = $conteoInfo['total_reservas_salas'];
-            $permitido = $reservasActuales < $limiteTotal;
-            
-            $mensaje = '';
-            if (!$permitido) {
-                if ($rol === 'Docente') {
-                    $mensaje = "Has alcanzado el límite semanal de reservas de salas ({$limiteTotal}). Límite base: {$limiteBase} × {$multiplicadorAsignaturas} asignatura(s) = {$limiteTotal} reservas por semana.";
-                } else {
-                    $mensaje = "Has alcanzado el límite semanal de reservas de salas ({$limiteTotal} reservas por semana).";
-                }
-            }
-            
-            $response = [
-                'permitido' => $permitido,
-                'es_sala' => true,
-                'rol' => $rol,
-                'reservas_actuales' => $reservasActuales,
-                'limite_total' => $limiteTotal,
-                'limite_base' => $limiteBase,
-                'multiplicador_asignaturas' => $multiplicadorAsignaturas,
-                'semana_inicio' => $fechaInicioSemana,
-                'semana_fin' => $fechaFinSemana,
-                'mensaje' => $mensaje
-            ];
-            
+
+            $response = validarLimiteSalas($conn, $formData);
         } catch (Exception $e) {
             $response = [
                 'permitido' => false,

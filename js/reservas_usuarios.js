@@ -146,13 +146,16 @@ async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
 /**
  * Verifica el límite de reservas de salas para docentes y administrativos
  */
-async function verificarLimiteSalas(usuarioId, recursoId, fecha, registroExcluir = null) {
+async function verificarLimiteSalas(usuarioId, recursoId, fecha, registroExcluir = null, asignaturaId = null) {
     const formData = new FormData();
     formData.append("usuario_id", usuarioId);
     formData.append("recurso_id", recursoId);
     formData.append("fecha", fecha);
     if (registroExcluir) {
         formData.append("registro_excluir", registroExcluir);
+    }
+    if (asignaturaId) {
+        formData.append("asignatura_id", asignaturaId);
     }
     
     try {
@@ -366,13 +369,39 @@ async function guardarReservaUnica(event) {
     }    try {
         // Validar campos básicos
         validarRegistro(form.fecha.value, form.horaInicio.value, form.horaFin.value);
-        
-        // Verificar disponibilidad del recurso
+          // Verificar disponibilidad del recurso
         await verificarDisponibilidad(form.fecha.value, form.horaInicio.value, form.horaFin.value, form.recurso.value);
         
-        // Verificar límite de reservas de salas (solo para docentes y administrativos)
+        // Verificar límite de reservas de salas
+        // NUEVA LÓGICA: Validar límite si:
+        // 1. El usuario logueado es Docente/Administrativo, O
+        // 2. Hay un docente seleccionado en el formulario (estudiante reserva para docente)
+        const docenteSeleccionado = form.docente ? form.docente.value : null;
+        const asignaturaSeleccionada = form.asignatura ? form.asignatura.value : null;
+        
+        let necesitaValidarLimite = false;
+        let usuarioParaValidar = null;
+        let asignaturaParaValidar = null;
+        
         if (typeof usuarioId !== 'undefined' && (rolUsuario === 'Docente' || rolUsuario === 'Administrativo')) {
-            const limiteSalas = await verificarLimiteSalas(usuarioId, form.recurso.value, form.fecha.value);
+            // Caso 1: Usuario logueado es docente/administrativo
+            necesitaValidarLimite = true;
+            usuarioParaValidar = usuarioId;
+            if (rolUsuario === 'Docente') {
+                asignaturaParaValidar = asignaturaSeleccionada;
+                if (!asignaturaParaValidar) {
+                    throw new Error('Debe seleccionar una asignatura antes de reservar.');
+                }
+            }
+        } else if (docenteSeleccionado && asignaturaSeleccionada) {
+            // Caso 2: Estudiante reserva para un docente con asignatura
+            necesitaValidarLimite = true;
+            usuarioParaValidar = docenteSeleccionado;
+            asignaturaParaValidar = asignaturaSeleccionada;
+        }
+        
+        if (necesitaValidarLimite) {
+            const limiteSalas = await verificarLimiteSalas(usuarioParaValidar, form.recurso.value, form.fecha.value, null, asignaturaParaValidar);
             if (!limiteSalas.permitido) {
                 throw new Error(limiteSalas.mensaje);
             }

@@ -14,6 +14,9 @@ switch ($accion) {
             echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
             break;
         }
+        // --- DEBUG: Guardar POST recibido en log ---
+        file_put_contents(__DIR__ . '/../debug_post.log', date('Y-m-d H:i:s') . "\n" . print_r($_POST, true) . "\n\n", FILE_APPEND);
+        // --- FIN DEBUG ---
         $id_usuario = isset($_POST['id_usuario']) ? $_POST['id_usuario'] : null;
         $codigo_u = $_POST['codigo_u'];
         $nombre = $_POST['nombre'];
@@ -22,6 +25,8 @@ switch ($accion) {
         $id_rol = $_POST['id_rol'];
         $contraseña = isset($_POST['contraseña']) ? $_POST['contraseña'] : '';
         $es_estudiante = ($id_rol == '1');
+        // Corregir: si id_programa es string vacío, ponerlo como null
+        $id_programa = isset($_POST['id_programa']) && $_POST['id_programa'] !== '' ? $_POST['id_programa'] : null; // <-- SIEMPRE OBTENER
         if (empty($codigo_u) || empty($nombre) || empty($correo) || empty($id_rol)) {
             ob_end_clean();
             echo json_encode(['status' => 'error', 'message' => 'Por favor, complete todos los campos obligatorios.']);
@@ -29,7 +34,6 @@ switch ($accion) {
         }
         if ($es_estudiante) {
             $semestre = isset($_POST['semestre']) ? $_POST['semestre'] : '';
-            $id_programa = isset($_POST['id_programa']) ? $_POST['id_programa'] : '';
             if (empty($semestre) || empty($id_programa)) {
                 ob_end_clean();
                 echo json_encode(['status' => 'error', 'message' => 'Para usuarios estudiantes, el programa y semestre son obligatorios.']);
@@ -37,7 +41,6 @@ switch ($accion) {
             }
         } else {
             $semestre = null;
-            $id_programa = null;
         }
         $response = ['status' => 'error', 'message' => ''];
         try {
@@ -88,6 +91,9 @@ switch ($accion) {
             echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
             break;
         }
+        // --- DEBUG: Guardar POST recibido en log ---
+        file_put_contents(__DIR__ . '/../debug_post.log', date('Y-m-d H:i:s') . "\n" . print_r($_POST, true) . "\n\n", FILE_APPEND);
+        // --- FIN DEBUG ---
         $id_usuario = isset($_POST['id_usuario']) ? $_POST['id_usuario'] : '';
         $codigo_u = isset($_POST['codigo_u']) ? $_POST['codigo_u'] : '';
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : '';
@@ -96,6 +102,8 @@ switch ($accion) {
         $id_rol = isset($_POST['id_rol']) ? $_POST['id_rol'] : '';
         $contraseña = isset($_POST['contraseña']) ? $_POST['contraseña'] : '';
         $es_estudiante = ($id_rol == '1');
+        // Corregir: si id_programa es string vacío, ponerlo como null
+        $id_programa = isset($_POST['id_programa']) && $_POST['id_programa'] !== '' ? $_POST['id_programa'] : null; // <-- SIEMPRE OBTENER
         if (empty($id_usuario) || empty($codigo_u) || empty($nombre) || empty($correo) || empty($id_rol)) {
             ob_end_clean();
             echo json_encode(['status' => 'error', 'message' => 'Por favor, complete todos los campos obligatorios.']);
@@ -103,7 +111,6 @@ switch ($accion) {
         }
         if ($es_estudiante) {
             $semestre = isset($_POST['semestre']) ? $_POST['semestre'] : '';
-            $id_programa = isset($_POST['id_programa']) ? $_POST['id_programa'] : '';
             if (empty($semestre) || empty($id_programa)) {
                 ob_end_clean();
                 echo json_encode(['status' => 'error', 'message' => 'Para usuarios estudiantes, el programa y semestre son obligatorios.']);
@@ -111,7 +118,6 @@ switch ($accion) {
             }
         } else {
             $semestre = null;
-            $id_programa = null;
         }
         $response = ['status' => 'error', 'message' => ''];
         try {

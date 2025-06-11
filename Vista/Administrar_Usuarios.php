@@ -86,11 +86,11 @@ while ($row = $programasResult->fetch_assoc()) {
                         <!-- Columnas principales para móviles (solo 3 columnas) -->
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>Correo</th>
+                        <th>Telefono</th>
                         <!-- Columnas adicionales solo para desktop -->
-                        <th class="desktop-only">Teléfono</th>
                         <th class="desktop-only">Programa</th>
                         <th class="desktop-only">Semestre</th>
+                        <th class="desktop-only">COrreo</th>
                         <th class="desktop-only">Rol</th>
                         <th class="desktop-only">Acciones</th>
                     </tr>
@@ -164,10 +164,8 @@ while ($row = $programasResult->fetch_assoc()) {
                 <div id="error-message-correo" class="error-message" style="display:none;"></div>
 
                 <label>Contraseña:</label>
-                <input type="password" name="contraseña" id="form-contraseña" placeholder="Ingrese contraseña...">
-
-                <label>Rol:</label>
-                <select name="id_rol" id="form-rol" required onchange="toggleCamposEstudiante()">
+                <input type="password" name="contraseña" id="form-contraseña" placeholder="Ingrese contraseña...">                <label>Rol:</label>
+                <select name="id_rol" id="form-rol" required onchange="configurarCamposPorRol()">
                     <option value="">Seleccione un rol</option>
                     <option value="1" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '1') ? 'selected' : ''; ?>>Estudiante</option>
                     <option value="2" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '2') ? 'selected' : ''; ?>>Docente</option>
@@ -175,22 +173,21 @@ while ($row = $programasResult->fetch_assoc()) {
                     <option value="4" <?php echo (isset($_POST['id_rol']) && $_POST['id_rol'] == '4') ? 'selected' : ''; ?>>Administrador</option>
                 </select>
 
-                <label>Semestre:</label>
-                <select name="semestre" id="form-semestre" disabled>
-                    <option value="">Seleccione un semestre</option>
-                    <?php for ($i = 1; $i <= 10; $i++): ?>
-                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                    <?php endfor; ?>
-                </select>
-
-                <label>Programa:</label>
-                <select name="id_programa" id="form-programa" disabled>
+                <label id="labelPrograma">Programa:</label>
+                <select name="id_programa" id="form-programa">
                     <option value="">Seleccione un programa</option>
                     <?php foreach ($programas as $programa) : ?>
                         <option value="<?php echo $programa['ID_Programa']; ?>">
                             <?php echo htmlspecialchars($programa['nombrePrograma']); ?>
                         </option>
                     <?php endforeach; ?>
+                </select>
+                <small id="ayudaPrograma" class="campo-ayuda" style="display: none; color: #666; font-size: 0.8em; margin-top: 4px;"></small>                <label>Semestre:</label>
+                <select name="semestre" id="form-semestre" disabled>
+                    <option value="">Seleccione un semestre</option>
+                    <?php for ($i = 1; $i <= 10; $i++): ?>
+                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                    <?php endfor; ?>
                 </select>
 
                 <button type="submit" id="submitBtn">
@@ -201,10 +198,8 @@ while ($row = $programasResult->fetch_assoc()) {
                 </button>
             </form>
         </div>
-    </div>
-
-    <!-- HTML mejorado para el modal de confirmación -->
-    <div id="modalConfirmDelete" class="modal-confirm" aria-modal="true" role="dialog">
+    </div>    <!-- HTML mejorado para el modal de confirmación -->
+    <div id="modalConfirmDelete" class="modal-confirm" aria-modal="true" role="dialog" style="display: none;">
         <div class="modal-confirm-content">
             <div class="modal-confirm-icon">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -221,7 +216,8 @@ while ($row = $programasResult->fetch_assoc()) {
                     <i class="fas fa-check"></i> Confirmar
                 </button>
             </div>
-        </div>    </div>
+        </div>
+    </div>
 </body>
 
 </html>

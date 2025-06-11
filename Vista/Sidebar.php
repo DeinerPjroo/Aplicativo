@@ -1,13 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>    <aside class="sidebar">
+<aside class="sidebar">
         <header class="sidebar-header">
             <a href="javascript:location.reload(true);" class="header-logo">
                 <img src="../Imagen/logo_sinLetra.png" alt="Logo Universidad">
@@ -127,8 +119,7 @@
 
                 <li class="nav-item">
                     <a href="../Controlador/logout.php" class="nav-link">
-                        <img src="../Imagen/Iconos/Cerrar_Sesion.svg" alt="" />
-                        <span class="nav-label">Cerrar sesión</span>
+                        <img src="../Imagen/Iconos/Cerrar_Sesion.svg" alt="" />                    <span class="nav-label">Cerrar sesión</span>
                     </a>
                     <span class="nav-tooltip">Cerrar sesión</span>
                 </li>
@@ -136,6 +127,3 @@
         </nav>
     </aside>
     <script src="../js/sidebar.js"></script>
-</body>
-
-</html>

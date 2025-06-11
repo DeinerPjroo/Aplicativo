@@ -40,12 +40,26 @@ function obtenerUsuarioLogueado($conn) {
 // Función para validar límite de reservas de salas
 function validarLimiteSalas($conn, $data) {
     try {
+        // Asegurar conexión a la base de datos
+        if (!isset($conn) || !$conn) {
+            include_once __DIR__ . '/../database/conection.php';
+        }
+        if (!isset($conn) || !$conn) {
+            return ['permitido' => false, 'mensaje' => 'No se pudo establecer la conexión a la base de datos'];
+        }
+
+        // Convertir a objeto si es necesario
+        if (!is_object($data)) {
+            $data = (object)$data;
+        }
+
         $usuarioId = $data->usuario_id;
         $recursoId = $data->recurso_id;
         $fecha = $data->fecha;
         $registroExcluir = $data->registro_excluir ?? null;
-        
-        // Verificar si el recurso es una sala (no videobeam)
+        $asignaturaId = $data->asignatura_id ?? ($data->asignatura ?? null); // Permitir recibir asignatura explícitamente
+
+        // Verificar que el recurso es una sala (no videobeam)
         $sqlRecurso = "SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?";
         $stmtRecurso = $conn->prepare($sqlRecurso);
         $stmtRecurso->bind_param("i", $recursoId);
@@ -87,85 +101,59 @@ function validarLimiteSalas($conn, $data) {
         
         $rol = $usuarioInfo['nombreRol'];
         
-        // Solo aplicar límite a Docentes y Administrativos
-        if (!in_array($rol, ['Docente', 'Administrativo'])) {
-            return ['permitido' => true, 'mensaje' => 'Rol no sujeto a límite de salas'];
+        // Solo aplicar límite a Docentes (para administrativos se aplica lógica diferente)
+        if ($rol !== 'Docente') {
+            // Para administrativos y otros roles, mantener la lógica anterior (sin límite por asignatura/mes)
+            return ['permitido' => true, 'mensaje' => 'Rol no sujeto a límite mensual por asignatura'];
         }
-        
-        // Calcular el inicio y fin de la semana
+
+        // Validar que se reciba la asignatura
+        if (!$asignaturaId) {
+            return ['permitido' => false, 'mensaje' => 'No se especificó la asignatura para validar el límite mensual'];
+        }
+
+        // Calcular el mes y año de la fecha de la reserva
         $fechaObj = new DateTime($fecha);
-        $inicioSemana = clone $fechaObj;
-        $inicioSemana->modify('monday this week');
-        $finSemana = clone $inicioSemana;
-        $finSemana->modify('+6 days');
-        
-        $fechaInicioSemana = $inicioSemana->format('Y-m-d');
-        $fechaFinSemana = $finSemana->format('Y-m-d');
-        
-        // Calcular límite
-        $limiteBase = 3;
-        $multiplicadorAsignaturas = 1;
-        
-        if ($rol === 'Docente') {
-            $sqlAsignaturas = "SELECT COUNT(DISTINCT da.ID_Asignatura) as total_asignaturas
-                              FROM docente_asignatura da 
-                              WHERE da.ID_Usuario = ?";
-            $stmtAsignaturas = $conn->prepare($sqlAsignaturas);
-            $stmtAsignaturas->bind_param("i", $usuarioId);
-            $stmtAsignaturas->execute();
-            $resultAsignaturas = $stmtAsignaturas->get_result();
-            $asignaturasInfo = $resultAsignaturas->fetch_assoc();
-            $stmtAsignaturas->close();
-            
-            $multiplicadorAsignaturas = max(1, $asignaturasInfo['total_asignaturas']);
-        }
-        
-        $limiteTotal = $limiteBase * $multiplicadorAsignaturas;
-        
-        // Contar reservas de salas existentes en la semana
-        $sqlConteoSalas = "SELECT COUNT(*) as total_reservas_salas
-                          FROM registro r 
-                          INNER JOIN recursos rec ON r.ID_Recurso = rec.ID_Recurso 
-                          WHERE r.ID_Usuario = ? 
-                          AND r.fechaReserva BETWEEN ? AND ? 
-                          AND r.estado = 'Confirmada'
-                          AND (LOWER(rec.nombreRecurso) LIKE '%sala%' 
-                               OR LOWER(rec.nombreRecurso) LIKE '%aula%' 
-                               OR LOWER(rec.nombreRecurso) LIKE '%laboratorio%' 
-                               OR LOWER(rec.nombreRecurso) LIKE '%lab%')
-                          AND LOWER(rec.nombreRecurso) NOT LIKE '%videobeam%'";
-        
+        $anio = $fechaObj->format('Y');
+        $mes = $fechaObj->format('m');
+        $primerDiaMes = "$anio-$mes-01";
+        $ultimoDiaMes = (new DateTime("$anio-$mes-01"))->modify('last day of this month')->format('Y-m-d');
+
+        // Contar reservas confirmadas de este docente para esta asignatura en el mes
+        $sqlConteo = "SELECT COUNT(*) as total_reservas
+            FROM registro r
+            INNER JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
+            WHERE da.ID_Usuario = ?
+              AND da.ID_Asignatura = ?
+              AND r.fechaReserva BETWEEN ? AND ?
+              AND r.estado = 'Confirmada'";
         if ($registroExcluir) {
-            $sqlConteoSalas .= " AND r.ID_Registro != ?";
+            $sqlConteo .= " AND r.ID_Registro != ?";
         }
-        
-        $stmtConteo = $conn->prepare($sqlConteoSalas);
+
+        $stmtConteo = $conn->prepare($registroExcluir ? $sqlConteo : $sqlConteo);
         if ($registroExcluir) {
-            $stmtConteo->bind_param("isss", $usuarioId, $fechaInicioSemana, $fechaFinSemana, $registroExcluir);
+            $stmtConteo->bind_param("iisss", $usuarioId, $asignaturaId, $primerDiaMes, $ultimoDiaMes, $registroExcluir);
         } else {
-            $stmtConteo->bind_param("iss", $usuarioId, $fechaInicioSemana, $fechaFinSemana);
-        }
-        $stmtConteo->execute();
+            $stmtConteo->bind_param("iiss", $usuarioId, $asignaturaId, $primerDiaMes, $ultimoDiaMes);
+        }        $stmtConteo->execute();
         $resultConteo = $stmtConteo->get_result();
         $conteoInfo = $resultConteo->fetch_assoc();
         $stmtConteo->close();
         
-        $reservasActuales = $conteoInfo['total_reservas_salas'];
-        $permitido = $reservasActuales < $limiteTotal;
+        $reservasActuales = $conteoInfo['total_reservas'];
+        $limite = 3; // 3 reservas por mes por asignatura
+        $permitido = $reservasActuales < $limite;
         
         $mensaje = '';
         if (!$permitido) {
-            if ($rol === 'Docente') {
-                $mensaje = "Has alcanzado el límite semanal de reservas de salas ({$limiteTotal}). Límite: {$limiteBase} reservas × {$multiplicadorAsignaturas} asignatura(s) = {$limiteTotal} reservas por semana.";
-            } else {
-                $mensaje = "Has alcanzado el límite semanal de reservas de salas ({$limiteTotal} reservas por semana).";
-            }
+            $mensaje = "Has alcanzado el límite mensual de reservas confirmadas para esta asignatura ($limite por mes).";
         }
         
         return [
             'permitido' => $permitido,
             'reservas_actuales' => $reservasActuales,
-            'limite_total' => $limiteTotal,
+            'limite' => $limite,
             'mensaje' => $mensaje
         ];
         
@@ -390,13 +378,16 @@ switch ($accion) {
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
                 throw new Exception('El ID de la reserva ya existe, por favor intente de nuevo.');
-            }            $stmt->close();
+            }            $stmt->close();            // NUEVA VALIDACIÓN: Verificar límite de reservas de salas
+            // CORRECCIÓN CRÍTICA: Si hay un docente seleccionado (ej: estudiante reserva para docente), 
+            // validar el límite contra ese docente, no contra el usuario logueado
+            $usuarioParaValidarLimite = $docente ?? $usuario;
             
-            // NUEVA VALIDACIÓN: Verificar límite de reservas de salas para docentes y administrativos
             $formData = new stdClass();
-            $formData->usuario_id = $usuario;
+            $formData->usuario_id = $usuarioParaValidarLimite;
             $formData->recurso_id = $recurso;
             $formData->fecha = $fecha;
+            $formData->asignatura_id = $asignatura;
             
             $validacionLimite = validarLimiteSalas($conn, $formData);
             if (!$validacionLimite['permitido']) {
@@ -674,14 +665,17 @@ switch ($accion) {
             } else if ($docente && !$asignatura) {
                 // Caso para administrativos: solo tenemos docente pero no asignatura
                 // En este caso, ID_DocenteAsignatura permanece NULL
-                $id_docente_asignatura = null;            }
-
-            // NUEVA VALIDACIÓN: Verificar límite de reservas de salas para docentes y administrativos (modificación)
+                $id_docente_asignatura = null;            }            // NUEVA VALIDACIÓN: Verificar límite de reservas de salas (modificación)
+            // CORRECCIÓN CRÍTICA: Si hay un docente seleccionado (ej: estudiante modifica reserva para docente), 
+            // validar el límite contra ese docente, no contra el usuario original del registro
+            $usuarioParaValidarLimiteModificar = $docente ?? $usuario_id;
+            
             $formDataModificar = new stdClass();
-            $formDataModificar->usuario_id = $usuario_id;
+            $formDataModificar->usuario_id = $usuarioParaValidarLimiteModificar;
             $formDataModificar->recurso_id = $recurso;
             $formDataModificar->fecha = $fecha;
             $formDataModificar->registro_excluir = $registro_id; // Excluir el registro actual
+            $formDataModificar->asignatura_id = $asignatura;
             
             $validacionLimiteModificar = validarLimiteSalas($conn, $formDataModificar);
             if (!$validacionLimiteModificar['permitido']) {

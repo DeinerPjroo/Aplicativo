@@ -198,12 +198,11 @@ function openModal(action) {
         passwordField.style.display = 'block';
         passwordLabel.style.display = 'block';
         limpiarErrores();
-    }
-    modal.style.display = 'block';
+    }    modal.style.display = 'block';
     setTimeout(() => {
         document.getElementById('form-codigo_u').focus();
     }, 200);
-    setTimeout(toggleCamposEstudiante, 100);
+    setTimeout(configurarCamposPorRol, 100);
 }
 
 /**
@@ -230,7 +229,10 @@ function openModificarForm(id, codigo_u, nombre, telefono, correo, programa, sem
     document.getElementById('form-nombre').value = nombre;
     document.getElementById('form-telefono').value = telefono;
     document.getElementById('form-correo').value = correo;
-    document.getElementById('form-programa').value = programa;
+    // Habilitar el select de programa antes de setear el valor
+    const programaField = document.getElementById('form-programa');
+    programaField.disabled = false;
+    programaField.value = programa;
     document.getElementById('form-semestre').value = semestre;
     document.getElementById('form-rol').value = id_rol;
     passwordField.required = false;
@@ -240,7 +242,7 @@ function openModificarForm(id, codigo_u, nombre, telefono, correo, programa, sem
     document.getElementById('form-codigo_u').setAttribute('data-original', codigo_u);
     document.getElementById('form-correo').setAttribute('data-original', correo);
     modal.style.display = 'block';
-    setTimeout(toggleCamposEstudiante, 100);
+    setTimeout(configurarCamposPorRol, 100);
 }
 
 /**
@@ -309,6 +311,10 @@ function submitForm(event) {
         showToast('Por favor, seleccione el semestre y el programa.', 'error');
         return false;
     }
+    // Habilitar el select de programa antes de enviar para que se incluya en el FormData
+    const programaField = document.getElementById('form-programa');
+    const estabaDeshabilitado = programaField.disabled;
+    programaField.disabled = false;
     const form = document.getElementById('usuarioForm');
     const formData = new FormData(form);
     const submitBtn = document.getElementById('submitBtn');
@@ -319,17 +325,13 @@ function submitForm(event) {
     submitBtnLoader.style.display = 'inline-block';
     formData.append('es_estudiante', esEstudiante ? '1' : '0');
     if (!esEstudiante) {
+        // Solo limpiar semestre, pero NO borrar el programa seleccionado
         const semestreField = document.getElementById('form-semestre');
-        const programaField = document.getElementById('form-programa');
         semestreField.disabled = false;
-        programaField.disabled = false;
         semestreField.value = '';
-        programaField.value = '';
         formData.set('semestre', '');
-        formData.set('id_programa', '');
         setTimeout(() => {
             semestreField.disabled = true;
-            programaField.disabled = true;
         }, 10);
     }
     const action = form.getAttribute('data-action');
@@ -343,6 +345,10 @@ function submitForm(event) {
         submitBtn.disabled = false;
         submitBtnText.style.display = 'inline';
         submitBtnLoader.style.display = 'none';
+        // Restaurar el estado de habilitación del select de programa
+        if (estabaDeshabilitado) {
+            programaField.disabled = true;
+        }
         if (this.status === 200) {
             let response;
             try {
@@ -397,35 +403,76 @@ window.onclick = function(event) {
 };
 
 /**
- * Habilita o deshabilita los campos de semestre y programa según el rol seleccionado.
+ * Configura los campos de programa y semestre según el rol seleccionado.
  */
-function toggleCamposEstudiante() {
+function configurarCamposPorRol() {
     const rol = document.getElementById('form-rol').value;
-    const esEstudiante = rol === '1';
     const semestreField = document.getElementById('form-semestre');
     const programaField = document.getElementById('form-programa');
-    if (esEstudiante) {
-        semestreField.disabled = false;
-        programaField.disabled = false;
-        semestreField.required = true;
-        programaField.required = true;
-    } else {
-        semestreField.disabled = true;
-        programaField.disabled = true;
-        semestreField.required = false;
-        programaField.required = false;
-        semestreField.value = '';
-        programaField.value = '';
+    const labelPrograma = document.getElementById('labelPrograma');
+    const ayudaPrograma = document.getElementById('ayudaPrograma');
+    
+    // EL PROGRAMA SIEMPRE ESTÁ HABILITADO
+    programaField.disabled = false;
+    
+    // Limpiar ayuda anterior
+    ayudaPrograma.style.display = 'none';
+    ayudaPrograma.textContent = '';
+    
+    switch(rol) {
+        case '1': // Estudiante
+            semestreField.disabled = false;
+            semestreField.required = true;
+            programaField.required = true;
+            
+            labelPrograma.textContent = 'Programa de Estudios:';
+            ayudaPrograma.textContent = 'Programa académico en el que está inscrito el estudiante.';
+            ayudaPrograma.style.display = 'block';
+            break;
+            
+        case '2': // Docente
+            semestreField.disabled = true;
+            semestreField.required = false;
+            semestreField.value = '';
+            programaField.required = false;
+            
+            labelPrograma.textContent = 'Programa Principal:';
+            ayudaPrograma.textContent = 'Programa principal del docente. Los programas adicionales se asignan mediante las asignaturas.';
+            ayudaPrograma.style.display = 'block';
+            break;
+            
+        case '3': // Administrativo
+            semestreField.disabled = true;
+            semestreField.required = false;
+            semestreField.value = '';
+            programaField.required = false;
+            
+            labelPrograma.textContent = 'Dependencia:';
+            ayudaPrograma.textContent = 'Dependencia o área administrativa a la que pertenece.';
+            ayudaPrograma.style.display = 'block';
+            break;
+            
+        case '4': // Administrador
+        default:
+            semestreField.disabled = true;
+            semestreField.required = false;
+            semestreField.value = '';
+            programaField.required = false;
+            
+            labelPrograma.textContent = 'Programa:';
+            ayudaPrograma.textContent = 'Programa opcional para organización administrativa.';
+            ayudaPrograma.style.display = 'block';
+            break;
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     const rolSelect = document.getElementById('form-rol');
-    rolSelect.addEventListener('change', toggleCamposEstudiante);
+    rolSelect.addEventListener('change', configurarCamposPorRol);
     const addBtn = document.querySelector('.btn-agregar');
     if (addBtn) {
         addBtn.addEventListener('click', function() {
-            setTimeout(toggleCamposEstudiante, 100);
+            setTimeout(configurarCamposPorRol, 100);
         });
     }
 });
