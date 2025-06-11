@@ -475,72 +475,136 @@ async function descargarEstadisticasPDF() {
         document.body.appendChild(contenedorPDF);
         console.log('✅ Contenedor agregado al DOM');        // Esperar más tiempo para que se apliquen todos los estilos
         await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('✅ Estilos aplicados, iniciando captura...');
-
-        // Verificar que el contenedor tiene contenido visible
+        console.log('✅ Estilos aplicados, iniciando captura...');        // Verificar que el contenedor tiene contenido visible
         console.log('🔍 Verificando contenido del contenedor:', {
             altura: contenedorPDF.scrollHeight,
             ancho: contenedorPDF.scrollWidth,
             textoVisible: contenedorPDF.textContent.length,
             elementosHijos: contenedorPDF.children.length
-        });        // Configurar opciones de html2pdf optimizadas para capturar texto
+        });
+
+        // Forzar altura mínima para asegurar captura completa
+        const alturaMinima = Math.max(contenedorPDF.scrollHeight, 2000);
+        contenedorPDF.style.minHeight = alturaMinima + 'px';
+        
+        // Esperar a que se ajuste la altura
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('📏 Altura ajustada a:', alturaMinima, 'px');
+
+        // Configurar opciones de html2pdf optimizadas para capturar texto
         const opciones = {
-            margin: 0.3,
+            margin: 0.5,
             filename: `Estadisticas_Reservas_${new Date().toISOString().slice(0,10)}.pdf`,
             image: { 
                 type: 'jpeg', 
-                quality: 0.95 
-            },
-            html2canvas: {
-                scale: 1,
+                quality: 0.98 
+            },            html2canvas: {
+                scale: 1.5,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
-                logging: false,
+                logging: true,
                 letterRendering: true,
-                foreignObjectRendering: false,
-                removeContainer: true,
-                imageTimeout: 15000,
-                windowWidth: 800,
-                windowHeight: contenedorPDF.scrollHeight + 200,
-                width: 800,
-                height: contenedorPDF.scrollHeight + 200,
+                foreignObjectRendering: true,
+                removeContainer: false,
+                imageTimeout: 30000,
+                windowWidth: 1000,
+                windowHeight: alturaMinima + 500,
+                width: 1000,
+                height: alturaMinima + 500,
                 scrollX: 0,
                 scrollY: 0,
                 x: 0,
-                y: 0,
-                onclone: function(clonedDoc) {
+                y: 0,onclone: function(clonedDoc) {
                     // Forzar estilos en el documento clonado
                     const style = clonedDoc.createElement('style');
-                    style.textContent = `
-                        * { 
+                    style.textContent = `                        * { 
                             color: #000000 !important; 
                             background-color: transparent !important;
                             font-family: Arial, sans-serif !important;
-                            font-size: 14px !important;
+                            font-size: 16px !important;
                             visibility: visible !important;
                             opacity: 1 !important;
+                            box-sizing: border-box !important;
+                        }
+                        body {
+                            margin: 0 !important;
+                            padding: 25px !important;
+                            min-height: ${alturaMinima}px !important;
                         }
                         .estadistica-card {
                             background: #f8f9fa !important;
                             border: 2px solid #000000 !important;
-                            padding: 15px !important;
-                            margin: 10px !important;
+                            padding: 20px !important;
+                            margin: 15px !important;
                             display: inline-block !important;
                             text-align: center !important;
+                            page-break-inside: avoid !important;
+                            font-size: 16px !important;
+                        }
+                        .estadistica-card h3 {
+                            font-size: 16px !important;
+                            margin-bottom: 10px !important;
+                        }
+                        .estadistica-card .valor {
+                            font-size: 28px !important;
+                            font-weight: bold !important;
+                        }
+                        .grafica-box {
+                            background: #ffffff !important;
+                            border: 1px solid #000000 !important;
+                            padding: 20px !important;
+                            margin: 15px 0 !important;
+                            page-break-inside: avoid !important;
+                            min-height: 350px !important;
+                        }
+                        .grafica-box h3 {
+                            font-size: 18px !important;
+                            margin-bottom: 15px !important;
+                        }
+                        .graficas-row {
+                            page-break-inside: avoid !important;
+                            margin: 25px 0 !important;
                         }
                         h1, h2, h3, h4, h5, h6 {
                             color: #000000 !important;
                             font-weight: bold !important;
                             background: #f0f0f0 !important;
-                            padding: 10px !important;
+                            padding: 15px !important;
                             border: 1px solid #000000 !important;
+                            page-break-after: avoid !important;
+                        }
+                        h1 {
+                            font-size: 28px !important;
+                        }
+                        h2 {
+                            font-size: 22px !important;
+                        }
+                        h3 {
+                            font-size: 18px !important;
+                        }
+                        table {
+                            border-collapse: collapse !important;
+                            width: 100% !important;
+                            margin: 25px 0 !important;
+                            page-break-inside: auto !important;
+                            font-size: 16px !important;
                         }
                         table, th, td {
                             border: 1px solid #000000 !important;
-                            padding: 8px !important;
+                            padding: 12px !important;
                             color: #000000 !important;
                             background: white !important;
+                        }
+                        th {
+                            background: #f0f0f0 !important;
+                            font-weight: bold !important;
+                            font-size: 16px !important;
+                        }
+                        .tabla-resumen {
+                            margin-top: 35px !important;
+                            page-break-before: avoid !important;
                         }
                     `;
                     clonedDoc.head.appendChild(style);
@@ -549,9 +613,14 @@ async function descargarEstadisticasPDF() {
             jsPDF: { 
                 unit: 'in', 
                 format: 'a4', 
-                orientation: 'portrait' 
+                orientation: 'portrait',
+                putOnlyUsedFonts: true,
+                floatPrecision: 16
+            },
+            pagebreak: { 
+                mode: ['avoid-all', 'css', 'legacy'] 
             }
-        };        console.log('📄 Generando PDF con opciones:', opciones);
+        };console.log('📄 Generando PDF con opciones:', opciones);
 
         // Generar el PDF (el contenedor será visible durante la captura)
         await html2pdf().set(opciones).from(contenedorPDF).save();
