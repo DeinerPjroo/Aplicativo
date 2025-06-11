@@ -255,17 +255,10 @@ if (isset($_GET['error'])) {
                 <div class="form-group">
                     <label for="horaFin_unico">Hora Final:</label>
                     <input type="time" id="horaFin_unico" name="horaFin" min="06:30" max="22:00" required>
-                </div>
-                <div class="form-group">
+                </div>                <div class="form-group">
                     <label for="programa_unico">Programa/Dependencia:</label>
                     <select id="programa_unico" name="programa" required>
-                        <option value="">Seleccione un Programa/Dependencia</option>
-                        <?php
-                        $programas = $conn->query("SELECT ID_Programa, nombrePrograma FROM programa");
-                        while ($programa = $programas->fetch_assoc()):
-                        ?>
-                            <option value="<?= $programa['ID_Programa'] ?>"><?= $programa['nombrePrograma'] ?></option>
-                        <?php endwhile; ?>
+                        <option value="">Cargando programas...</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -314,8 +307,7 @@ if (isset($_GET['error'])) {
                     <button type="button" onclick="cerrarModalReserva('modalReservaUnica')" class="btn-cancelar">Cancelar</button>
                 </div>
             </form>
-        </div>    </div>    <script>
-        // Variables globales del usuario
+        </div>    </div>    <script>        // Variables globales del usuario
         const usuarioId = <?php echo $usuarioId; ?>;
         const rolUsuario = '<?php echo $role; ?>';
         
@@ -335,7 +327,48 @@ if (isset($_GET['error'])) {
             botonesCancelar.forEach((btn, index) => {
                 console.log(`   - Botón ${index + 1}:`, btn.onclick ? btn.onclick.toString() : 'Sin onclick', btn);
             });
-        });        // Cargar docentes según programa
+            
+            // NUEVO: Cargar programas filtrados al abrir la página
+            cargarProgramasFiltrados();
+        });
+          // NUEVA FUNCIÓN: Cargar programas según el rol del usuario
+        function cargarProgramasFiltrados() {
+            const programaSelect = document.getElementById('programa_unico');
+            
+            fetch('../Controlador/ControladorFiltrado.php?tipo=programas_filtrados', {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                programaSelect.innerHTML = '<option value="">Seleccione un Programa/Dependencia</option>';
+                if (data.status === 'success') {
+                    data.data.forEach(programa => {
+                        programaSelect.innerHTML += `<option value="${programa.ID_Programa}">${programa.nombrePrograma}</option>`;
+                    });
+                      // Si es docente y solo hay un programa, seleccionarlo automáticamente
+                    if (rolUsuario === 'Docente' && data.data.length === 1) {
+                        programaSelect.value = data.data[0].ID_Programa;
+                        console.log(`AUTO-SELECCIONADO programa para docente: ${data.data[0].nombrePrograma}`);
+                        // Trigger evento change para cargar docentes
+                        programaSelect.dispatchEvent(new Event('change'));
+                    }
+                    // Si es estudiante o administrativo, también auto-seleccionar si solo hay un programa
+                    else if ((rolUsuario === 'Estudiante' || rolUsuario === 'Administrativo') && data.data.length === 1) {
+                        programaSelect.value = data.data[0].ID_Programa;
+                        console.log(`AUTO-SELECCIONADO programa para ${rolUsuario}: ${data.data[0].nombrePrograma}`);
+                        // Trigger evento change para cargar docentes
+                        programaSelect.dispatchEvent(new Event('change'));
+                    }
+                } else {
+                    console.error('Error al cargar programas:', data.message);
+                    programaSelect.innerHTML = '<option value="">Error al cargar programas</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                programaSelect.innerHTML = '<option value="">Error al cargar programas</option>';
+            });
+        }// FUNCIÓN ACTUALIZADA: Cargar docentes según programa y rol del usuario
         const programaSelect = document.getElementById('programa_unico');
         const docenteSelect = document.getElementById('docente_unico');
         const asignaturaSelect = document.getElementById('asignatura_unico');
@@ -346,35 +379,59 @@ if (isset($_GET['error'])) {
             docenteSelect.innerHTML = '<option value="">Cargando...</option>';
             asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
             
-            fetch('../Controlador/ControladorObtener.php?tipo=docentes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: 'id_programa=' + encodeURIComponent(programaId)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    docenteSelect.innerHTML = '<option value="">Seleccione un Docente/Administrativo</option>';
+            if (!programaId) {
+                docenteSelect.innerHTML = '<option value="">Seleccione un Docente/Administrativo</option>';
+                return;
+            }
+              fetch('../Controlador/ControladorFiltrado.php?tipo=docentes_filtrados', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'id_programa=' + encodeURIComponent(programaId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                docenteSelect.innerHTML = '<option value="">Seleccione un Docente/Administrativo</option>';
+                if (data.status === 'success') {
                     data.data.forEach(docente => {
                         docenteSelect.innerHTML += `<option value="${docente.ID_Usuario}" data-rol="${docente.rol}">${docente.nombre} (${docente.rol})</option>`;
                     });
-                });
-        });        // Cambiado para manejar docentes y administrativos
+                      // AUTO-SELECCIÓN: Si es docente o administrativo, seleccionarse automáticamente
+                    if (rolUsuario === 'Docente' || rolUsuario === 'Administrativo') {
+                        // Buscar al usuario logueado en la lista (por ID de usuario)
+                        const usuarioEncontrado = data.data.find(docente => docente.ID_Usuario == usuarioId);
+                        if (usuarioEncontrado) {
+                            docenteSelect.value = usuarioEncontrado.ID_Usuario;
+                            console.log(`AUTO-SELECCIONADO: ${usuarioEncontrado.nombre} (${usuarioEncontrado.rol})`);
+                            // Trigger evento change para cargar asignaturas o configurar campos
+                            docenteSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
+                } else {
+                    console.error('Error al cargar docentes:', data.message);
+                    docenteSelect.innerHTML = '<option value="">Error al cargar docentes</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                docenteSelect.innerHTML = '<option value="">Error al cargar docentes</option>';
+            });
+        });        // FUNCIÓN ACTUALIZADA: Manejar docentes y administrativos con filtrado
         docenteSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const docenteId = this.value;
             const programaId = programaSelect.value;
-            const rolUsuario = selectedOption.getAttribute('data-rol');
+            const rolUsuarioSeleccionado = selectedOption.getAttribute('data-rol');
             
-            console.log('Rol del usuario seleccionado:', rolUsuario);
+            console.log('Rol del usuario seleccionado:', rolUsuarioSeleccionado);
             
             // Obtener referencias a los campos que se ocultan para administrativos
             const semestreGroup = document.querySelector('#semestre_unico').closest('.form-group');
             const semestreSelect = document.getElementById('semestre_unico');
             
             // Si es administrativo, ocultar campos de asignatura y semestre
-            if (rolUsuario === 'Administrativo') {
+            if (rolUsuarioSeleccionado === 'Administrativo') {
                 asignaturaGroup.style.display = 'none';
                 asignaturaSelect.removeAttribute('required');
                 asignaturaSelect.value = ''; // Limpiar valor
@@ -390,23 +447,32 @@ if (isset($_GET['error'])) {
                 semestreGroup.style.display = 'block';
                 semestreSelect.setAttribute('required', 'required');
                 
-                // Cargar asignaturas del docente
+                // Cargar asignaturas del docente usando el controlador filtrado
                 if (docenteId && programaId) {
                     asignaturaSelect.innerHTML = '<option value="">Cargando...</option>';
-                    fetch('../Controlador/ControladorObtener.php?tipo=asignaturas', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+                    fetch('../Controlador/ControladorFiltrado.php?tipo=asignaturas_filtradas', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'id_docente=' + encodeURIComponent(docenteId) + '&id_programa=' + encodeURIComponent(programaId)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        asignaturaSelect.innerHTML = '<option value="">Seleccione una Asignatura</option>';
+                        if (data.status === 'success') {
                             data.data.forEach(asig => {
                                 asignaturaSelect.innerHTML += `<option value="${asig.ID_Asignatura}">${asig.nombreAsignatura}</option>`;
                             });
-                        });
+                        } else {
+                            console.error('Error al cargar asignaturas:', data.message);
+                            asignaturaSelect.innerHTML = '<option value="">Error al cargar asignaturas</option>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        asignaturaSelect.innerHTML = '<option value="">Error al cargar asignaturas</option>';
+                    });
                 }
             }
         });
@@ -620,6 +686,9 @@ if (isset($_GET['error'])) {
             const hoy = new Date().toISOString().split('T')[0];
             fechaInput.value = hoy;
             document.getElementById('id_registro').value = generarIdReserva(hoy);
+            
+            // NUEVO: Recargar programas filtrados cuando se abre el modal
+            cargarProgramasFiltrados();
         }// Cuando el usuario selecciona una fecha, generar el ID
         document.addEventListener('DOMContentLoaded', function() {
             const fechaInput = document.getElementById('fecha_unico');
