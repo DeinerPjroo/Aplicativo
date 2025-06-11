@@ -144,6 +144,36 @@ async function verificarDisponibilidad(fecha, horaInicio, horaFin, recurso) {
 }
 
 /**
+ * Verifica el límite de reservas de salas para docentes y administrativos
+ */
+async function verificarLimiteSalas(usuarioId, recursoId, fecha, registroExcluir = null) {
+    const formData = new FormData();
+    formData.append("usuario_id", usuarioId);
+    formData.append("recurso_id", recursoId);
+    formData.append("fecha", fecha);
+    if (registroExcluir) {
+        formData.append("registro_excluir", registroExcluir);
+    }
+    
+    try {
+        const response = await fetch("../Controlador/ControladorVerificar.php?tipo=validar_limite_salas", {
+            method: "POST",
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error en la conexión al servidor');
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al verificar límite de salas:', error);
+        throw new Error('Error al verificar límite de reservas: ' + error.message);
+    }
+}
+
+/**
  * Obtiene información de disponibilidad de videobeams para un horario específico
  */
 async function obtenerInfoVideobeams(fecha, horaInicio, horaFin) {
@@ -333,10 +363,22 @@ async function guardarReservaUnica(event) {
     const idInput = form.id_registro;
     if (!idInput.value) {
         idInput.value = generarIdReserva(fecha);
-    }
-    try {
+    }    try {
+        // Validar campos básicos
         validarRegistro(form.fecha.value, form.horaInicio.value, form.horaFin.value);
+        
+        // Verificar disponibilidad del recurso
         await verificarDisponibilidad(form.fecha.value, form.horaInicio.value, form.horaFin.value, form.recurso.value);
+        
+        // Verificar límite de reservas de salas (solo para docentes y administrativos)
+        if (typeof usuarioId !== 'undefined' && (rolUsuario === 'Docente' || rolUsuario === 'Administrativo')) {
+            const limiteSalas = await verificarLimiteSalas(usuarioId, form.recurso.value, form.fecha.value);
+            if (!limiteSalas.permitido) {
+                throw new Error(limiteSalas.mensaje);
+            }
+        }
+        
+        // Si pasa todas las validaciones, enviar el formulario
         const formData = new FormData(form);
         const response = await fetch('../Controlador/ControladorRegistro.php?accion=agregar', {
             method: 'POST',

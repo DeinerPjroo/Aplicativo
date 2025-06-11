@@ -95,18 +95,39 @@ document.addEventListener("DOMContentLoaded", () => {
             // Obtener valores
             const fecha = formAgregar.fecha.value;
             const horaInicio = formAgregar.horaInicio.value;
-            const horaFin = formAgregar.horaFin.value;
-            if (!validarRegistro(fecha, horaInicio, horaFin)) {
+            const horaFin = formAgregar.horaFin.value;            if (!validarRegistro(fecha, horaInicio, horaFin)) {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 return;
-            }            // Enviar por AJAX
-            const formData = new FormData(formAgregar);
+            }
             
             // Manejar el caso de campos opcionales para administrativos
             const docenteSelect = document.getElementById('docente_agregar');
             const selectedOption = docenteSelect.options[docenteSelect.selectedIndex];
             const rolUsuario = selectedOption.getAttribute('data-rol');
+            const docenteId = docenteSelect.value;
+            
+            // Verificar límite de reservas de salas (solo para docentes y administrativos)
+            if (docenteId && (rolUsuario === 'Docente' || rolUsuario === 'Administrativo')) {
+                try {
+                    const recursoId = document.getElementById('recurso_agregar').value;
+                    const limiteSalas = await verificarLimiteSalas(docenteId, recursoId, fecha);
+                    if (!limiteSalas.permitido) {
+                        showToast(limiteSalas.mensaje, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        return;
+                    }
+                } catch (error) {
+                    showToast(error.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+            }
+            
+            // Enviar por AJAX
+            const formData = new FormData(formAgregar);
             
             // Si es administrativo, eliminar campos que no aplican
             if (rolUsuario === 'Administrativo') {
@@ -125,10 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     method: 'POST',
                     body: formData
                 });
-                const data = await response.json();
-                if (data.status === 'success') {
+                const data = await response.json();                if (data.status === 'success') {
                     showToast(data.message || 'Reserva agregada correctamente', 'success');
                     cerrarModalAgregar();
+                    // Recargar la página para mostrar el nuevo registro
+                    // (Agregar requiere recargar porque necesita reordenar por fecha y mostrar separadores de día)
                     setTimeout(() => window.location.reload(), 800);
                 } else {
                     showToast(data.message || 'Error al agregar la reserva', 'error');
@@ -154,17 +176,38 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.innerHTML = '<span class="spinner"></span> Guardando...';
             const fecha = formModificar.fecha.value;
             const horaInicio = formModificar.horaInicio.value;
-            const horaFin = formModificar.horaFin.value;
-            if (!validarRegistro(fecha, horaInicio, horaFin)) {
+            const horaFin = formModificar.horaFin.value;            if (!validarRegistro(fecha, horaInicio, horaFin)) {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 return;            }
-            const formData = new FormData(formModificar);
             
             // Manejar el caso de campos opcionales para administrativos
             const docenteSelect = document.getElementById('docente_modificar');
             const selectedOption = docenteSelect.options[docenteSelect.selectedIndex];
             const rolUsuario = selectedOption.getAttribute('data-rol');
+            const docenteId = docenteSelect.value;
+            
+            // Verificar límite de reservas de salas (solo para docentes y administrativos)
+            if (docenteId && (rolUsuario === 'Docente' || rolUsuario === 'Administrativo')) {
+                try {
+                    const recursoId = document.getElementById('recurso_modificar').value;
+                    const registroId = formModificar.registro_id.value;
+                    const limiteSalas = await verificarLimiteSalas(docenteId, recursoId, fecha, registroId);
+                    if (!limiteSalas.permitido) {
+                        showToast(limiteSalas.mensaje, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        return;
+                    }
+                } catch (error) {
+                    showToast(error.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+            }
+            
+            const formData = new FormData(formModificar);
             
             // Si es administrativo, eliminar campos que no aplican
             if (rolUsuario === 'Administrativo') {
@@ -184,22 +227,102 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
                 return;
-            }
-            if (data && data.status === 'success') {
+            }            if (data && data.status === 'success') {
                 showToast(data.message || 'Registro modificado correctamente', 'success');
                 cerrarModal();
+                
+                // Actualizar la fila en la tabla sin recargar la página
                 const id = formModificar.registro_id.value;
                 const fila = document.querySelector(`tr[data-registro-id='${id}']`);
                 if (fila) {
                     try {
-                        fila.querySelector('.td-fecha').textContent = fecha;
-                        fila.querySelector('.td-hora-inicio').textContent = horaInicio;
-                        fila.querySelector('.td-hora-fin').textContent = horaFin;
-                        fila.querySelector('.td-salon').textContent = formModificar.salon.value;
-                        fila.querySelector('.td-semestre').textContent = formModificar.semestre.value;
+                        const celdas = fila.querySelectorAll('td');
+                        
+                        // Actualizar los campos que se pueden modificar
+                        // Índice 1: Recurso
+                        const recursoSelect = document.getElementById('recurso_modificar');
+                        const recursoText = recursoSelect.options[recursoSelect.selectedIndex]?.text || '';
+                        if (celdas[1]) celdas[1].textContent = recursoText;
+                        
+                        // Índice 2: Fecha - formatear a dd/mm/yyyy
+                        if (celdas[2]) {
+                            const fechaObj = new Date(fecha + 'T00:00:00');
+                            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: '2-digit', 
+                                year: 'numeric'
+                            });
+                            celdas[2].textContent = fechaFormateada;
+                        }
+                        
+                        // Índice 3: Hora Inicio - formatear a h:mm AM/PM
+                        if (celdas[3]) {
+                            const horaInicioObj = new Date(`2000-01-01T${horaInicio}`);
+                            const horaInicioFormateada = horaInicioObj.toLocaleTimeString('es-ES', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                            celdas[3].textContent = horaInicioFormateada;
+                        }
+                        
+                        // Índice 4: Hora Fin - formatear a h:mm AM/PM
+                        if (celdas[4]) {
+                            const horaFinObj = new Date(`2000-01-01T${horaFin}`);
+                            const horaFinFormateada = horaFinObj.toLocaleTimeString('es-ES', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                            celdas[4].textContent = horaFinFormateada;
+                        }
+                        
+                        // Índice 5: Salón
+                        if (celdas[5]) celdas[5].textContent = formModificar.salon?.value || '';
+                        
+                        // Índice 9: Docente
+                        const docenteSelect = document.getElementById('docente_modificar');
+                        const docenteText = docenteSelect.options[docenteSelect.selectedIndex]?.text || '';
+                        // Extraer solo el nombre (antes del paréntesis del rol)
+                        const nombreDocente = docenteText.split(' (')[0];
+                        if (celdas[9]) celdas[9].textContent = nombreDocente;
+                        
+                        // Índice 10: Asignatura
+                        const asignaturaSelect = document.getElementById('asignatura_modificar');
+                        const asignaturaText = asignaturaSelect.options[asignaturaSelect.selectedIndex]?.text || 'N/A';
+                        if (celdas[10]) celdas[10].textContent = asignaturaText;
+                        
+                        // Índice 11: Programa
+                        const programaSelect = document.getElementById('programa_modificar');
+                        const programaText = programaSelect.options[programaSelect.selectedIndex]?.text || '';
+                        if (celdas[11]) celdas[11].textContent = programaText;
+                        
+                        // Índice 12: Semestre
+                        if (celdas[12]) celdas[12].textContent = formModificar.semestre?.value || '';
+                        
+                        // Índice 13: Estado - actualizar con la clase CSS correspondiente
+                        if (celdas[13]) {
+                            const estado = formModificar.estado?.value || 'Confirmada';
+                            celdas[13].innerHTML = `<span class='status-${estado.toLowerCase()}'>${estado}</span>`;
+                            
+                            // Actualizar clases de la fila según el estado
+                            if (estado === 'Cancelada') {
+                                fila.classList.add('registro-cancelado');
+                            } else {
+                                fila.classList.remove('registro-cancelado');
+                            }
+                        }
+                        
+                        console.log('✅ Fila actualizada correctamente en la tabla');
                     } catch (e) {
-                        // Si alguna celda no existe, no mostrar error al usuario
+                        console.error('❌ Error al actualizar la fila:', e);
+                        // Si hay error actualizando, recargar la página como fallback
+                        setTimeout(() => window.location.reload(), 1000);
                     }
+                } else {
+                    console.warn('⚠️ No se encontró la fila para actualizar, recargando página...');
+                    // Si no se encuentra la fila, recargar la página
+                    setTimeout(() => window.location.reload(), 1000);
                 }
             } else {
                 showToast((data && data.message) || 'Error al modificar la reserva', 'error');
@@ -501,3 +624,33 @@ function exportarRegistrosTXT(filtroFecha = null) {
     document.body.removeChild(a);
 }
 // --- FIN EXPORTAR TABLA A TXT ---
+
+/**
+ * Verifica el límite de reservas de salas para docentes y administrativos
+ */
+async function verificarLimiteSalas(usuarioId, recursoId, fecha, registroExcluir = null) {
+    const formData = new FormData();
+    formData.append("usuario_id", usuarioId);
+    formData.append("recurso_id", recursoId);
+    formData.append("fecha", fecha);
+    if (registroExcluir) {
+        formData.append("registro_excluir", registroExcluir);
+    }
+    
+    try {
+        const response = await fetch("../Controlador/ControladorVerificar.php?tipo=validar_limite_salas", {
+            method: "POST",
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error en la conexión al servidor');
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al verificar límite de salas:', error);
+        throw new Error('Error al verificar límite de reservas: ' + error.message);
+    }
+}

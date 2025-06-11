@@ -315,9 +315,14 @@ if (isset($_GET['error'])) {
                 </div>
             </form>
         </div>    </div>    <script>
+        // Variables globales del usuario
+        const usuarioId = <?php echo $usuarioId; ?>;
+        const rolUsuario = '<?php echo $role; ?>';
+        
         // 🚨 DEBUG MODAL CANCELACIÓN 🚨
         console.log('%c🔥 INICIO SCRIPT - RESERVAS USUARIOS', 'background: #ff0000; color: white; padding: 5px; font-size: 16px; font-weight: bold;');
         console.log('🔧 SweetAlert2 disponible:', typeof Swal !== 'undefined');
+        console.log('🔧 Usuario ID:', usuarioId, 'Rol:', rolUsuario);
         
         // Verificar inmediatamente si la función existe
         window.addEventListener('DOMContentLoaded', function() {
