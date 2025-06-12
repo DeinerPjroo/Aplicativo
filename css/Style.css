@@ -742,6 +742,13 @@ body.sidebar-collapsed .Table {
     translate: 0 -2px;
 }
 
+/* Evitar que las transformaciones de las filas afecten los menús desplegables */
+.tabla-reservas tr:has(.menu-desplegable[style*="block"]):hover {
+    transform: none !important;
+    translate: none !important;
+    transition: background 0.2s !important;
+}
+
 .tabla-reservas tr.separador-dia td {
     background: #e0e0e0 !important;
     color: #333;
@@ -861,6 +868,13 @@ body.sidebar-collapsed .Table {
     background: #d6c8ed;
     transform: translateY(-2px) scale(1.01);
     box-shadow: 0 8px 32px rgba(37,135,151,0.10);
+}
+
+/* Evitar que las transformaciones de las filas afecten los menús desplegables */
+.tabla-usuarios tr:has(.menu-desplegable[style*="block"]):hover {
+    transform: none !important;
+    transition: background 0.2s !important;
+    box-shadow: none !important;
 }
 
 /* ===== TABLA RESUMEN ===== */
@@ -1596,6 +1610,13 @@ body.sidebar-collapsed .Table {
     box-shadow: 0 2px 8px rgba(0, 109, 117, 0.1);
 }
 
+/* Evitar que las transformaciones de las filas afecten los menús desplegables */
+.registro-clickeable:has(.menu-desplegable[style*="block"]):hover {
+    transform: none !important;
+    box-shadow: none !important;
+    transition: background 0.2s !important;
+}
+
 .registro-clickeable:hover td {
     background-color: transparent;
 }
@@ -1651,43 +1672,47 @@ body.sidebar-collapsed .Table {
 
 .menu-desplegable {
     display: none;
-    position: absolute;
+    position: fixed; /* Cambiado de absolute a fixed para evitar interferencia con transforms */
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-    z-index: 9999;
+    z-index: 99999; /* Aumentado z-index para asegurar que esté por encima de todo */
     min-width: 120px;
     max-width: 220px;
     right: 0;
     left: auto;
     overflow: visible;
     white-space: nowrap;
+    /* Aislamiento para evitar interferencia de transforms de elementos padre */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 /* Nueva clase para menú desplegable hacia arriba */
 .menu-desplegable.arriba {
-    bottom: 100%;
+    bottom: auto;
     top: auto;
     box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
     margin-bottom: 0;
     margin-top: 0;
     /* Ajuste visual para que no se superponga con el botón */
-    transform: translateY(-8px);
+    transform: translateY(-8px) translateZ(0);
 }
 
 /* Nueva clase para menú desplegable a la derecha */
 .menu-desplegable.derecha {
     left: auto !important;
-    right: 0 !important;
+    right: auto !important;
     /* Si también está arriba, combinar ambas clases */
 }
 .menu-desplegable.arriba.derecha {
     left: auto !important;
-    right: 0 !important;
-    bottom: 100%;
+    right: auto !important;
+    bottom: auto;
     top: auto;
     box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
-    transform: translateY(-8px);
+    transform: translateY(-8px) translateZ(0);
 }
 
 .menu-desplegable .menu-opcion {

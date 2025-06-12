@@ -1,0 +1,64 @@
+2025-06-12 20:06:58
+Array
+(
+    [id_usuario] => 
+    [codigo_u] => 1122
+    [nombre] => men
+    [telefono] => 3002099544
+    [correo] => mwn@uniguajira.edu.co
+    [contraseña] => 1234
+    [id_rol] => 1
+    [id_programa] => 1
+    [semestre] => 6
+    [es_estudiante] => 1
+)
+
+
+2025-06-12 20:07:29
+Array
+(
+    [id_usuario] => 
+    [codigo_u] => 112222
+    [nombre] => men2
+    [telefono] => 1323232
+    [correo] => men2@unguajira.edu.co
+    [contraseña] => 1234
+    [id_rol] => 2
+    [id_programa] => 3
+    [es_estudiante] => 0
+    [semestre] => 
+)
+
+
+2025-06-12 20:08:30
+Array
+(
+    [id_usuario] => 
+    [codigo_u] => 11223
+    [nombre] => men3
+    [telefono] => 23232323
+    [correo] => men3@uniguajira.edu.co
+    [contraseña] => 1234
+    [id_rol] => 3
+    [id_programa] => 8
+    [es_estudiante] => 0
+    [semestre] => 
+)
+
+
+2025-06-12 20:08:52
+Array
+(
+    [id_usuario] => 38
+    [codigo_u] => 11222244
+    [nombre] => men2
+    [telefono] => 1323232
+    [correo] => men2@unguajira.edu.co
+    [contraseña] => 
+    [id_rol] => 2
+    [id_programa] => 3
+    [es_estudiante] => 0
+    [semestre] => 
+)
+
+

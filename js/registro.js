@@ -68,6 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (input) {
         input.addEventListener("keyup", filtrarTablaReservas);
     }
+    
+    // Cerrar menús desplegables al hacer clic fuera de ellos
+    document.addEventListener('click', function(event) {
+        const menus = document.querySelectorAll('.menu-desplegable');
+        const isMenuButton = event.target.closest('.menu-boton');
+        
+        if (!isMenuButton) {
+            menus.forEach(menu => {
+                if (menu.style.display === 'block') {
+                    menu.style.display = 'none';
+                    menu.classList.remove('arriba', 'derecha');
+                }
+            });
+        }
+    });
+    
     // Botones de reporte (descarga TXT)
     document.getElementById("generarReporte")?.addEventListener("click", function(e) {
         e.preventDefault();
@@ -196,7 +212,11 @@ function toggleMenu(button) {
     const menu = button.nextElementSibling;
     // Cerrar otros menús abiertos
     document.querySelectorAll('.menu-desplegable').forEach(m => {
-        if (m !== menu) m.style.display = 'none';
+        if (m !== menu) {
+            m.style.display = 'none';
+            m.classList.remove('arriba');
+            m.classList.remove('derecha');
+        }
     });
     // Alternar visibilidad
     if (menu.style.display === 'block') {
@@ -205,24 +225,41 @@ function toggleMenu(button) {
         menu.classList.remove('derecha');
         return;
     }
+    
     // Mostrar menú
     menu.style.display = 'block';
-    // Calcular si hay espacio abajo y a la derecha
-    const rect = menu.getBoundingClientRect();
-    const espacioAbajo = window.innerHeight - rect.bottom;
-    const espacioArriba = rect.top;
-    const espacioDerecha = window.innerWidth - rect.right;
-    // Si no hay suficiente espacio abajo, mostrar hacia arriba
-    if (espacioAbajo < 80 && espacioArriba > 80) {
+    
+    // Obtener posición del botón en coordenadas de viewport
+    const buttonRect = button.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    
+    // Calcular espacios disponibles
+    const espacioAbajo = window.innerHeight - buttonRect.bottom;
+    const espacioArriba = buttonRect.top;
+    const espacioDerecha = window.innerWidth - buttonRect.right;
+    const espacioIzquierda = buttonRect.left;
+    
+    // Resetear clases
+    menu.classList.remove('arriba', 'derecha');
+    
+    // Determinar posición vertical
+    if (espacioAbajo < 120 && espacioArriba > 120) {
         menu.classList.add('arriba');
+        // Posicionar arriba del botón
+        menu.style.top = (buttonRect.top - menuRect.height - 8) + 'px';
     } else {
-        menu.classList.remove('arriba');
+        // Posicionar abajo del botón
+        menu.style.top = (buttonRect.bottom + 2) + 'px';
     }
-    // Si no hay suficiente espacio a la derecha, alinear a la derecha
-    if (espacioDerecha < 0) {
+    
+    // Determinar posición horizontal
+    if (espacioDerecha < 150) {
         menu.classList.add('derecha');
+        // Alinear a la derecha del botón
+        menu.style.left = (buttonRect.right - menuRect.width) + 'px';
     } else {
-        menu.classList.remove('derecha');
+        // Alinear a la izquierda del botón
+        menu.style.left = buttonRect.left + 'px';
     }
 }
 
