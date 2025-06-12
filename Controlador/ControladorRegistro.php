@@ -162,6 +162,72 @@ function validarLimiteSalas($conn, $data) {
     }
 }
 
+// --- FUNCIÓN: Validar límite de videobeams por bloque horario ---
+function validarLimiteVideobeamsPorBloque($conn, $fecha, $horaInicio, $horaFin, $recursoId, $registroExcluir = null) {
+    // 1. Verificar si el recurso es videobeam
+    $stmt = $conn->prepare("SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?");
+    $stmt->bind_param("i", $recursoId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    $stmt->close();
+    if (!$row) return [false, 'Recurso no encontrado'];
+    if (stripos($row['nombreRecurso'], 'videobeam') === false) return [true, 'OK'];
+
+    // 2. Definir bloques de 45 minutos desde 6:30 a 22:15
+    $bloques = [];
+    $inicio = strtotime('06:30');
+    $fin = strtotime('22:15');
+    while ($inicio < $fin) {
+        $bloqueFin = $inicio + 45 * 60;
+        $bloques[] = [date('H:i', $inicio), date('H:i', $bloqueFin)];
+        $inicio = $bloqueFin;
+    }
+
+    // 3. Determinar bloques afectados por la reserva
+    $bloquesAfectados = [];
+    foreach ($bloques as $i => $b) {
+        // Si el rango de la reserva se cruza con el bloque
+        if (!(
+            $horaFin <= $b[0] || // termina antes de que inicie el bloque
+            $horaInicio >= $b[1] // inicia después de que termina el bloque
+        )) {
+            $bloquesAfectados[] = $i;
+        }
+    }
+    if (empty($bloquesAfectados)) return [true, 'OK'];
+
+    // 4. Para cada bloque afectado, contar reservas de videobeam
+    foreach ($bloquesAfectados as $i) {
+        $b = $bloques[$i];
+        $sql = "SELECT COUNT(*) as total FROM registro r 
+                INNER JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
+                WHERE r.fechaReserva = ?
+                  AND rc.nombreRecurso LIKE '%videobeam%'
+                  AND r.estado = 'Confirmada'
+                  AND ((r.horaInicio < ? AND r.horaFin > ?) OR (r.horaInicio < ? AND r.horaFin > ?))";
+        $params = [$fecha, $b[1], $b[0], $b[1], $b[0]];
+        if ($registroExcluir) {
+            $sql .= " AND r.ID_Registro != ?";
+            $params[] = $registroExcluir;
+        }
+        $stmt = $conn->prepare($sql);
+        if ($registroExcluir) {
+            $stmt->bind_param("ssssss", $fecha, $b[1], $b[0], $b[1], $b[0], $registroExcluir);
+        } else {
+            $stmt->bind_param("sssss", $fecha, $b[1], $b[0], $b[1], $b[0]);
+        }
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        $stmt->close();
+        if ($row['total'] >= 4) {
+            return [false, "No hay videobeams disponibles en el bloque de {$b[0]} a {$b[1]} "];
+        }
+    }
+    return [true, 'OK'];
+}
+
 // Función para validar permisos según rol
 function validarPermisosReserva($conn, $usuarioLogueado, $programa, $docente, $asignatura) {
     $rol = $usuarioLogueado['nombreRol'];
@@ -416,15 +482,32 @@ switch ($accion) {
                 throw new Exception($validacionLimite['mensaje']);
             }
             
-            // Validar traslape de horario
-            $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' AND (horaInicio < ? AND horaFin > ? )";
-            $stmt = $conn->prepare($sqlVerificar);
-            $stmt->bind_param("isss", $recurso, $fecha, $horaFin, $horaInicio);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-            if ($row['conteo'] > 0) {
-                throw new Exception('El recurso no está disponible en ese horario');
+            // --- VALIDACIÓN DE VIDEOBEAMS POR BLOQUE ---
+            list($okVideobeam, $msgVideobeam) = validarLimiteVideobeamsPorBloque($conn, $fecha, $horaInicio, $horaFin, $recurso);
+            if (!$okVideobeam) {
+                throw new Exception($msgVideobeam);
+            }
+
+            // Validar traslape de horario SOLO si NO es videobeam
+            $stmtTipo = $conn->prepare("SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?");
+            $stmtTipo->bind_param("i", $recurso);
+            $stmtTipo->execute();
+            $resTipo = $stmtTipo->get_result();
+            $esVideobeam = false;
+            if ($rowTipo = $resTipo->fetch_assoc()) {
+                $esVideobeam = stripos($rowTipo['nombreRecurso'], 'videobeam') !== false;
+            }
+            $stmtTipo->close();
+            if (!$esVideobeam) {
+                $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' AND (horaInicio < ? AND horaFin > ? )";
+                $stmt = $conn->prepare($sqlVerificar);
+                $stmt->bind_param("isss", $recurso, $fecha, $horaFin, $horaInicio);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+                if ($row['conteo'] > 0) {
+                    throw new Exception('El recurso no está disponible en ese horario');
+                }
             }
             // Insertar con todos los campos relevantes
             $sql = "INSERT INTO registro (ID_Registro, ID_Usuario, ID_Recurso, fechaReserva, horaInicio, horaFin, estado, ID_DocenteAsignatura, semestre, salon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -726,22 +809,37 @@ switch ($accion) {
                 throw new Exception($validacionLimiteModificar['mensaje']);
             }
 
-            // Validar disponibilidad del recurso (excluyendo el registro actual)
-            $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro 
-                            WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' 
-                            AND ID_Registro != ? 
-                            AND (horaInicio < ? AND horaFin > ?)";
-            $stmtVerificar = $conn->prepare($sqlVerificar);
-            $stmtVerificar->bind_param("issss", $recurso, $fecha, $registro_id, $horaFin, $horaInicio);
-            $stmtVerificar->execute();
-            $resultVerificar = $stmtVerificar->get_result();
-            $rowVerificar = $resultVerificar->fetch_assoc();
-            $stmtVerificar->close();
-
-            if ($rowVerificar['conteo'] > 0) {
-                throw new Exception('El recurso no está disponible en ese horario');
+            // --- VALIDACIÓN DE VIDEOBEAMS POR BLOQUE (MODIFICAR) ---
+            list($okVideobeam, $msgVideobeam) = validarLimiteVideobeamsPorBloque($conn, $fecha, $horaInicio, $horaFin, $recurso, $registro_id);
+            if (!$okVideobeam) {
+                throw new Exception($msgVideobeam);
             }
 
+            // Validar traslape de horario SOLO si NO es videobeam (excluyendo el registro actual)
+            $stmtTipo = $conn->prepare("SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?");
+            $stmtTipo->bind_param("i", $recurso);
+            $stmtTipo->execute();
+            $resTipo = $stmtTipo->get_result();
+            $esVideobeam = false;
+            if ($rowTipo = $resTipo->fetch_assoc()) {
+                $esVideobeam = stripos($rowTipo['nombreRecurso'], 'videobeam') !== false;
+            }
+            $stmtTipo->close();
+            if (!$esVideobeam) {
+                $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro "+
+                                " WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' "+
+                                " AND ID_Registro != ? "+
+                                " AND (horaInicio < ? AND horaFin > ?)";
+                $stmtVerificar = $conn->prepare($sqlVerificar);
+                $stmtVerificar->bind_param("issss", $recurso, $fecha, $registro_id, $horaFin, $horaInicio);
+                $stmtVerificar->execute();
+                $resultVerificar = $stmtVerificar->get_result();
+                $rowVerificar = $resultVerificar->fetch_assoc();
+                $stmtVerificar->close();
+                if ($rowVerificar['conteo'] > 0) {
+                    throw new Exception('El recurso no está disponible en ese horario');
+                }
+            }
             // Actualizar el registro
             $sql = "UPDATE registro SET 
                     fechaReserva = ?, 
