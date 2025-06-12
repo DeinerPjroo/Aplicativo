@@ -59,7 +59,7 @@ while ($row = $programasResult->fetch_assoc()) {
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <section class="Topbard" style="padding-bottom: 10px;">
-        <input type="text" id="busqueda" placeholder="Buscar por código, nombre o correo..." onkeyup="filtrarTabla()">
+        <input type="text" id="busqueda" placeholder="Buscar por código, nombre, teléfono o correo..." onkeyup="filtrarTabla()">
         <!-- Toast Container for Notifications -->
         <div id="toastContainer" class="toast-container"></div>
     </section>
@@ -90,7 +90,7 @@ while ($row = $programasResult->fetch_assoc()) {
                         <!-- Columnas adicionales solo para desktop -->
                         <th class="desktop-only">Programa</th>
                         <th class="desktop-only">Semestre</th>
-                        <th class="desktop-only">COrreo</th>
+                        <th class="desktop-only">Correo</th>
                         <th class="desktop-only">Rol</th>
                         <th class="desktop-only">Acciones</th>
                     </tr>
@@ -110,10 +110,10 @@ while ($row = $programasResult->fetch_assoc()) {
                             <tr class="usuario-row">
                                 <td class="td-codigo">${row.codigo_u}</td>
                                 <td class="td-nombre">${row.nombre}</td>
-                                <td class="td-correo">${row.correo}</td>
                                 <td class="td-telefono">${row.telefono ?? ''}</td>
                                 <td class="td-programa">${row.programa ? row.programa : 'No aplica'}</td>
                                 <td class="td-semestre">${row.semestre ?? 'N/A'}</td>
+                                <td class="td-correo">${row.correo}</td>
                                 <td class="td-rol">${row.rol}</td>
                                 <td class="td-acciones" style="display: flex;">
                                     <button class="btn btn-modificar" onclick="openModificarForm(
@@ -154,10 +154,8 @@ while ($row = $programasResult->fetch_assoc()) {
                 <div id="error-message" class="error-message" style="display:none;"></div>
 
                 <label>Nombre:</label>
-                <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>
-
-                <label>Telefono:</label>
-                <input type="text" name="telefono" id="form-telefono" placeholder="Ingrese telefono..." required>
+                <input type="text" name="nombre" id="form-nombre" placeholder="Ingrese nombre completo..." required>                <label>Telefono:</label>
+                <input type="text" name="telefono" id="form-telefono" placeholder="Ingrese telefono...">
 
                 <label>Correo:</label>
                 <input type="email" name="correo" id="form-correo" placeholder="Ingrese correo electrónico..." required oninput="limpiarErrorCorreo()" onblur="verificarCorreoExistente(this.value)">

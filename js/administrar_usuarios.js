@@ -42,13 +42,14 @@ function filtrarTabla() {
     const mensajeSinResultados = document.getElementById("mensajeSinResultados");
     let hayCoincidencias = false;
 
-    for (let i = 1; i < filas.length; i++) {
-        const fila = filas[i];
+    for (let i = 1; i < filas.length; i++) {        const fila = filas[i];
         const codigo = fila.cells[0]?.textContent || '';
         const nombre = fila.cells[1]?.textContent || '';
-        const correo = fila.cells[4]?.textContent || '';
+        const telefono = fila.cells[2]?.textContent || '';
+        const correo = fila.cells[5]?.textContent || '';
         const coincide = codigo.toLowerCase().includes(filtro) ||
             nombre.toLowerCase().includes(filtro) ||
+            telefono.toLowerCase().includes(filtro) ||
             correo.toLowerCase().includes(filtro);
         if (coincide) {
             fila.style.display = "";
@@ -297,8 +298,7 @@ function submitForm(event) {
     const telefono = document.getElementById('form-telefono').value.trim();
     const correo = document.getElementById('form-correo').value.trim();
     const semestre = document.getElementById('form-semestre').value.trim();
-    const programa = document.getElementById('form-programa').value.trim();
-    if (!codigo || !nombre || !correo || !rol) {
+    const programa = document.getElementById('form-programa').value.trim();    if (!codigo || !nombre || !correo || !rol) {
         showToast('Por favor, complete todos los campos obligatorios.', 'error');
         return false;
     }

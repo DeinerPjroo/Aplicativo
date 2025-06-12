@@ -246,8 +246,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php
+                    <tbody>                        <?php
                         // Consulta SQL para obtener los registros de reservas con sus relaciones.
 
                         $sql = "SELECT 
@@ -260,6 +259,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     rc.nombreRecurso,
     u.nombre AS nombreUsuario,
     u.correo AS correoUsuario,
+    u.telefono AS telefonoUsuario,
     u.Codigo_U,
     u.ID_Rol,
     CASE 
@@ -349,9 +349,9 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                                         \"nombreDocente\": \"" . addslashes($row['nombreDocente']) . "\",
                                         \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
                                         \"nombreUsuario\": \"" . addslashes($row['nombreUsuario']) . "\",
-                                        \"semestre\": \"" . addslashes($row['semestre']) . "\",
-                                        \"salon\": \"" . addslashes($row['salon']) . "\",
+                                        \"semestre\": \"" . addslashes($row['semestre']) . "\",                                        \"salon\": \"" . addslashes($row['salon']) . "\",
                                         \"Codigo_U\": \"" . addslashes($row['Codigo_U']) . "\",
+                                        \"telefonoUsuario\": \"" . addslashes($row['telefonoUsuario']) . "\",
                                         \"correoUsuario\": \"" . addslashes($row['correoUsuario']) . "\",
                                         \"estado\": \"" . $row['estado'] . "\"
                                     })' style='cursor: pointer;' title='Haga clic para ver detalles completos'>
@@ -752,10 +752,13 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         <div class="detalle-item">
                             <strong>👨‍🎓 Nombre:</strong>
                             <span id="detalle-alumno"></span>
-                        </div>
-                        <div class="detalle-item">
+                        </div>                        <div class="detalle-item">
                             <strong>🆔 Código Usuario:</strong>
                             <span id="detalle-codigo"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>📞 Teléfono:</strong>
+                            <span id="detalle-telefono"></span>
                         </div>
                         <div class="detalle-item" style="grid-column: 1 / -1;">
                             <strong>📧 Correo Electrónico:</strong>
@@ -965,11 +968,11 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             $('#detalle-hora-fin').text(data.horaFin || 'N/A');
             $('#detalle-programa').text(data.programa || 'N/A');
             $('#detalle-docente').text(data.nombreDocente || 'N/A');
-            $('#detalle-asignatura').text(data.asignatura || 'N/A');
-            $('#detalle-alumno').text(data.nombreUsuario || 'N/A');
+            $('#detalle-asignatura').text(data.asignatura || 'N/A');            $('#detalle-alumno').text(data.nombreUsuario || 'N/A');
             $('#detalle-semestre').text(data.semestre || 'N/A');
             $('#detalle-salon').text(data.salon || 'N/A');
             $('#detalle-codigo').text(data.Codigo_U || 'N/A');
+            $('#detalle-telefono').text(data.telefonoUsuario || 'N/A');
             $('#detalle-correo').text(data.correoUsuario || 'N/A');
             
             // Aplicar estilo al estado
