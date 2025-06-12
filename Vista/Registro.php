@@ -266,11 +266,16 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
         WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
         ELSE COALESCE(doc.nombre, 'Sin docente')
     END AS nombreDocente,
-    doc.ID_Usuario AS id_docente,
-    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
+    doc.ID_Usuario AS id_docente,    COALESCE(asig.nombreAsignatura, 'Sin asignatura') AS asignatura,
     asig.ID_Asignatura,
-    COALESCE(pr.nombrePrograma, 'Sin programa') AS programa,
-    pr.ID_Programa,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.nombrePrograma
+        ELSE prog_user.nombrePrograma
+    END AS programa,
+    CASE 
+        WHEN r.ID_DocenteAsignatura IS NOT NULL THEN pr.ID_Programa
+        ELSE prog_user.ID_Programa
+    END AS ID_Programa,
     CASE 
         WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Administrativo') THEN 'No aplica'
         ELSE COALESCE(r.semestre, 'Sin semestre')
@@ -278,6 +283,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     r.estado
 FROM registro r
 LEFT JOIN usuario u ON r.ID_Usuario = u.ID_Usuario
+LEFT JOIN programa prog_user ON u.Id_Programa = prog_user.ID_Programa
 LEFT JOIN recursos rc ON r.ID_Recurso = rc.ID_Recurso
 LEFT JOIN docente_asignatura da ON r.ID_DocenteAsignatura = da.ID_DocenteAsignatura
 LEFT JOIN usuario doc ON da.ID_Usuario = doc.ID_Usuario
@@ -374,8 +380,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
     <div class=\"menu-acciones\">
         <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
             <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
-        </button>
-        <div class=\"menu-desplegable\">
+        </button>        <div class=\"menu-desplegable\">
             <a href=\"#\" 
                 onclick='mostrarModal({
                     \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
@@ -385,17 +390,16 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     \"estado\": \"" . $row['estado'] . "\",
                     \"correo\": \"" . addslashes($row['correoUsuario']) . "\",
                     \"id_recurso\": \"" . addslashes($row['ID_Recurso']) . "\",
-                    \"recurso\": \"" . addslashes($row['nombreRecurso']) . "\",
-                    \"id_programa\": \"" . addslashes($row['ID_Programa']) . "\",
+                    \"recurso\": \"" . addslashes($row['nombreRecurso']) . "\",                    \"id_programa\": \"" . addslashes($row['ID_Programa']) . "\",
                     \"programa\": \"" . addslashes($row['programa']) . "\",
-                    \"id_docente\": \"" . addslashes($row['id_docente']) . "\",
+                    \"id_docente\": \"" . addslashes($row['ID_Rol'] == 3 ? $row['id_usuario'] : $row['id_docente']) . "\",
                     \"docente\": \"" . addslashes($row['nombreDocente']) . "\",
                     \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
                     \"salon\": \"" . addslashes($row['salon']) . "\",
                     \"semestre\": \"" . addslashes($row['semestre']) . "\",
                     \"id_usuario\": \"" . addslashes($row['id_usuario']) . "\",
-                }); return false;' class=\"menu-opcion\">Modificar</a>
-            <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion\">Eliminar</a>
+                }); return false;' class=\"menu-opcion modificar\" title=\"Modificar este registro\">Modificar</a>
+            <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion eliminar\" title=\"Eliminar este registro\">Eliminar</a>
         </div>
     </div>
 </td>
