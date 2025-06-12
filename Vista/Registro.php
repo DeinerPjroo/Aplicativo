@@ -245,11 +245,10 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
-                    </thead>
-                    <tbody>                        <?php
+                    </thead>                    <tbody>                        <?php
                         // Consulta SQL para obtener los registros de reservas con sus relaciones.
 
-                        $sql = "SELECT 
+                        $sql = "SELECT
     r.ID_Registro,
     r.fechaReserva,
     r.horaInicio,
@@ -262,6 +261,7 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     u.telefono AS telefonoUsuario,
     u.Codigo_U,
     u.ID_Rol,
+    u.ID_Usuario as id_usuario,
     CASE 
         WHEN u.ID_Rol = (SELECT ID_Rol FROM rol WHERE nombreRol = 'Docente') THEN 'No aplica'
         ELSE COALESCE(doc.nombre, 'Sin docente')
@@ -339,31 +339,35 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                                 // Combinar las clases
                                 $clases = trim("$claseHoy $claseCancelado");                                // Ahora tu fila normal de datos
                                 echo "<tr class='$clases registro-clickeable' data-registro-id='" . $row['ID_Registro'] . "' 
-                                    onclick='mostrarDetalleRegistro({
-                                        \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
-                                        \"fechaReserva\": \"" . date('d/m/Y', strtotime($row['fechaReserva'])) . "\",
-                                        \"horaInicio\": \"" . date('h:i A', strtotime($row['horaInicio'])) . "\",
-                                        \"horaFin\": \"" . date('h:i A', strtotime($row['horaFin'])) . "\",
-                                        \"nombreRecurso\": \"" . addslashes($row['nombreRecurso']) . "\",
-                                        \"programa\": \"" . addslashes($row['programa']) . "\",
-                                        \"nombreDocente\": \"" . addslashes($row['nombreDocente']) . "\",
-                                        \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
-                                        \"nombreUsuario\": \"" . addslashes($row['nombreUsuario']) . "\",
-                                        \"semestre\": \"" . addslashes($row['semestre']) . "\",                                        \"salon\": \"" . addslashes($row['salon']) . "\",
-                                        \"Codigo_U\": \"" . addslashes($row['Codigo_U']) . "\",
-                                        \"telefonoUsuario\": \"" . addslashes($row['telefonoUsuario']) . "\",
-                                        \"correoUsuario\": \"" . addslashes($row['correoUsuario']) . "\",
-                                        \"estado\": \"" . $row['estado'] . "\"
-                                    })' style='cursor: pointer;' title='Haga clic para ver detalles completos'>
+    onclick='mostrarDetalleRegistro({
+        \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
+        \"fechaReserva\": \"" . date('d/m/Y', strtotime($row['fechaReserva'])) . "\",
+        \"horaInicio\": \"" . date('h:i A', strtotime($row['horaInicio'])) . "\",
+        \"horaFin\": \"" . date('h:i A', strtotime($row['horaFin'])) . "\",
+        \"nombreRecurso\": \"" . addslashes($row['nombreRecurso']) . "\",
+        \"programa\": \"" . addslashes($row['programa']) . "\",
+        \"nombreDocente\": \"" . addslashes($row['nombreDocente']) . "\",
+        \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
+        \"nombreUsuario\": \"" . addslashes($row['nombreUsuario']) . "\",
+        \"semestre\": \"" . addslashes($row['semestre']) . "\",                                        \"salon\": \"" . addslashes($row['salon']) . "\",
+        \"Codigo_U\": \"" . addslashes($row['Codigo_U']) . "\",
+        \"telefonoUsuario\": \"" . addslashes($row['telefonoUsuario']) . "\",
+        \"correoUsuario\": \"" . addslashes($row['correoUsuario']) . "\",
+        \"estado\": \"" . $row['estado'] . "\"
+    })' style='cursor: pointer;' title='Haga clic para ver detalles completos'>
 <td>" . htmlspecialchars($row['ID_Registro']) . "</td>
 <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
 <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
 <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
 <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
 <td>" . htmlspecialchars($row['programa']) . "</td>
-<td>" . htmlspecialchars($row['nombreDocente']) . "</td>
+<td>"
+    . ($row['ID_Rol'] == 2 || $row['ID_Rol'] == 3
+        ? htmlspecialchars($row['nombreUsuario']) // Docente o Administrativo
+        : htmlspecialchars($row['nombreDocente'])) // Estudiante
+. "</td>
 <td>" . htmlspecialchars($row['asignatura']) . "</td>
-<td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
+<td>" . ($row['ID_Rol'] == 1 ? htmlspecialchars($row['nombreUsuario']) : 'No aplica') . "</td>
 <td>" . htmlspecialchars($row['semestre']) . "</td>
 <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
 <td onclick='event.stopPropagation();'>
@@ -386,10 +390,10 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     \"programa\": \"" . addslashes($row['programa']) . "\",
                     \"id_docente\": \"" . addslashes($row['id_docente']) . "\",
                     \"docente\": \"" . addslashes($row['nombreDocente']) . "\",
-                    \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",
-                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
+                    \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
                     \"salon\": \"" . addslashes($row['salon']) . "\",
                     \"semestre\": \"" . addslashes($row['semestre']) . "\",
+                    \"id_usuario\": \"" . addslashes($row['id_usuario']) . "\",
                 }); return false;' class=\"menu-opcion\">Modificar</a>
             <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion\">Eliminar</a>
         </div>
@@ -510,7 +514,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                             <option value="">Seleccione un Docente/Administrativo</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="grupo_asignatura_agregar">
                         <label for="asignatura_agregar">Asignatura</label>
                         <select id="asignatura_agregar" name="asignatura" class="input-dinamico">
                             <option value="">Seleccione una Asignatura</option>
@@ -522,7 +526,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         <input type="text" id="salon_agregar" name="salon" class="input-dinamico" placeholder="Ej: 2B, 1A...">
                         <small class="form-note">💡 Ingrese el salón donde normalmente da clase o donde se realizará la actividad</small>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="grupo_semestre_agregar">
                         <label for="semestre_agregar">Semestre</label>
                         <select id="semestre_agregar" name="semestre" class="input-dinamico">
                             <option value="">Seleccione el semestre</option>
@@ -560,6 +564,17 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             <form id="formModificarRegistro" class="form-dinamico">
                 <input type="hidden" id="registro_id" name="registro_id">
                 <div class="form-row">
+                    <div class="form-group">
+                        <label for="usuario_modificar">Usuario</label>
+                        <select id="usuario_modificar" name="usuario" class="input-dinamico">
+                            <option value="">Seleccione un usuario</option>
+                            <?php foreach ($usuariosData as $u): ?>
+                                <option value="<?= $u['ID_Usuario'] ?>" data-rol="<?= $u['ID_Rol'] ?>" data-correo="<?= htmlspecialchars($u['correo'] ?? '') ?>">
+                                    <?= htmlspecialchars($u['nombre']) ?> (<?= $u['ID_Rol'] == 1 ? 'Estudiante' : ($u['ID_Rol'] == 2 ? 'Docente' : ($u['ID_Rol'] == 3 ? 'Administrativo' : 'Otro')) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="correo_modificar">Correo</label>
                         <input type="email" id="correo_modificar" name="correo" class="input-dinamico" readonly>
@@ -608,7 +623,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                             <option value="">Seleccione un Docente</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="grupo_asignatura_modificar">
                         <label for="asignatura_modificar">Asignatura</label>
                         <select id="asignatura_modificar" name="asignatura" class="input-dinamico">
                             <option value="">Seleccione una Asignatura</option>
@@ -620,7 +635,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                         <input type="text" id="salon_modificar" name="salon" class="input-dinamico" placeholder="Ej: 2B, 1A...">
                         <small class="form-note">💡 Ingrese el salón donde normalmente da clase o donde se realizará la actividad</small>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="grupo_semestre_modificar">
                         <label for="semestre_modificar">Semestre</label>
                         <select id="semestre_modificar" name="semestre" class="input-dinamico">
                             <option value="">Seleccione el semestre</option>
@@ -793,6 +808,14 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     $('#grupo_nombre_estudiante').hide();
                     $('#nombre_estudiante_agregar').val('');
                 }
+                // Mostrar/ocultar semestre y asignatura según si es administrativo
+                if (rol == 3) { // 3 = Administrativo (ajusta si tu ID de rol es diferente)
+                    $('#grupo_semestre_agregar').hide();
+                    $('#grupo_asignatura_agregar').hide();
+                } else {
+                    $('#grupo_semestre_agregar').show();
+                    $('#grupo_asignatura_agregar').show();
+                }
             });
 
             // Cargar docentes según programa seleccionado
@@ -821,9 +844,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                 } else {
                     docenteSelect.html('<option value="">Seleccione un Docente</option>');
                 }
-            });
-
-            // Cargar asignaturas según docente y programa
+            });            // Cargar asignaturas según docente y programa
             $('#docente_agregar').on('change', function() {
                 var docenteId = $(this).val();
                 var programaId = $('#programa_agregar').val();
@@ -850,6 +871,47 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                 } else {
                     asignaturaSelect.html('<option value="">Seleccione una Asignatura</option>');
                 }
+            });            // Al cambiar el usuario en el modal de modificar
+            $('#usuario_modificar').on('change', function() {
+                var selected = $(this).find('option:selected');
+                var correo = selected.data('correo') || '';
+                var rol = selected.data('rol');
+                var nombre = selected.text().split(' (')[0];
+                $('#correo_modificar').val(correo);
+                
+                if (rol == 1) { // 1 = Estudiante
+                    $('#grupo_nombre_estudiante_modificar').show();
+                    $('#nombre_estudiante_modificar').val(nombre);
+                } else {
+                    $('#grupo_nombre_estudiante_modificar').hide();
+                    $('#nombre_estudiante_modificar').val('');
+                }
+                
+                // Mostrar/ocultar semestre y asignatura según si es administrativo
+                if (rol == 3) { // 3 = Administrativo
+                    $('#grupo_semestre_modificar').hide();
+                    $('#grupo_asignatura_modificar').hide();
+                } else {
+                    $('#grupo_semestre_modificar').show();
+                    $('#grupo_asignatura_modificar').show();
+                }
+            });
+
+            // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
+            $('#programa_modificar').on('change', function() {
+                var programaId = $(this).val();
+                // Limpiar selección de docente y asignatura
+                $('#docente_modificar').val('');
+                $('#asignatura_modificar').val('');
+                cargarDocentesModificar(programaId, '');
+            });
+            
+            // Al cambiar el docente en el modal de modificar, actualizar asignaturas
+            $('#docente_modificar').on('change', function() {
+                var docenteId = $(this).val();
+                var programaId = $('#programa_modificar').val();
+                $('#asignatura_modificar').val('');
+                cargarAsignaturasModificar(docenteId, programaId, '');
             });
 
             // --- MODIFICAR: Lógica dinámica para dependencias y autocompletado ---
@@ -934,7 +996,12 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
             // Para depuración
             console.log('ID Programa:', data.id_programa);
             console.log('ID Docente:', data.id_docente);
-            console.log('ID Asignatura:', data.id_asignatura);
+            console.log('ID Asignatura:', data.id_asignatura);            // Seleccionar el usuario si viene en los datos y disparar el evento change
+            if (data.id_usuario) {
+                $('#usuario_modificar').val(data.id_usuario);
+                // Disparar el evento change para que se ejecute la lógica de mostrar/ocultar campos
+                $('#usuario_modificar').trigger('change');
+            }
 
             cargarDocentesModificar(data.id_programa, data.id_docente);
 
@@ -997,24 +1064,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     cerrarModalDetalle();
                 }
             });
-        });
-
-        // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
-        $('#programa_modificar').on('change', function() {
-            var programaId = $(this).val();
-            // Limpiar selección de docente y asignatura
-            $('#docente_modificar').val('');
-            $('#asignatura_modificar').val('');
-            cargarDocentesModificar(programaId, '');
-        });
-        // Al cambiar el docente en el modal de modificar, actualizar asignaturas
-        $('#docente_modificar').on('change', function() {
-            var docenteId = $(this).val();
-            var programaId = $('#programa_modificar').val();
-            $('#asignatura_modificar').val('');
-            cargarAsignaturasModificar(docenteId, programaId, '');        });
-
-            // Script para acordeón de filtros móvil/tablet
+        });            // Script para acordeón de filtros móvil/tablet
             document.addEventListener('DOMContentLoaded', function() {
                 var btn = document.getElementById('toggleFiltrosMobile');
                 var content = document.getElementById('acordeonFiltrosContent');

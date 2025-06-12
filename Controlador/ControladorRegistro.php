@@ -663,13 +663,16 @@ switch ($accion) {
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
-        break;
-
-    case 'modificar':
+        break;    case 'modificar':
         // Modificar un registro existente
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception('Método no permitido');
+            }
+
+            // Verificar conexión a base de datos
+            if (!isset($conn) || $conn->connect_error) {
+                throw new Exception('Error de conexión a la base de datos: ' . ($conn->connect_error ?? 'Conexión no establecida'));
             }
 
             $registro_id = $_POST['registro_id'] ?? null;
@@ -684,7 +687,16 @@ switch ($accion) {
             $salon = $_POST['salon'] ?? null;
             $semestre = $_POST['semestre'] ?? null;            $celular = $_POST['celular'] ?? null;
             $estado = $_POST['estado'] ?? 'Confirmada';
-              // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva (MODIFICAR)
+            
+            // Validaciones básicas
+            if (!$registro_id) {
+                throw new Exception('ID del registro no especificado');
+            }
+            if (!$fecha || !$horaInicio || !$horaFin || !$recurso) {
+                throw new Exception('Faltan datos obligatorios: fecha, horas o recurso');
+            }
+            
+            // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva (MODIFICAR)
             $usuarioLogueado = obtenerUsuarioLogueado($conn);
             validarPermisosReserva($conn, $usuarioLogueado, $programa, $docente, $asignatura);
 
@@ -824,11 +836,10 @@ switch ($accion) {
             if ($rowTipo = $resTipo->fetch_assoc()) {
                 $esVideobeam = stripos($rowTipo['nombreRecurso'], 'videobeam') !== false;
             }
-            $stmtTipo->close();
-            if (!$esVideobeam) {
-                $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro "+
-                                " WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' "+
-                                " AND ID_Registro != ? "+
+            $stmtTipo->close();            if (!$esVideobeam) {
+                $sqlVerificar = "SELECT COUNT(*) as conteo FROM registro " .
+                                " WHERE ID_Recurso = ? AND fechaReserva = ? AND estado = 'Confirmada' " .
+                                " AND ID_Registro != ? " .
                                 " AND (horaInicio < ? AND horaFin > ?)";
                 $stmtVerificar = $conn->prepare($sqlVerificar);
                 $stmtVerificar->bind_param("issss", $recurso, $fecha, $registro_id, $horaFin, $horaInicio);
@@ -838,10 +849,10 @@ switch ($accion) {
                 $stmtVerificar->close();
                 if ($rowVerificar['conteo'] > 0) {
                     throw new Exception('El recurso no está disponible en ese horario');
-                }
-            }
+                }            }
+            
             // Actualizar el registro
-            $sql = "UPDATE registro SET 
+            $sql = "UPDATE registro SET
                     fechaReserva = ?, 
                     horaInicio = ?, 
                     horaFin = ?, 
@@ -852,21 +863,21 @@ switch ($accion) {
                     estado = ?";
 
             $params = "sssiisss";
-            $paramValues = [$fecha, $horaInicio, $horaFin, $recurso, $id_docente_asignatura, $salon, $semestre, $estado];
-
-            // Si se proporciona celular, actualizar también el usuario
+            $paramValues = [$fecha, $horaInicio, $horaFin, $recurso, $id_docente_asignatura, $salon, $semestre, $estado];            // Si se proporciona celular, actualizar también el usuario
             if ($celular !== null) {
                 $stmtUsuario = $conn->prepare("UPDATE usuario SET telefono = ? WHERE ID_Usuario = ?");
                 $stmtUsuario->bind_param("si", $celular, $usuario_id);
                 $stmtUsuario->execute();
                 $stmtUsuario->close();
-            }
-
-            $sql .= " WHERE ID_Registro = ?";
+            }            $sql .= " WHERE ID_Registro = ?";
             $params .= "s";
             $paramValues[] = $registro_id;
 
             $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception('Error al preparar la consulta: ' . $conn->error);
+            }
+            
             $stmt->bind_param($params, ...$paramValues);
 
             if ($stmt->execute()) {
@@ -881,9 +892,12 @@ switch ($accion) {
         }
         break;
 
-        // ... resto de tus casos (actualizar, cancelar, etc) igual que antes ...
-        // (No necesitas repetir el correo en los otros casos, solo en 'agregar')
-
-        // ... (todo el resto del código igual) ...
+    default:
+        echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
+        break;
 }
-$conn->close();
+
+// Cerrar la conexión al final
+if (isset($conn)) {
+    $conn->close();
+}
