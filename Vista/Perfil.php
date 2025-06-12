@@ -103,32 +103,44 @@ if ($row = $result->fetch_assoc()) {
                 <button type="button" class="btn-agregar" onclick="abrirModal()">Cambiar contraseña</button>
             </div>
 
-            <div class="profile-details">
-                <form id="formActualizarPerfil" action="../Controlador/ControladorPerfil.php" method="POST">
+            <div class="profile-details">                <form id="formActualizarPerfil" action="../Controlador/ControladorPerfil.php" method="POST">
                     <input type="hidden" name="accion" value="actualizar_datos">
                     <div class="form-group">
                         <label for="nombreUsuario">Nombre</label>
-                        <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>">
-                    </div>
-
-                    <div class="form-group">
+                        <input type="text" name="nombreUsuario" id="nombreUsuario" value="<?php echo htmlspecialchars($nombreUsuario); ?>" <?php echo ($role !== 'Administrador') ? 'readonly' : ''; ?>>
+                        <?php if ($role !== 'Administrador'): ?>
+                            <small style="color: var(--text-light);">Solo los administradores pueden modificar este campo</small>
+                        <?php endif; ?>
+                    </div>                    <div class="form-group">
                         <label for="programaUsuario">Programa</label>
-                        <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" readonly>
-                        <small style="color: var(--text-light);">El programa no puede ser editado directamente</small>
+                        <input type="text" name="programaUsuario" id="programaUsuario" value="<?php echo htmlspecialchars($programa); ?>" <?php echo ($role !== 'Administrador') ? 'readonly' : ''; ?>>
+                        <?php if ($role !== 'Administrador'): ?>
+                            <small style="color: var(--text-light);">Solo los administradores pueden modificar este campo</small>
+                        <?php else: ?>
+                            <small style="color: var(--text-light);">Campo editable</small>
+                        <?php endif; ?>
                         <?php if (!empty($programasListaHTML)) echo $programasListaHTML; ?>
                     </div>
 
                     <div class="form-group">
                         <label for="correoUsuario">Correo</label>
-                        <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>" required pattern="^[^@]+@[^@]+\.[a-zA-Z]{2,}$" title="Por favor, ingrese un correo válido que contenga '@'.">
+                        <input type="email" name="correoUsuario" id="correoUsuario" value="<?php echo htmlspecialchars($correoUsuario); ?>" <?php echo ($role !== 'Administrador') ? 'readonly' : 'required'; ?> <?php echo ($role === 'Administrador') ? 'pattern="^[^@]+@[^@]+\.[a-zA-Z]{2,}$" title="Por favor, ingrese un correo válido que contenga \'@\'."' : ''; ?>>
+                        <?php if ($role !== 'Administrador'): ?>
+                            <small style="color: var(--text-light);">Solo los administradores pueden modificar este campo</small>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label for="telefonoUsuario">Teléfono</label>
                         <input type="text" name="telefonoUsuario" id="telefonoUsuario" value="<?php echo htmlspecialchars($telefonoUsuario); ?>">
+                        <small style="color: var(--text-light);">
+                            <?php echo ($role !== 'Administrador') ? 'Este es el único campo que puedes modificar' : 'Campo editable'; ?>
+                        </small>
                     </div>
 
-                    <button type="submit" class="btn-agregar btn-guardar-perfil">Guardar cambios</button>
+                    <button type="submit" class="btn-agregar btn-guardar-perfil">
+                        <?php echo ($role !== 'Administrador') ? 'Actualizar Teléfono' : 'Guardar cambios'; ?>
+                    </button>
                 </form>
             </div>
         </div>
