@@ -235,18 +235,27 @@ if (isset($_GET['error'])) {
                 <div class="form-group">
                     <label for="fecha_unico">Fecha de Reserva:</label>
                     <input type="date" id="fecha_unico" name="fecha" required value="<?php echo date('Y-m-d'); ?>">
-                </div>
-                <div class="form-group">
+                </div>                <div class="form-group">
                     <label for="recurso_unico">Recurso:</label>
                     <select id="recurso_unico" name="recurso" required>
                         <option value="">Seleccione un recurso</option>
                         <?php
-                        $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                        // Filtrar recursos según el rol del usuario
+                        if ($role === 'Estudiante') {
+                            // Los estudiantes solo pueden reservar videobeams
+                            $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos WHERE nombreRecurso LIKE '%videobeam%' OR nombreRecurso LIKE '%Videobeam%'");
+                        } else {
+                            // Docentes, administrativos y administradores pueden reservar cualquier recurso
+                            $recursos = $conn->query("SELECT ID_Recurso, nombreRecurso FROM recursos");
+                        }
                         while ($recurso = $recursos->fetch_assoc()):
                         ?>
                             <option value="<?= $recurso['ID_Recurso'] ?>" data-nombre="<?= $recurso['nombreRecurso'] ?>"><?= $recurso['nombreRecurso'] ?></option>
                         <?php endwhile; ?>
                     </select>
+                    <?php if ($role === 'Estudiante'): ?>
+                        <small class="form-note">💡 Los estudiantes solo pueden reservar videobeams</small>
+                    <?php endif; ?>
                 </div>
                 <div class="form-group">
                     <label for="horaInicio_unico">Hora de Inicio:</label>

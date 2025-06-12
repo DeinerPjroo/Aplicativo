@@ -282,11 +282,33 @@ switch ($accion) {
             $semestre = $_POST['semestre'] ?? null; // <-- Agregado correctamente
             $salon = $_POST['salon'] ?? null; // <-- Agregado correctamente
             $id_docente_asignatura = null;
-            
-            // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva
+              // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva
             $usuarioLogueado = obtenerUsuarioLogueado($conn);
             $programa = $_POST['programa'] ?? null;
             validarPermisosReserva($conn, $usuarioLogueado, $programa, $docente, $asignatura);
+
+            // VALIDACIÓN PARA ESTUDIANTES: Solo pueden reservar videobeams
+            if ($usuarioLogueado['nombreRol'] === 'Estudiante') {
+                $stmtRecurso = $conn->prepare("SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?");
+                $stmtRecurso->bind_param("i", $recurso);
+                $stmtRecurso->execute();
+                $resultRecurso = $stmtRecurso->get_result();
+                
+                if ($resultRecurso->num_rows > 0) {
+                    $recursoInfo = $resultRecurso->fetch_assoc();
+                    $nombreRecurso = $recursoInfo['nombreRecurso'];
+                    
+                    // Verificar si el recurso es un videobeam
+                    if (stripos($nombreRecurso, 'videobeam') === false) {
+                        $stmtRecurso->close();
+                        throw new Exception('Los estudiantes solo pueden reservar videobeams. Recurso seleccionado: ' . $nombreRecurso);
+                    }
+                } else {
+                    $stmtRecurso->close();
+                    throw new Exception('Recurso no encontrado');
+                }
+                $stmtRecurso->close();
+            }
 
             // VALIDACIÓN DE SEGURIDAD: Verificar consistencia de datos según el rol del usuario
             if ($docente) {
@@ -579,10 +601,32 @@ switch ($accion) {
             $salon = $_POST['salon'] ?? null;
             $semestre = $_POST['semestre'] ?? null;            $celular = $_POST['celular'] ?? null;
             $estado = $_POST['estado'] ?? 'Confirmada';
-            
-            // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva (MODIFICAR)
+              // NUEVA VALIDACIÓN DE PERMISOS: Verificar que el usuario logueado tenga permisos para hacer esta reserva (MODIFICAR)
             $usuarioLogueado = obtenerUsuarioLogueado($conn);
             validarPermisosReserva($conn, $usuarioLogueado, $programa, $docente, $asignatura);
+
+            // VALIDACIÓN PARA ESTUDIANTES: Solo pueden reservar videobeams (MODIFICAR)
+            if ($usuarioLogueado['nombreRol'] === 'Estudiante') {
+                $stmtRecurso = $conn->prepare("SELECT nombreRecurso FROM recursos WHERE ID_Recurso = ?");
+                $stmtRecurso->bind_param("i", $recurso);
+                $stmtRecurso->execute();
+                $resultRecurso = $stmtRecurso->get_result();
+                
+                if ($resultRecurso->num_rows > 0) {
+                    $recursoInfo = $resultRecurso->fetch_assoc();
+                    $nombreRecurso = $recursoInfo['nombreRecurso'];
+                    
+                    // Verificar si el recurso es un videobeam
+                    if (stripos($nombreRecurso, 'videobeam') === false) {
+                        $stmtRecurso->close();
+                        throw new Exception('Los estudiantes solo pueden reservar videobeams. Recurso seleccionado: ' . $nombreRecurso);
+                    }
+                } else {
+                    $stmtRecurso->close();
+                    throw new Exception('Recurso no encontrado');
+                }
+                $stmtRecurso->close();
+            }
 
             // VALIDACIÓN DE SEGURIDAD: Verificar consistencia de datos según el rol del usuario (MODIFICAR)
             if ($docente) {
