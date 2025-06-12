@@ -394,9 +394,9 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     \"programa\": \"" . addslashes($row['programa']) . "\",
                     \"id_docente\": \"" . addslashes($row['ID_Rol'] == 3 ? $row['id_usuario'] : $row['id_docente']) . "\",
                     \"docente\": \"" . addslashes($row['nombreDocente']) . "\",
-                    \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
-                    \"salon\": \"" . addslashes($row['salon']) . "\",
+                    \"id_asignatura\": \"" . addslashes($row['ID_Asignatura']) . "\",                    \"asignatura\": \"" . addslashes($row['asignatura']) . "\",                    \"salon\": \"" . addslashes($row['salon']) . "\",
                     \"semestre\": \"" . addslashes($row['semestre']) . "\",
+                    \"celular\": \"" . addslashes($row['telefonoUsuario']) . "\",
                     \"id_usuario\": \"" . addslashes($row['id_usuario']) . "\",
                 }); return false;' class=\"menu-opcion modificar\" title=\"Modificar este registro\">Modificar</a>
             <a href=\"javascript:void(0)\" onclick=\"confirmarEliminar('" . $row['ID_Registro'] . "')\" class=\"menu-opcion eliminar\" title=\"Eliminar este registro\">Eliminar</a>
