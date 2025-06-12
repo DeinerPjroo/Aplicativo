@@ -148,14 +148,15 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
     </section>
 
     <section class="Table">
-        <div class="contenedor-reservas">
-            <div class="tituloyboton">
+        <div class="contenedor-reservas">            <div class="tituloyboton">
                 <button class="btn-agregar" onclick="abrirModalAgregar()">
                     <img src="../Imagen/Iconos/Agregar_Registro.svg" alt="" />
                     <span class="btn-text">Agregar</span>
                 </button>
 
-                <h2>Registros</h2>
+                <center><h2>Registros</h2></center>
+                
+               
 
             </div>
 
@@ -228,22 +229,18 @@ if (!empty($horaDesde) && !empty($horaHasta)) {
             </form>
 
             <div class="tabla-scroll">
-                <table class="tabla-reservas">
-                    <thead>
+                <table class="tabla-reservas">                    <thead>
                         <!-- Encabezados de la tabla -->
                         <tr>
                             <th>ID Registro</th>
-                            <th>Recurso</th>
+                            <th>Sala</th>
                             <th>Fecha</th>
                             <th>Hora Inicio</th>
-                            <th>Hora Fin</th>
-                            <th>Salón</th> <!-- Nuevo campo Salón -->
-                            <th>Código U</th>
-                            <th>Nombre Usuario</th>
-                            <th>Correo</th>
+                            <th>Hora Final</th>
+                            <th>Programa</th>
                             <th>Nombre Docente</th>
                             <th>Asignatura</th>
-                            <th>Programa</th>
+                            <th>Alumno</th>
                             <th>Semestre</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -327,9 +324,8 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                                     $mes_sin_tilde = $meses_sin_tilde[$mes_en] ?? $mes_en;
                                     $dia_num = date('d', strtotime($fechaActual));
                                     $anio = date('Y', strtotime($fechaActual));
-                                    $fecha_formateada = "$dia_sin_tilde $dia_num de $mes_sin_tilde de $anio";
-                                    echo "<tr class='separador-dia'>
-        <td colspan='15' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
+                                    $fecha_formateada = "$dia_sin_tilde $dia_num de $mes_sin_tilde de $anio";                                    echo "<tr class='separador-dia'>
+        <td colspan='12' style='background-color:#e0e0e0; font-weight:bold; text-align:center;'>
             📅 $fecha_formateada
         </td>
       </tr>";
@@ -341,25 +337,36 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                                 $claseCancelado = $row['estado'] === 'Cancelada' ? "registro-cancelado" : "";
 
                                 // Combinar las clases
-                                $clases = trim("$claseHoy $claseCancelado");
-
-                                // Ahora tu fila normal de datos
-                                echo "<tr class='$clases' data-registro-id='" . $row['ID_Registro'] . "'>
+                                $clases = trim("$claseHoy $claseCancelado");                                // Ahora tu fila normal de datos
+                                echo "<tr class='$clases registro-clickeable' data-registro-id='" . $row['ID_Registro'] . "' 
+                                    onclick='mostrarDetalleRegistro({
+                                        \"ID_Registro\": \"" . $row['ID_Registro'] . "\",
+                                        \"fechaReserva\": \"" . date('d/m/Y', strtotime($row['fechaReserva'])) . "\",
+                                        \"horaInicio\": \"" . date('h:i A', strtotime($row['horaInicio'])) . "\",
+                                        \"horaFin\": \"" . date('h:i A', strtotime($row['horaFin'])) . "\",
+                                        \"nombreRecurso\": \"" . addslashes($row['nombreRecurso']) . "\",
+                                        \"programa\": \"" . addslashes($row['programa']) . "\",
+                                        \"nombreDocente\": \"" . addslashes($row['nombreDocente']) . "\",
+                                        \"asignatura\": \"" . addslashes($row['asignatura']) . "\",
+                                        \"nombreUsuario\": \"" . addslashes($row['nombreUsuario']) . "\",
+                                        \"semestre\": \"" . addslashes($row['semestre']) . "\",
+                                        \"salon\": \"" . addslashes($row['salon']) . "\",
+                                        \"Codigo_U\": \"" . addslashes($row['Codigo_U']) . "\",
+                                        \"correoUsuario\": \"" . addslashes($row['correoUsuario']) . "\",
+                                        \"estado\": \"" . $row['estado'] . "\"
+                                    })' style='cursor: pointer;' title='Haga clic para ver detalles completos'>
 <td>" . htmlspecialchars($row['ID_Registro']) . "</td>
 <td>" . htmlspecialchars($row['nombreRecurso']) . "</td>
 <td>" . date('d/m/Y', strtotime($row['fechaReserva'])) . "</td>
 <td>" . date('h:i A', strtotime($row['horaInicio'])) . "</td>
 <td>" . date('h:i A', strtotime($row['horaFin'])) . "</td>
-<td>" . htmlspecialchars($row['salon']) . "</td>
-<td>" . htmlspecialchars($row['Codigo_U']) . "</td>
-<td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
-<td>" . htmlspecialchars($row['correoUsuario']) . "</td>
+<td>" . htmlspecialchars($row['programa']) . "</td>
 <td>" . htmlspecialchars($row['nombreDocente']) . "</td>
 <td>" . htmlspecialchars($row['asignatura']) . "</td>
-<td>" . htmlspecialchars($row['programa']) . "</td>
+<td>" . htmlspecialchars($row['nombreUsuario']) . "</td>
 <td>" . htmlspecialchars($row['semestre']) . "</td>
 <td><span class='status-" . strtolower($row['estado']) . "'>" . $row['estado'] . "</span></td>
-<td>
+<td onclick='event.stopPropagation();'>
     <div class=\"menu-acciones\">
         <button class=\"menu-boton\" onclick=\"toggleMenu(this)\">
             <img src='../Imagen/Iconos/Menu_3Puntos.svg' alt='' />
@@ -389,8 +396,7 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
     </div>
 </td>
 </tr>";
-                            }
-                        } else {
+                            }                        } else {
                             echo "<tr><td colspan='12' class='sin-reservas'>No hay registros disponibles</td></tr>";
                         }
 
@@ -663,9 +669,109 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                 <button id="btnConfirmDelete" class="btn-confirmar">Sí, eliminar</button>
                 <button type="button" onclick="cerrarModalEliminar()" class="btn-cancelar">Cancelar</button>
             </div>
+        </div>    </div>
+    <!-- Fin Modal Eliminar -->    <!-- Modal para Mostrar Detalles Completos del Registro -->
+    <div id="modalDetalleRegistro" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="cerrarModalDetalle()">&times;</span>
+            <h2>📋 Información Completa del Registro</h2>
+            <div class="detalle-contenido">
+                <div class="detalle-seccion">
+                    <h3 style="color: var(--color-primary); margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                        📊 Información General
+                    </h3>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <strong>🆔 ID del Registro:</strong>
+                            <span id="detalle-id"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>📊 Estado:</strong>
+                            <span id="detalle-estado"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detalle-seccion">
+                    <h3 style="color: var(--color-primary); margin: 20px 0 15px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                        📅 Información de Reserva
+                    </h3>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <strong>🏢 Sala/Recurso:</strong>
+                            <span id="detalle-sala"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>📅 Fecha:</strong>
+                            <span id="detalle-fecha"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>⏰ Hora de Inicio:</strong>
+                            <span id="detalle-hora-inicio"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>⏰ Hora Final:</strong>
+                            <span id="detalle-hora-fin"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detalle-seccion">
+                    <h3 style="color: var(--color-primary); margin: 20px 0 15px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                        🎓 Información Académica
+                    </h3>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <strong>🎓 Programa:</strong>
+                            <span id="detalle-programa"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>👨‍🏫 Docente:</strong>
+                            <span id="detalle-docente"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>📚 Asignatura:</strong>
+                            <span id="detalle-asignatura"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>📖 Semestre:</strong>
+                            <span id="detalle-semestre"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>🏫 Salón:</strong>
+                            <span id="detalle-salon"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detalle-seccion">
+                    <h3 style="color: var(--color-primary); margin: 20px 0 15px 0; font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
+                        👨‍🎓 Información del Usuario
+                    </h3>
+                    <div class="detalle-grid">
+                        <div class="detalle-item">
+                            <strong>👨‍🎓 Nombre:</strong>
+                            <span id="detalle-alumno"></span>
+                        </div>
+                        <div class="detalle-item">
+                            <strong>🆔 Código Usuario:</strong>
+                            <span id="detalle-codigo"></span>
+                        </div>
+                        <div class="detalle-item" style="grid-column: 1 / -1;">
+                            <strong>📧 Correo Electrónico:</strong>
+                            <span id="detalle-correo"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions" style="justify-content: center; margin-top: 25px;">
+                <button type="button" onclick="cerrarModalDetalle()" class="btn-cancelar">
+                    ✖️ Cerrar
+                </button>
+            </div>
         </div>
     </div>
-    <!-- Fin Modal Eliminar -->
+    <!-- Fin Modal Detalle -->
 
     <script src="../js/registro.js"></script>
     <script>
@@ -846,6 +952,49 @@ ORDER BY r.fechaReserva DESC, r.horaInicio DESC"; // Ordenar por los más recien
                     }, 100);
                 }
             }, 100);        }
+
+        // Función para mostrar los detalles completos del registro
+        function mostrarDetalleRegistro(data) {
+            $('#modalDetalleRegistro').show();
+            
+            // Llenar todos los campos del modal de detalle
+            $('#detalle-id').text(data.ID_Registro || 'N/A');
+            $('#detalle-sala').text(data.nombreRecurso || 'N/A');
+            $('#detalle-fecha').text(data.fechaReserva || 'N/A');
+            $('#detalle-hora-inicio').text(data.horaInicio || 'N/A');
+            $('#detalle-hora-fin').text(data.horaFin || 'N/A');
+            $('#detalle-programa').text(data.programa || 'N/A');
+            $('#detalle-docente').text(data.nombreDocente || 'N/A');
+            $('#detalle-asignatura').text(data.asignatura || 'N/A');
+            $('#detalle-alumno').text(data.nombreUsuario || 'N/A');
+            $('#detalle-semestre').text(data.semestre || 'N/A');
+            $('#detalle-salon').text(data.salon || 'N/A');
+            $('#detalle-codigo').text(data.Codigo_U || 'N/A');
+            $('#detalle-correo').text(data.correoUsuario || 'N/A');
+            
+            // Aplicar estilo al estado
+            const estadoElement = $('#detalle-estado');
+            estadoElement.html(`<span class='status-${data.estado.toLowerCase()}'>${data.estado}</span>`);
+        }        // Función para cerrar el modal de detalle
+        function cerrarModalDetalle() {
+            $('#modalDetalleRegistro').hide();
+        }
+
+        // Cerrar modal de detalle al hacer clic fuera de él
+        $(document).ready(function() {
+            $('#modalDetalleRegistro').on('click', function(e) {
+                if (e.target === this) {
+                    cerrarModalDetalle();
+                }
+            });
+            
+            // También cerrar con la tecla Escape
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    cerrarModalDetalle();
+                }
+            });
+        });
 
         // Al cambiar el programa en el modal de modificar, actualizar docentes y asignaturas
         $('#programa_modificar').on('change', function() {
