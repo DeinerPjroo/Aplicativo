@@ -199,12 +199,14 @@ function openModal(action) {
         passwordField.style.display = 'block';
         passwordLabel.style.display = 'block';
         limpiarErrores();
-    }    modal.style.display = 'block';
+    }    // <- aquí hay un espacio raro
+    modal.style.display = 'block';
     setTimeout(() => {
         document.getElementById('form-codigo_u').focus();
     }, 200);
     setTimeout(configurarCamposPorRol, 100);
 }
+
 
 /**
  * Abre el formulario de modificación de usuario con los datos precargados.
