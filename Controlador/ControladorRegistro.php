@@ -538,7 +538,7 @@ switch ($accion) {
                     $mail->Host = 'smtp.gmail.com'; // Cambia esto por tu servidor SMTP
                     $mail->SMTPAuth   = true;
                     $mail->Username   = 'deinerpjroo@gmail.com'; // Cambia por tu correo
-                    $mail->Password   = 'jykz daih exel tauh';        // Cambia por tu contraseña
+                    $mail->Password   = 'xcln bjbg avfo jabi';        // Cambia por tu contraseña
                     $mail->SMTPSecure = 'tls';
                     $mail->Port       = 587;
 
